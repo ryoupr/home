@@ -1,23 +1,23 @@
 {
   "personal": {
-    "name": "Your Name",
-    "role": "Web Developer",
-    "description": "Webアプリケーション、プログラム、Chrome拡張機能の開発を行っています。ユーザー体験を重視した実用的なツールを作ることに情熱を注いでいます。",
-    "email": "your.email@example.com",
-    "github": "https://github.com/yourusername",
-    "linkedin": "https://linkedin.com/in/yourusername",
-    "qiita": "https://qiita.com/yourusername",
-    "skills": ["React", "TypeScript", "Node.js", "Python"]
+    "name": "Ryoichiro Teshima",
+    "role": "Cloud Engineer",
+    "description": "本業はクラウドエンジニアですが、本業の傍らWebアプリケーション、プログラム、Chrome拡張機能の開発を行っています。ユーザー体験を重視した実用的なツールを作ることに情熱を注いでいます。",
+    "email": "ryou120710@gmail.com",
+    "github": "https://github.com/ryoupr",
+    "linkedin": "https://www.linkedin.com/in/ryoichiro-teshima-434437379/",
+    "qiita": "https://qiita.com/r61",
+    "skills": ["AWS", "TypeScript", "Python","Rust"]
   },
   "projects": [
     {
       "id": 1,
-      "title": "タスク管理アプリ",
-      "description": "ReactとTypeScriptで作成したモダンなタスク管理アプリケーション。ドラッグ&ドロップでタスクを管理できます。",
-      "tags": ["React", "TypeScript", "Tailwind CSS"],
-      "demoUrl": "https://example.com/task-app",
-      "githubUrl": "https://github.com/yourusername/task-app",
-      "category": "webapp"
+      "title": "Slack Markdown Renderer",
+      "description": "SlackでMarkdown記法をリアルタイムでレンダリングするChrome拡張機能。コードブロック、リスト、テーブルなどを見やすく表示します。",
+      "tags": ["JavaScript", "Chrome Extension", "Markdown"],
+      "demoUrl": "https://chromewebstore.google.com/detail/slack-markdown-renderer/eceplafflampaicjjbnecnmbljgkifbj",
+      "githubUrl": "https://github.com/yourusername/slack-markdown-renderer",
+      "category": "extension"
     },
     {
       "id": 2,
