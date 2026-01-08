@@ -38,12 +38,12 @@
     },
     {
       "id": 4,
-      "title": "レシピ共有サイト",
-      "description": "ユーザーがレシピを投稿・検索できるコミュニティサイト。レスポンシブデザイン対応。",
-      "tags": ["React", "Next.js", "Supabase"],
-      "demoUrl": "https://example.com/recipe-app",
-      "githubUrl": "https://github.com/yourusername/recipe-app",
-      "category": "webapp"
+      "title": "Kao-Saver (Kaonavi JSON Tool)",
+      "description": "カオナビ評価画面の入力内容をJSONファイルで保存・読込できるChrome拡張機能。データのバックアップと一括入力で評価作業を効率化します。",
+      "tags": ["JavaScript", "Chrome Extension", "JSON"],
+      "demoUrl": "https://chromewebstore.google.com/detail/kao-saver-kaonavi-json-to/gbaodfkohmehdfkoljglmjcjjliladhb",
+      "githubUrl": "https://github.com/yourusername/kao-saver",
+      "category": "extension"
     },
     {
       "id": 5,
