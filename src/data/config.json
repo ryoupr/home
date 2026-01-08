@@ -48,19 +48,10 @@
     {
       "id": 5,
       "title": "Redirect & Scheme Switcher",
-      "description": "URLのスキーム（http/https）を自動切り替えするChrome拡張機能。リダイレクトルールを設定して、特定のサイトのプロトコルを自動変換します。",
+      "description": "URLのスキーム（http/https）を自動切り替えするChrome拡張機能。リダイレクトルールを設定して、特定のサイトのプロトコルを自動変換します。個人的にはObsidianURIへの変換機能を利用して、JiraなどにObsidianノートをクリックできるリンクとして貼れるのが推しポイントです",
       "tags": ["JavaScript", "Chrome Extension", "URL Redirect"],
       "demoUrl": "https://chromewebstore.google.com/detail/redirect-scheme-switcher/cdkamfhpikiloeilfacdijogidlmgolc",
       "githubUrl": "https://github.com/yourusername/redirect-scheme-switcher",
-      "category": "extension"
-    },
-    {
-      "id": 6,
-      "title": "Screenshot Annotator",
-      "description": "スクリーンショットに注釈を追加できるChrome拡張機能。矢印やテキストを簡単に追加。",
-      "tags": ["JavaScript", "Canvas API", "Chrome Extension"],
-      "demoUrl": "https://chrome.google.com/webstore",
-      "githubUrl": "https://github.com/yourusername/screenshot-annotator",
       "category": "extension"
     }
   ]
