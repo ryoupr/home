@@ -1,9 +1,63 @@
 import { ProjectCard } from './ProjectCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import config from '../../data/config.json';
+
+// サンプルプロジェクトデータ
+const projects = [
+  {
+    id: 1,
+    title: 'タスク管理アプリ',
+    description: 'ReactとTypeScriptで作成したモダンなタスク管理アプリケーション。ドラッグ&ドロップでタスクを管理できます。',
+    tags: ['React', 'TypeScript', 'Tailwind CSS'],
+    demoUrl: 'https://example.com/task-app',
+    githubUrl: 'https://github.com/yourusername/task-app',
+    category: 'webapp' as const,
+  },
+  {
+    id: 2,
+    title: 'ポートフォリオジェネレーター',
+    description: 'CLIツールでポートフォリオサイトを自動生成するプログラム。設定ファイルから静的サイトを生成します。',
+    tags: ['Node.js', 'CLI', 'HTML/CSS'],
+    githubUrl: 'https://github.com/yourusername/portfolio-generator',
+    category: 'program' as const,
+  },
+  {
+    id: 3,
+    title: 'Tab Manager',
+    description: 'ブラウザのタブを効率的に管理するChrome拡張機能。グループ化や保存機能を搭載。',
+    tags: ['JavaScript', 'Chrome API', 'CSS'],
+    demoUrl: 'https://chrome.google.com/webstore',
+    githubUrl: 'https://github.com/yourusername/tab-manager',
+    category: 'extension' as const,
+  },
+  {
+    id: 4,
+    title: 'レシピ共有サイト',
+    description: 'ユーザーがレシピを投稿・検索できるコミュニティサイト。レスポンシブデザイン対応。',
+    tags: ['React', 'Next.js', 'Supabase'],
+    demoUrl: 'https://example.com/recipe-app',
+    githubUrl: 'https://github.com/yourusername/recipe-app',
+    category: 'webapp' as const,
+  },
+  {
+    id: 5,
+    title: 'データ分析ツール',
+    description: 'CSVファイルを読み込み、データの可視化と統計分析を行うPythonツール。',
+    tags: ['Python', 'Pandas', 'Matplotlib'],
+    githubUrl: 'https://github.com/yourusername/data-analyzer',
+    category: 'program' as const,
+  },
+  {
+    id: 6,
+    title: 'Screenshot Annotator',
+    description: 'スクリーンショットに注釈を追加できるChrome拡張機能。矢印やテキストを簡単に追加。',
+    tags: ['JavaScript', 'Canvas API', 'Chrome Extension'],
+    demoUrl: 'https://chrome.google.com/webstore',
+    githubUrl: 'https://github.com/yourusername/screenshot-annotator',
+    category: 'extension' as const,
+  },
+];
 
 export function ProjectsSection() {
-  const projects = config.projects;
   const webapps = projects.filter((p) => p.category === 'webapp');
   const programs = projects.filter((p) => p.category === 'program');
   const extensions = projects.filter((p) => p.category === 'extension');

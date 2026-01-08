@@ -1,9 +1,7 @@
 import { Github, Linkedin, Mail, Terminal } from 'lucide-react';
 import { motion } from 'motion/react';
-import config from '../../data/config.json';
 
 export function Hero() {
-  const { personal } = config;
   return (
     <section id="about" className="py-20 px-4 relative overflow-hidden bg-slate-950">
       {/* テッキーな背景 */}
@@ -23,7 +21,7 @@ export function Hero() {
         >
           <Terminal className="size-8 text-cyan-400" />
           <h2 className="mb-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent font-mono">
-            $ {personal.name}
+            $ Developer Portfolio
           </h2>
         </motion.div>
         
@@ -33,9 +31,9 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-xl text-slate-300 mb-8 font-mono"
         >
-          <span className="text-cyan-400">&gt;</span> {personal.role}
+          <span className="text-cyan-400">&gt;</span> Webアプリケーション、プログラム、Chrome拡張機能の開発を行っています。
           <br />
-          <span className="text-purple-400">&gt;</span> {personal.description}
+          <span className="text-purple-400">&gt;</span> これまでに作成したプロジェクトをご紹介します。
         </motion.p>
         
         <motion.div
@@ -45,7 +43,7 @@ export function Hero() {
           className="flex gap-4 justify-center"
         >
           <a
-            href={personal.github}
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-cyan-500/30 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 group"
@@ -54,7 +52,7 @@ export function Hero() {
             <Github className="size-6 text-cyan-400 group-hover:text-cyan-300" />
           </a>
           <a
-            href={personal.linkedin}
+            href="https://linkedin.com"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 group"
@@ -63,7 +61,7 @@ export function Hero() {
             <Linkedin className="size-6 text-blue-400 group-hover:text-blue-300" />
           </a>
           <a
-            href={`mailto:${personal.email}`}
+            href="mailto:your.email@example.com"
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300 group"
             aria-label="Email"
           >

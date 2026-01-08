@@ -1,15 +1,14 @@
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { ProjectsSection } from './components/ProjectsSection';
-import { Footer } from './components/Footer';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ProfilePage } from './pages/ProfilePage';
+import { ProjectsPage } from './pages/ProjectsPage';
 
 export default function App() {
   return (
-    <div className="size-full bg-slate-950">
-      <Header />
-      <Hero />
-      <ProjectsSection />
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<ProfilePage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
