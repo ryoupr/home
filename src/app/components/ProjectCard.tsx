@@ -73,7 +73,7 @@ export function ProjectCard({ title, description, tags, demoUrl, githubUrl, cate
                   {isExtension ? (
                     <>
                       <Chrome className="size-4 mr-2" />
-                      WebStore
+                      インストール
                     </>
                   ) : (
                     <>
