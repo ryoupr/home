@@ -2,7 +2,16 @@ import { ProjectCard } from './ProjectCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import config from '../../data/config.json';
 
-const projects = config.projects;
+// Load projects from config.json
+const projects = config.projects as Array<{
+  id: number;
+  title: string;
+  description: string;
+  tags: string[];
+  demoUrl?: string;
+  githubUrl?: string;
+  category: 'webapp' | 'program' | 'extension';
+}>;
 
 export function ProjectsSection() {
   const webapps = projects.filter((p) => p.category === 'webapp');
