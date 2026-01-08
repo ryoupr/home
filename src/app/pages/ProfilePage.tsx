@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { useGitHubStats } from '../hooks/useGitHubStats';
+import config from '../../data/config.json';
 
 export function ProfilePage() {
-  // GitHubのユーザー名を設定してください
-  const githubUsername = 'ryoupr';
-  const { totalStars, totalRepos, loading } = useGitHubStats(githubUsername);
+  const { personal } = config;
+  const { totalStars, totalRepos, loading } = useGitHubStats(personal.github.split('/').pop() || '');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -18,8 +18,8 @@ export function ProfilePage() {
               <User className="size-6" />
             </div>
             <div>
-              <h1 className="font-bold">Your Name</h1>
-              <p className="text-sm text-gray-600">Developer</p>
+              <h1 className="font-bold">{personal.name}</h1>
+              <p className="text-sm text-gray-600">{personal.role}</p>
             </div>
           </div>
         </div>
@@ -33,15 +33,14 @@ export function ProfilePage() {
           <Card>
             <CardContent className="pt-6">
               <p className="text-gray-700 leading-relaxed mb-6">
-                Webアプリケーション、プログラム、Chrome拡張機能の開発を行っています。
-                <br />
-                ユーザー体験を重視した実用的なツールを作ることに情熱を注いでいます。
+                {personal.description}
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">React</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">TypeScript</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Node.js</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Python</span>
+                {personal.skills.map((skill) => (
+                  <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                    {skill}
+                  </span>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -93,7 +92,7 @@ export function ProfilePage() {
               </Card>
             </Link>
 
-            <a href="https://github.com/ryoupr" target="_blank" rel="noopener noreferrer">
+            <a href={personal.github} target="_blank" rel="noopener noreferrer">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                 <CardContent className="pt-6 flex items-start gap-4">
                   <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
@@ -107,19 +106,21 @@ export function ProfilePage() {
               </Card>
             </a>
 
-            <a href="https://qiita.com/R61" target="_blank" rel="noopener noreferrer">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardContent className="pt-6 flex items-start gap-4">
-                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <BookOpen className="size-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg mb-1">ブログ / Qiita</h3>
-                    <p className="text-sm text-gray-600">技術記事を投稿しています</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
+            {personal.qiita && (
+              <a href={personal.qiita} target="_blank" rel="noopener noreferrer">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                  <CardContent className="pt-6 flex items-start gap-4">
+                    <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                      <BookOpen className="size-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg mb-1">ブログ / Qiita</h3>
+                      <p className="text-sm text-gray-600">技術記事を投稿しています</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </a>
+            )}
           </div>
         </section>
 
@@ -133,14 +134,14 @@ export function ProfilePage() {
               </p>
               <div className="space-y-4">
                 <a
-                  href="mailto:ryou120710@gmail.com"
+                  href={`mailto:${personal.email}`}
                   className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   <Mail className="size-5" />
-                  <span>ryou120710@gmail.com</span>
+                  <span>{personal.email}</span>
                 </a>
                 <a
-                  href="https://github.com/ryoupr"
+                  href={personal.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
@@ -149,7 +150,7 @@ export function ProfilePage() {
                   <span>GitHub Profile</span>
                 </a>
                 <a
-                  href="https://linkedin.com"
+                  href={personal.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
@@ -166,7 +167,7 @@ export function ProfilePage() {
       {/* Footer */}
       <footer className="border-t mt-12 py-6">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          © 2026 Your Name. All rights reserved.
+          © 2026 {personal.name}. All rights reserved.
         </div>
       </footer>
     </div>

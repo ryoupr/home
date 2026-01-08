@@ -21,9 +21,16 @@
   "description": "自己紹介文をここに書きます",
   "email": "your.email@example.com",
   "github": "https://github.com/yourusername",
-  "linkedin": "https://linkedin.com/in/yourusername"
+  "linkedin": "https://linkedin.com/in/yourusername",
+  "qiita": "https://qiita.com/yourusername",
+  "skills": ["React", "TypeScript", "Node.js", "Python"]
 }
 ```
+
+**注意:**
+
+- `skills` は配列形式で、使用できる技術を列挙します
+- `qiita` は任意項目です（不要な場合は削除可能）
 
 ### 2. プロジェクトを追加・編集
 
