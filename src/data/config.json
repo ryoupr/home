@@ -47,11 +47,12 @@
     },
     {
       "id": 5,
-      "title": "データ分析ツール",
-      "description": "CSVファイルを読み込み、データの可視化と統計分析を行うPythonツール。",
-      "tags": ["Python", "Pandas", "Matplotlib"],
-      "githubUrl": "https://github.com/yourusername/data-analyzer",
-      "category": "program"
+      "title": "Redirect & Scheme Switcher",
+      "description": "URLのスキーム（http/https）を自動切り替えするChrome拡張機能。リダイレクトルールを設定して、特定のサイトのプロトコルを自動変換します。",
+      "tags": ["JavaScript", "Chrome Extension", "URL Redirect"],
+      "demoUrl": "https://chromewebstore.google.com/detail/redirect-scheme-switcher/cdkamfhpikiloeilfacdijogidlmgolc",
+      "githubUrl": "https://github.com/yourusername/redirect-scheme-switcher",
+      "category": "extension"
     },
     {
       "id": 6,
