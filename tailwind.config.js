@@ -108,11 +108,19 @@ module.exports = {
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         'glow': '0 0 15px rgba(37, 99, 235, 0.5)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'card': '0 10px 40px -10px rgba(0, 0, 0, 0.15)',
+        'card-hover': '0 20px 60px -10px rgba(0, 0, 0, 0.25)',
       },
       // Custom border radius
       borderRadius: {
         'xl': '1rem',
         '2xl': '1.5rem',
+        '3xl': '2rem',
+      },
+      // Backdrop blur for glassmorphism
+      backdropBlur: {
+        xs: '2px',
       },
     }
   },

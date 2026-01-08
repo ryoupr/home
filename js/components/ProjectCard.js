@@ -36,21 +36,21 @@ class ProjectCard {
     const linksHTML = this.renderLinks();
 
     return `
-      <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 group" data-animate aria-labelledby="project-title-${this.id}">
-        <div class="relative overflow-hidden">
+      <article class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-card overflow-hidden hover:shadow-card-hover transition-all duration-500 group border border-gray-100 hover:border-blue-200 hover:-translate-y-2" data-animate aria-labelledby="project-title-${this.id}">
+        <div class="relative overflow-hidden h-56">
           <img 
             src="${this.image}" 
             alt="${this.escapeHtml(this.title)} - Project screenshot" 
-            class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300" 
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
             loading="lazy"
             onerror="this.src='images/projects/placeholder.svg'; this.alt='Project image not available';"
           />
-          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100" aria-hidden="true">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center" aria-hidden="true">
             ${linksHTML}
           </div>
         </div>
         <div class="p-6">
-          <h3 id="project-title-${this.id}" class="text-xl md:text-2xl font-bold text-gray-900 mb-3 leading-tight">${this.escapeHtml(this.title)}</h3>
+          <h3 id="project-title-${this.id}" class="text-xl md:text-2xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors">${this.escapeHtml(this.title)}</h3>
           <p class="text-gray-600 mb-4 leading-relaxed text-base">${this.escapeHtml(this.description)}</p>
           <div class="flex flex-wrap gap-2" role="list" aria-label="Technologies used">
             ${tagsHTML}
@@ -66,7 +66,7 @@ class ProjectCard {
    */
   renderTags() {
     return this.tags
-      .map(tag => `<span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full" role="listitem">${this.escapeHtml(tag)}</span>`)
+      .map(tag => `<span class="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm px-3 py-1 rounded-full font-medium" role="listitem">${this.escapeHtml(tag)}</span>`)
       .join('');
   }
 
@@ -83,7 +83,7 @@ class ProjectCard {
           href="${this.escapeHtml(this.links.github)}" 
           target="_blank" 
           rel="noopener noreferrer"
-          class="bg-white text-gray-900 px-4 py-2 rounded-lg mx-2 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="bg-white/90 backdrop-blur-sm text-gray-900 px-5 py-2.5 rounded-full mx-2 hover:bg-white transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           aria-label="View ${this.escapeHtml(this.title)} code on GitHub"
         >
           View Code
@@ -97,7 +97,7 @@ class ProjectCard {
           href="${this.escapeHtml(this.links.demo)}" 
           target="_blank" 
           rel="noopener noreferrer"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg mx-2 hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-full mx-2 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           aria-label="View ${this.escapeHtml(this.title)} live demo"
         >
           Live Demo
@@ -111,7 +111,7 @@ class ProjectCard {
           href="${this.escapeHtml(this.links.website)}" 
           target="_blank" 
           rel="noopener noreferrer"
-          class="bg-green-600 text-white px-4 py-2 rounded-lg mx-2 hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-5 py-2.5 rounded-full mx-2 hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           aria-label="Visit ${this.escapeHtml(this.title)} website"
         >
           Website
