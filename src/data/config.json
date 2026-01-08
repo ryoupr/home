@@ -22,18 +22,18 @@
     {
       "id": 2,
       "title": "ポートフォリオジェネレーター",
-      "description": "CLIツールでポートフォリオサイトを自動生成するプログラム。設定ファイルから静的サイトを生成します。",
+      "description": "CLIツールでポートフォリオサイトを自動生成するプログラム。設定ファイルから静的サイトを生成します。このサイトですね。",
       "tags": ["Node.js", "CLI", "HTML/CSS"],
       "githubUrl": "https://github.com/yourusername/portfolio-generator",
       "category": "program"
     },
     {
       "id": 3,
-      "title": "Tab Manager",
-      "description": "ブラウザのタブを効率的に管理するChrome拡張機能。グループ化や保存機能を搭載。",
-      "tags": ["JavaScript", "Chrome API", "CSS"],
-      "demoUrl": "https://chrome.google.com/webstore",
-      "githubUrl": "https://github.com/yourusername/tab-manager",
+      "title": "Console View Refresh Master",
+      "description": "コンソール画面を自動リフレッシュするChrome拡張機能。指定した間隔で画面を更新し、最新の情報を常に表示します。",
+      "tags": ["JavaScript", "Chrome Extension", "Auto Refresh"],
+      "demoUrl": "https://chromewebstore.google.com/detail/console-view-refresh-mast/gpkknjnhiakkgigfepmocdabcfmggcce",
+      "githubUrl": "https://github.com/yourusername/console-view-refresh-master",
       "category": "extension"
     },
     {
