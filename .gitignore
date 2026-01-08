@@ -25,10 +25,11 @@ yarn.lock
 # Build outputs
 dist/
 build/
-*.min.js
-*.min.css
-css/output.css
-index.prod.html
+# Note: We need minified files and CSS for GitHub Pages deployment
+# *.min.js
+# *.min.css
+# css/output.css
+# index.prod.html
 
 # Environment files
 .env
