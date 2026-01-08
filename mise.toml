@@ -1,0 +1,15 @@
+[tools]
+node = "latest"
+python = "latest"
+
+[tasks.dev]
+run = "python3 -m http.server 8000"
+description = "Start development server"
+
+[tasks.format]
+run = "prettier --write ."
+description = "Format code"
+
+[tasks.lint]
+run = "eslint js/"
+description = "Lint JavaScript"

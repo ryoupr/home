@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "rust-docs": {
+      "disabled": true
+    },
+    "aws-docs": {
+      "disabled": true
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "my-website",
+  "version": "1.0.0",
+  "description": "Personal portfolio website",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "tailwindcss -i ./css/input.css -o ./css/output.css --minify",
+    "build:watch": "tailwindcss -i ./css/input.css -o ./css/output.css --watch",
+    "build:js": "node scripts/minify-js.js",
+    "build:prod": "node scripts/create-production-html.js",
+    "build:all": "npm run build && npm run build:js && npm run build:prod",
+    "verify:ghpages": "node verify-github-pages.js",
+    "format": "prettier --write .",
+    "lint": "eslint js/"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tailwindcss": "^4.1.18"
+  }
+}

@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkpoint 7 - Core Functionality Test</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .test-section h2 {
+        margin-top: 0;
+        color: #2563eb;
+      }
+      .test-item {
+        padding: 10px;
+        margin: 10px 0;
+        border-left: 4px solid #ddd;
+        background: #f9f9f9;
+      }
+      .test-item.pass {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+      }
+      .test-item.fail {
+        border-left-color: #ef4444;
+        background: #fef2f2;
+      }
+      .status {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+      .status.pass {
+        color: #10b981;
+      }
+      .status.fail {
+        color: #ef4444;
+      }
+      button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+      }
+      button:hover {
+        background: #1d4ed8;
+      }
+      .iframe-container {
+        width: 100%;
+        height: 600px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .viewport-buttons {
+        margin: 10px 0;
+      }
+      .summary {
+        font-size: 18px;
+        font-weight: bold;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+      }
+      .summary.pass {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .summary.fail {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Checkpoint 7: Core Functionality Test</h1>
+
+    <div class="test-section">
+      <h2>1. Navigation Smooth Scroll Test</h2>
+      <div id="nav-test-results"></div>
+      <button onclick="testNavigation()">Run Navigation Test</button>
+    </div>
+
+    <div class="test-section">
+      <h2>2. Hero Section Display Test</h2>
+      <div id="hero-test-results"></div>
+      <button onclick="testHeroSection()">Run Hero Section Test</button>
+    </div>
+
+    <div class="test-section">
+      <h2>3. Project Cards Rendering Test</h2>
+      <div id="projects-test-results"></div>
+      <button onclick="testProjectCards()">Run Project Cards Test</button>
+    </div>
+
+    <div class="test-section">
+      <h2>4. Responsive Layout Test</h2>
+      <div class="viewport-buttons">
+        <button onclick="setViewport(375, 667)">Mobile (375x667)</button>
+        <button onclick="setViewport(768, 1024)">Tablet (768x1024)</button>
+        <button onclick="setViewport(1024, 768)">Desktop (1024x768)</button>
+        <button onclick="setViewport(1920, 1080)">
+          Large Desktop (1920x1080)
+        </button>
+      </div>
+      <div id="responsive-test-results"></div>
+      <button onclick="testResponsiveLayout()">Run Responsive Test</button>
+    </div>
+
+    <div class="test-section">
+      <h2>Live Preview</h2>
+      <div class="iframe-container">
+        <iframe
+          id="preview-frame"
+          src="http://localhost:8000/index.html"
+        ></iframe>
+      </div>
+    </div>
+
+    <div id="summary"></div>
+
+    <script>
+      let testResults = {
+        navigation: [],
+        hero: [],
+        projects: [],
+        responsive: [],
+      };
+
+      function addResult(category, name, passed, message) {
+        testResults[category].push({ name, passed, message });
+      }
+
+      function displayResults(category, elementId) {
+        const container = document.getElementById(elementId);
+        const results = testResults[category];
+
+        if (results.length === 0) {
+          container.innerHTML = '<p>No tests run yet.</p>';
+          return;
+        }
+
+        let html = '';
+        results.forEach((result) => {
+          const statusClass = result.passed ? 'pass' : 'fail';
+          const statusText = result.passed ? '✓ PASS' : '✗ FAIL';
+          html += `
+                    <div class="test-item ${statusClass}">
+                        <span class="status ${statusClass}">${statusText}</span>
+                        <strong>${result.name}</strong>
+                        ${result.message ? `<br><small>${result.message}</small>` : ''}
+                    </div>
+                `;
+        });
+        container.innerHTML = html;
+        updateSummary();
+      }
+
+      function updateSummary() {
+        const allResults = [
+          ...testResults.navigation,
+          ...testResults.hero,
+          ...testResults.projects,
+          ...testResults.responsive,
+        ];
+
+        if (allResults.length === 0) return;
+
+        const passed = allResults.filter((r) => r.passed).length;
+        const total = allResults.length;
+        const allPassed = passed === total;
+
+        const summary = document.getElementById('summary');
+        summary.className = `summary ${allPassed ? 'pass' : 'fail'}`;
+        summary.innerHTML = `
+                <strong>Overall Results:</strong> ${passed}/${total} tests passed
+                ${allPassed ? ' 🎉 All tests passed!' : ' ⚠️ Some tests failed'}
+            `;
+      }
+
+      function testNavigation() {
+        testResults.navigation = [];
+        const iframe = document.getElementById('preview-frame');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Test 1: Navigation exists
+        const nav = doc.querySelector('nav[role="navigation"]');
+        addResult(
+          'navigation',
+          'Navigation element exists',
+          !!nav,
+          nav ? 'Found navigation element' : 'Navigation element not found'
+        );
+
+        // Test 2: Navigation links exist
+        const links = doc.querySelectorAll('nav a[href^="#"]');
+        addResult(
+          'navigation',
+          'Navigation links exist',
+          links.length >= 4,
+          `Found ${links.length} navigation links (expected at least 4)`
+        );
+
+        // Test 3: Smooth scroll is implemented
+        const navScript = doc.querySelector('script[src*="navigation.js"]');
+        addResult(
+          'navigation',
+          'Navigation script loaded',
+          !!navScript,
+          navScript ? 'navigation.js is loaded' : 'navigation.js not found'
+        );
+
+        // Test 4: Hamburger menu exists
+        const hamburger = doc.getElementById('nav-toggle');
+        addResult(
+          'navigation',
+          'Hamburger menu button exists',
+          !!hamburger,
+          hamburger
+            ? 'Found hamburger menu button'
+            : 'Hamburger menu button not found'
+        );
+
+        // Test 5: Mobile menu exists
+        const mobileMenu = doc.getElementById('mobile-menu');
+        addResult(
+          'navigation',
+          'Mobile menu exists',
+          !!mobileMenu,
+          mobileMenu ? 'Found mobile menu' : 'Mobile menu not found'
+        );
+
+        displayResults('navigation', 'nav-test-results');
+      }
+
+      function testHeroSection() {
+        testResults.hero = [];
+        const iframe = document.getElementById('preview-frame');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Test 1: Hero section exists
+        const hero = doc.getElementById('home');
+        addResult(
+          'hero',
+          'Hero section exists',
+          !!hero,
+          hero ? 'Found hero section with id="home"' : 'Hero section not found'
+        );
+
+        // Test 2: Developer name displayed
+        const h1 = doc.querySelector('#home h1');
+        addResult(
+          'hero',
+          'Developer name displayed',
+          !!h1 && h1.textContent.trim().length > 0,
+          h1 ? `Found: "${h1.textContent.trim()}"` : 'H1 element not found'
+        );
+
+        // Test 3: Avatar image exists
+        const avatar = doc.querySelector('#home img[alt]');
+        addResult(
+          'hero',
+          'Avatar image exists',
+          !!avatar,
+          avatar
+            ? `Found avatar with alt="${avatar.alt}"`
+            : 'Avatar image not found'
+        );
+
+        // Test 4: Social media links exist
+        const socialLinks = doc.querySelectorAll('#home a[target="_blank"]');
+        addResult(
+          'hero',
+          'Social media links exist',
+          socialLinks.length >= 3,
+          `Found ${socialLinks.length} external links (expected at least 3)`
+        );
+
+        // Test 5: CTA button exists
+        const ctaButton = doc.querySelector('#home a[href="#projects"]');
+        addResult(
+          'hero',
+          'CTA button exists',
+          !!ctaButton,
+          ctaButton ? 'Found "View My Work" button' : 'CTA button not found'
+        );
+
+        // Test 6: Gradient background applied
+        const heroStyles = hero ? window.getComputedStyle(hero) : null;
+        const hasGradient =
+          heroStyles && heroStyles.backgroundImage.includes('gradient');
+        addResult(
+          'hero',
+          'Gradient background applied',
+          hasGradient,
+          hasGradient
+            ? 'Hero has gradient background'
+            : 'No gradient background detected'
+        );
+
+        displayResults('hero', 'hero-test-results');
+      }
+
+      function testProjectCards() {
+        testResults.projects = [];
+        const iframe = document.getElementById('preview-frame');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Test 1: Projects section exists
+        const projectsSection = doc.getElementById('projects');
+        addResult(
+          'projects',
+          'Projects section exists',
+          !!projectsSection,
+          projectsSection
+            ? 'Found projects section'
+            : 'Projects section not found'
+        );
+
+        // Test 2: Projects grid exists
+        const grid = doc.getElementById('projects-grid');
+        addResult(
+          'projects',
+          'Projects grid exists',
+          !!grid,
+          grid ? 'Found projects grid container' : 'Projects grid not found'
+        );
+
+        // Test 3: Project cards rendered
+        const cards = doc.querySelectorAll('#projects-grid article');
+        addResult(
+          'projects',
+          'Project cards rendered',
+          cards.length > 0,
+          `Found ${cards.length} project cards`
+        );
+
+        // Test 4: Each card has required elements
+        if (cards.length > 0) {
+          const firstCard = cards[0];
+          const hasImage = !!firstCard.querySelector('img');
+          const hasTitle = !!firstCard.querySelector('h3');
+          const hasDescription = !!firstCard.querySelector('p');
+          const hasTags = firstCard.querySelectorAll('.bg-blue-100').length > 0;
+
+          addResult(
+            'projects',
+            'Cards have images',
+            hasImage,
+            hasImage ? 'All cards have images' : 'Some cards missing images'
+          );
+          addResult(
+            'projects',
+            'Cards have titles',
+            hasTitle,
+            hasTitle ? 'All cards have titles' : 'Some cards missing titles'
+          );
+          addResult(
+            'projects',
+            'Cards have descriptions',
+            hasDescription,
+            hasDescription
+              ? 'All cards have descriptions'
+              : 'Some cards missing descriptions'
+          );
+          addResult(
+            'projects',
+            'Cards have tags',
+            hasTags,
+            hasTags ? 'Cards have technology tags' : 'No tags found'
+          );
+        }
+
+        // Test 5: Grid layout classes applied
+        const hasGridClasses = grid && grid.classList.contains('grid');
+        addResult(
+          'projects',
+          'Grid layout applied',
+          hasGridClasses,
+          hasGridClasses
+            ? 'Grid layout classes found'
+            : 'Grid layout not applied'
+        );
+
+        displayResults('projects', 'projects-test-results');
+      }
+
+      function testResponsiveLayout() {
+        testResults.responsive = [];
+        const iframe = document.getElementById('preview-frame');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const grid = doc.getElementById('projects-grid');
+
+        if (!grid) {
+          addResult(
+            'responsive',
+            'Grid element found',
+            false,
+            'Cannot test: grid not found'
+          );
+          displayResults('responsive', 'responsive-test-results');
+          return;
+        }
+
+        // Test 1: Grid has responsive classes
+        const hasResponsiveClasses =
+          grid.classList.contains('grid-cols-1') ||
+          grid.className.includes('md:grid-cols-2') ||
+          grid.className.includes('lg:grid-cols-3');
+
+        addResult(
+          'responsive',
+          'Responsive grid classes present',
+          hasResponsiveClasses,
+          hasResponsiveClasses
+            ? 'Found responsive grid classes'
+            : 'Responsive classes not found'
+        );
+
+        // Test 2: Check specific breakpoint classes
+        const hasMobile = grid.classList.contains('grid-cols-1');
+        const hasTablet = grid.className.includes('md:grid-cols-2');
+        const hasDesktop = grid.className.includes('lg:grid-cols-3');
+
+        addResult(
+          'responsive',
+          'Mobile layout (1 column)',
+          hasMobile,
+          hasMobile ? 'grid-cols-1 class found' : 'Mobile layout class missing'
+        );
+        addResult(
+          'responsive',
+          'Tablet layout (2 columns)',
+          hasTablet,
+          hasTablet
+            ? 'md:grid-cols-2 class found'
+            : 'Tablet layout class missing'
+        );
+        addResult(
+          'responsive',
+          'Desktop layout (3 columns)',
+          hasDesktop,
+          hasDesktop
+            ? 'lg:grid-cols-3 class found'
+            : 'Desktop layout class missing'
+        );
+
+        // Test 3: Navigation responsive behavior
+        const navMenu = doc.getElementById('nav-menu');
+        const hasNavResponsive =
+          navMenu && navMenu.className.includes('md:flex');
+        addResult(
+          'responsive',
+          'Navigation responsive classes',
+          hasNavResponsive,
+          hasNavResponsive
+            ? 'Navigation has responsive classes'
+            : 'Navigation responsive classes missing'
+        );
+
+        displayResults('responsive', 'responsive-test-results');
+      }
+
+      function setViewport(width, height) {
+        const container = document.querySelector('.iframe-container');
+        container.style.width = width + 'px';
+        container.style.height = height + 'px';
+        container.style.margin = '20px auto';
+        alert(`Viewport set to ${width}x${height}. Check the layout below.`);
+      }
+
+      // Auto-run all tests on load
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          testNavigation();
+          testHeroSection();
+          testProjectCards();
+          testResponsiveLayout();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
