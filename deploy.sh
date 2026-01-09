@@ -4,6 +4,10 @@
 echo "Building project..."
 npm run build
 
+# Clean old assets before copying new ones
+echo "Cleaning old assets..."
+rm -rf assets/
+
 # Copy dist contents to root for GitHub Pages
 echo "Copying build files..."
 cp -r dist/* .
