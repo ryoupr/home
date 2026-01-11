@@ -1,96 +1,78 @@
+---
+inclusion: always
+---
+
 # プロジェクト構造
 
-## ディレクトリ構成
+## ディレクトリ概要
 
-```
-.
-├── src/                      # ソースコード（React/TypeScript）
-│   ├── main.tsx             # エントリーポイント
-│   ├── app/                 # アプリケーションコード
-│   │   ├── App.tsx          # ルートコンポーネント（ルーティング設定）
-│   │   ├── components/      # Reactコンポーネント
-│   │   │   ├── Header.tsx
-│   │   │   ├── Footer.tsx
-│   │   │   ├── Hero.tsx
-│   │   │   ├── ProjectCard.tsx
-│   │   │   ├── ProjectsSection.tsx
-│   │   │   ├── figma/       # Figma連携コンポーネント
-│   │   │   └── ui/          # 再利用可能なUIコンポーネント（Radix UI等）
-│   │   ├── hooks/           # カスタムReactフック
-│   │   │   └── useGitHubStats.ts
-│   │   └── pages/           # ページコンポーネント
-│   │       ├── ProfilePage.tsx
-│   │       └── ProjectsPage.tsx
-│   ├── data/                # データファイル
-│   │   └── config.json      # サイト設定・コンテンツ（個人情報、プロジェクト）
-│   └── styles/              # スタイルシート
-│       ├── index.css        # メインスタイル
-│       ├── tailwind.css     # Tailwindディレクティブ
-│       ├── theme.css        # テーマ設定
-│       └── fonts.css        # フォント設定
-│
-├── images/                   # 画像アセット
-│   ├── hero/                # ヒーローセクション画像
-│   ├── projects/            # プロジェクトスクリーンショット
-│   └── icons/               # アイコンファイル（SVG推奨）
-│
-├── dist/                     # ビルド出力（Viteが生成）
-├── assets/                   # ビルド済みアセット
-│
-├── scripts/                  # ビルドスクリプト
-│   ├── minify-js.js
-│   └── create-production-html.js
-│
-├── .kiro/                    # Kiro設定
-│   └── steering/            # ステアリングルール
-│
-├── index.html               # HTMLエントリーポイント
-├── vite.config.ts           # Vite設定
-├── tailwind.config.js       # Tailwind CSS設定
-├── tsconfig.json            # TypeScript設定
-├── package.json             # npm設定
-└── README.md                # プロジェクトドキュメント
-```
+| パス                     | 用途                               |
+| ------------------------ | ---------------------------------- |
+| `src/app/pages/`         | ページコンポーネント（ルート単位） |
+| `src/app/components/`    | 再利用可能なコンポーネント         |
+| `src/app/components/ui/` | 汎用UIプリミティブ（Radix UI）     |
+| `src/app/hooks/`         | カスタムReactフック                |
+| `src/data/`              | 静的データ（config.json）          |
+| `src/styles/`            | スタイルシート                     |
+| `images/`                | 画像アセット                       |
+| `scripts/`               | ビルド・検証スクリプト             |
+
+## ファイル配置ルール
+
+- 新規ページ → `src/app/pages/[PageName].tsx`
+- 新規コンポーネント → `src/app/components/[ComponentName].tsx`
+- 新規フック → `src/app/hooks/use[HookName].ts`
+- 画像追加 → `images/[category]/` （hero, projects, icons）
+- コンテンツ変更 → `src/data/config.json` のみ編集
 
 ## アーキテクチャパターン
 
-### コンポーネント構成
+### コンポーネント階層
 
-- **Pages** (`src/app/pages/`) - ルートレベルのページコンポーネント
-- **Components** (`src/app/components/`) - 再利用可能なUIコンポーネント
-- **UI Components** (`src/app/components/ui/`) - 汎用UIプリミティブ（Radix UI等）
-- **Hooks** (`src/app/hooks/`) - カスタムReactフック
+```
+Pages → Components → UI Components
+         ↓
+       Hooks
+```
+
+- Pages: ルーティング対象、データ取得・状態管理
+- Components: ビジネスロジック、レイアウト
+- UI Components: プレゼンテーションのみ、再利用性重視
 
 ### ルーティング
 
-- React Router DOMを使用
-- `App.tsx`でルート定義
-- 現在のルート:
-  - `/` - プロフィールページ
-  - `/projects` - プロジェクト一覧ページ
+- `src/app/App.tsx` でReact Router DOMを使用
+- 現在のルート: `/`（ProfilePage）、`/projects`（ProjectsPage）
 
-### データ管理
+### データフロー
 
-- `src/data/config.json` - 静的データ（個人情報、プロジェクト）
-- コンポーネント内でJSONをインポートして使用
-
-### スタイリング規約
-
-- Tailwind CSSのユーティリティクラスを優先
-- カスタムカラー: `primary-*`, `secondary-*`, `accent-*`
-- カスタムアニメーション: `animate-fade-in`, `animate-slide-up`, `animate-slide-down`, `animate-scale-in`
-- レスポンシブ: モバイルファースト（`sm:`, `md:`, `lg:`, `xl:`）
+- `src/data/config.json` が唯一の真実の情報源
+- コンポーネントでJSONを直接インポート
 
 ## 命名規則
 
-- **コンポーネント**: PascalCase（例: `ProjectCard.tsx`）
-- **フック**: camelCase、`use`プレフィックス（例: `useGitHubStats.ts`）
-- **ファイル**: kebab-case（設定ファイル）、PascalCase（コンポーネント）
-- **CSS**: Tailwindユーティリティクラス使用
+| 対象           | 規則                            | 例                  |
+| -------------- | ------------------------------- | ------------------- |
+| コンポーネント | PascalCase                      | `ProjectCard.tsx`   |
+| フック         | camelCase + `use`プレフィックス | `useGitHubStats.ts` |
+| 設定ファイル   | kebab-case                      | `config.json`       |
+| CSS変数        | kebab-case                      | `--primary-color`   |
 
-## 重要なファイル
+## スタイリング規約
 
-- `src/data/config.json` - サイトコンテンツの唯一の真実の情報源
-- `vite.config.ts` - ビルド設定、パスエイリアス設定
-- `tailwind.config.js` - カスタムテーマ、カラー、アニメーション定義
-- `tsconfig.json` - TypeScript設定、パスエイリアス
+- Tailwind CSSユーティリティクラスを優先
+- カスタムカラー: `primary-*`, `secondary-*`, `accent-*`
+- アニメーション: `animate-fade-in`, `animate-slide-up`, `animate-slide-down`, `animate-scale-in`
+- レスポンシブ: モバイルファースト（`sm:` → `md:` → `lg:` → `xl:`）
+
+## インポートパス
+
+- `@/*` → `./src/*` エイリアス使用
+- 例: `import { Button } from '@/app/components/ui/button'`
+
+## 重要ファイル
+
+- `src/data/config.json` - コンテンツ管理
+- `src/app/App.tsx` - ルーティング定義
+- `tailwind.config.js` - テーマ・カラー定義
+- `vite.config.ts` - ビルド設定・パスエイリアス

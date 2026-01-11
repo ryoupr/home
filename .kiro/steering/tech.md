@@ -1,93 +1,103 @@
+---
+inclusion: fileMatch
+fileMatchPattern: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.css']
+---
+
 # 技術スタック
 
-## ビルドシステム
+## コア技術
 
-- **Vite** - 高速なビルドツール、開発サーバー
-- **TypeScript** - 型安全なJavaScript
-- **npm** - パッケージマネージャー
+| カテゴリ       | 技術             | バージョン |
+| -------------- | ---------------- | ---------- |
+| ビルド         | Vite             | 最新       |
+| 言語           | TypeScript       | 5.x        |
+| UI             | React            | 18.3.1     |
+| ルーティング   | React Router DOM | 最新       |
+| スタイリング   | Tailwind CSS     | 4.x        |
+| パッケージ管理 | npm              | -          |
 
-## フロントエンド
+## UIライブラリ優先順位
 
-### コアライブラリ
+コンポーネント実装時は以下の順序で検討すること：
 
-- **React 18.3.1** - UIライブラリ
-- **React Router DOM** - クライアントサイドルーティング
-- **TypeScript 5.x** - 型システム
+1. **Radix UI** - アクセシブルなプリミティブ（優先）
+2. **Lucide React** - アイコン
+3. **Sonner** - トースト通知
+4. **Motion (Framer Motion)** - アニメーション
 
-### スタイリング
+## スタイリング規約
 
-- **Tailwind CSS 4.x** - ユーティリティファーストCSSフレームワーク
-- **@tailwindcss/vite** - Vite統合
-- カスタムカラースキーム（primary, secondary, accent）
-- カスタムアニメーション（fade-in, slide-up, slide-down, scale-in）
+### Tailwind CSS使用ルール
 
-### UIコンポーネント
+- ユーティリティクラスを優先、カスタムCSSは最小限に
+- カスタムカラー: `primary-*`, `secondary-*`, `accent-*`
+- アニメーション: `animate-fade-in`, `animate-slide-up`, `animate-slide-down`, `animate-scale-in`
+- レスポンシブ: モバイルファースト（`sm:` → `md:` → `lg:` → `xl:`）
 
-- **Radix UI** - アクセシブルなプリミティブコンポーネント
-- **Material-UI (MUI)** - Reactコンポーネントライブラリ
-- **Lucide React** - アイコンライブラリ
-- **Sonner** - トースト通知
+### 禁止事項
 
-### アニメーション
+- インラインスタイル（`style={}`）の使用
+- `!important`の使用
+- グローバルCSSの追加（`src/styles/`以外）
 
-- **Motion (Framer Motion)** - アニメーションライブラリ
-- Tailwindカスタムアニメーション
+## インポート規約
 
-### その他
+### パスエイリアス
 
-- **React Hook Form** - フォーム管理
-- **date-fns** - 日付操作
-- **recharts** - チャートライブラリ
+`@/*` → `./src/*` を必ず使用すること
 
-## 開発ツール
+```typescript
+// Good
+import { Button } from '@/app/components/ui/button';
+import config from '@/data/config.json';
 
-- **ESLint** - コードリンター
-- **Prettier** - コードフォーマッター
-
-## よく使うコマンド
-
-### 開発
-
-```bash
-# 開発サーバー起動（ホットリロード有効）
-npm run dev
-
-# ビルド（本番用）
-npm run build
-
-# プレビュー（ビルド後の確認）
-npm run preview
+// Bad
+import { Button } from '../../../components/ui/button';
 ```
 
-### コード品質
+### インポート順序
 
-```bash
-# コードフォーマット
-npm run format
+1. React/外部ライブラリ
+2. `@/app/components/ui/*`（UIプリミティブ）
+3. `@/app/components/*`（カスタムコンポーネント）
+4. `@/app/hooks/*`
+5. `@/data/*`
+6. 型定義
 
-# JavaScript/TypeScriptのリント
-npm run lint
+## コマンドリファレンス
+
+| 目的         | コマンド          |
+| ------------ | ----------------- |
+| 開発サーバー | `npm run dev`     |
+| 本番ビルド   | `npm run build`   |
+| ビルド確認   | `npm run preview` |
+| フォーマット | `npm run format`  |
+| リント       | `npm run lint`    |
+| デプロイ     | `./deploy.sh`     |
+
+## 型定義ルール
+
+- `any`型の使用禁止
+- コンポーネントpropsは必ず型定義
+- イベントハンドラは適切なReact型を使用
+
+```typescript
+// Good
+interface ButtonProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  children: React.ReactNode;
+}
+
+// Bad
+interface ButtonProps {
+  onClick: any;
+  children: any;
+}
 ```
 
-### デプロイ
+## アクセシビリティ要件
 
-```bash
-# 本番ビルド実行
-npm run build
-
-# GitHub Pagesへデプロイ（手動）
-./deploy.sh
-```
-
-## パス設定
-
-- `@/*` → `./src/*` - TypeScriptパスエイリアス設定済み
-- 例: `import { Component } from '@/app/components/Component'`
-
-## ブラウザサポート
-
-- Chrome（最新版）
-- Firefox（最新版）
-- Safari（最新版）
-- Edge（最新版）
-- モバイルブラウザ（iOS Safari、Chrome Mobile）
+- WCAG 2.1 AA準拠必須
+- インタラクティブ要素には適切なaria属性を付与
+- キーボードナビゲーション対応
+- カラーコントラスト比4.5:1以上
