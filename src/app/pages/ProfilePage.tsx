@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen } from 'lucide-react';
+import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen, Wrench } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { useGitHubStats } from '../hooks/useGitHubStats';
 import config from '../../data/config.json';
@@ -87,6 +87,20 @@ export function ProfilePage() {
                   <div>
                     <h3 className="text-lg mb-1">プロジェクト一覧</h3>
                     <p className="text-sm text-gray-600">制作物をご覧いただけます</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/tools">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardContent className="pt-6 flex items-start gap-4">
+                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                    <Wrench className="size-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg mb-1">WEBツール</h3>
+                    <p className="text-sm text-gray-600">便利なツールを公開しています</p>
                   </div>
                 </CardContent>
               </Card>
