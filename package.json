@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "lint": "eslint js/"
+    "lint": "eslint src/"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

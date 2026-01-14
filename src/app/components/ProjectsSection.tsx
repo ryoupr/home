@@ -1,9 +1,10 @@
+import { useMemo } from 'react';
 import { ProjectCard } from './ProjectCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import config from '../../data/config.json';
 
-// Load projects from config.json
-const projects = config.projects as Array<{
+// プロジェクトの型定義
+interface Project {
   id: number;
   title: string;
   description: string;
@@ -11,12 +12,16 @@ const projects = config.projects as Array<{
   demoUrl?: string;
   githubUrl?: string;
   category: 'webapp' | 'program' | 'extension';
-}>;
+}
+
+// Load projects from config.json
+const projects: Project[] = config.projects as Project[];
 
 export function ProjectsSection() {
-  const webapps = projects.filter((p) => p.category === 'webapp');
-  const programs = projects.filter((p) => p.category === 'program');
-  const extensions = projects.filter((p) => p.category === 'extension');
+  // useMemo でフィルタリング結果をメモ化
+  const webapps = useMemo(() => projects.filter((p) => p.category === 'webapp'), []);
+  const programs = useMemo(() => projects.filter((p) => p.category === 'program'), []);
+  const extensions = useMemo(() => projects.filter((p) => p.category === 'extension'), []);
 
   return (
     <section id="projects" className="py-20 px-4 bg-slate-950 relative overflow-hidden">

@@ -1,7 +1,10 @@
 import { Github, Linkedin, Mail, Terminal } from 'lucide-react';
 import { motion } from 'motion/react';
+import config from '../../data/config.json';
 
 export function Hero() {
+  const { personal } = config;
+
   return (
     <section id="about" className="py-20 px-4 relative overflow-hidden bg-slate-950">
       {/* テッキーな背景 */}
@@ -43,7 +46,7 @@ export function Hero() {
           className="flex gap-4 justify-center"
         >
           <a
-            href="https://github.com"
+            href={personal.github}
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-cyan-500/30 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all duration-300 group"
@@ -52,7 +55,7 @@ export function Hero() {
             <Github className="size-6 text-cyan-400 group-hover:text-cyan-300" />
           </a>
           <a
-            href="https://linkedin.com"
+            href={personal.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-blue-500/30 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 group"
@@ -61,7 +64,7 @@ export function Hero() {
             <Linkedin className="size-6 text-blue-400 group-hover:text-blue-300" />
           </a>
           <a
-            href="mailto:your.email@example.com"
+            href={`mailto:${personal.email}`}
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300 group"
             aria-label="Email"
           >
