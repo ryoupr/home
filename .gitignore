@@ -24,6 +24,7 @@ yarn.lock
 # Build outputs
 dist/
 build/
+assets/
 
 # Environment files
 .env
