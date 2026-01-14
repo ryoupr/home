@@ -1,0 +1,58 @@
+import { Link } from 'react-router-dom';
+import { BarChart2 } from 'lucide-react';
+
+export function ToolsPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Link
+              to="/"
+              className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+            >
+              ← ホームに戻る
+            </Link>
+          </div>
+
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            WEBツール
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-12">
+            便利なWEBツールを公開しています
+          </p>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* CSVグラフビューアー */}
+            <Link to="/tools/csv-graph-viewer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                    <BarChart2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    CSV Graph Viewer
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  CSVファイルをアップロードして、インタラクティブなグラフを作成。棒グラフ、折れ線グラフ、面グラフに対応し、目標ラインやエリアの追加、カラーテーマのカスタマイズが可能です。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                    データ可視化
+                  </span>
+                  <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                    CSV
+                  </span>
+                  <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                    グラフ作成
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
