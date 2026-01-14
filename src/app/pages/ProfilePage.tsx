@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen, Wrench } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
-import { useGitHubStats } from '../hooks/useGitHubStats';
+import { useGitHubStats, extractGitHubUsername } from '../hooks/useGitHubStats';
 import config from '../../data/config.json';
 
 export function ProfilePage() {
   const { personal } = config;
-  const { totalStars, totalRepos, loading } = useGitHubStats(personal.github.split('/').pop() || '');
+  const { totalStars, totalRepos, loading } = useGitHubStats(extractGitHubUsername(personal.github));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
