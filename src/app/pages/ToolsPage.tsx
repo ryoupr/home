@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { BarChart2 } from 'lucide-react';
 
 export function ToolsPage() {
   return (
@@ -22,16 +23,32 @@ export function ToolsPage() {
           </p>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* ツールカードのプレースホルダー */}
+            {/* CSVグラフビューアー */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                サンプルツール
-              </h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                  <BarChart2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  CSV Graph Viewer
+                </h2>
+              </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                ツールの説明がここに入ります
+                CSVファイルをアップロードして、インタラクティブなグラフを作成。棒グラフ、折れ線グラフ、面グラフに対応し、目標ラインやエリアの追加、カラーテーマのカスタマイズが可能です。
               </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                  データ可視化
+                </span>
+                <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                  CSV
+                </span>
+                <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
+                  グラフ作成
+                </span>
+              </div>
               <Link
-                to="/tools/sample"
+                to="/tools/csv-graph-viewer"
                 className="inline-block px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
               >
                 ツールを開く
