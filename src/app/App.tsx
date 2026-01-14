@@ -4,7 +4,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/home">
       <Routes>
         <Route path="/" element={<ProfilePage />} />
         <Route path="/projects" element={<ProjectsPage />} />
