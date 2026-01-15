@@ -4,6 +4,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { SampleToolPage } from './pages/tools/SampleToolPage';
 import { CsvGraphViewerPage } from './pages/tools/CsvGraphViewerPage';
+import IconGeneratorPage from './pages/tools/IconGeneratorPage';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tools/sample" element={<SampleToolPage />} />
         <Route path="/tools/csv-graph-viewer" element={<CsvGraphViewerPage />} />
+        <Route path="/tools/icon-generator" element={<IconGeneratorPage />} />
       </Routes>
     </BrowserRouter>
   );

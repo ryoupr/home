@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BarChart2 } from 'lucide-react';
+import { BarChart2, Box } from 'lucide-react';
 
 export function ToolsPage() {
   return (
@@ -46,6 +46,34 @@ export function ToolsPage() {
                   </span>
                   <span className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-xs rounded-full">
                     グラフ作成
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Icon Generator */}
+            <Link to="/tools/icon-generator">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <Box className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Icon Generator
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  アイコンやテキストを使ってカスタムアイコンを作成。背景色、グラデーション、サイズ、角丸、回転などを調整して、1024x1024のPNG画像としてダウンロードできます。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                    アイコン作成
+                  </span>
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                    PNG出力
+                  </span>
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
+                    カスタマイズ
                   </span>
                 </div>
               </div>
