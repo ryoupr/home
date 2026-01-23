@@ -162,25 +162,12 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   if (!svgNode) return;
   
   const svgWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svgWrapper.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   svgWrapper.setAttribute('width', CANVAS_SIZE.toString());
   svgWrapper.setAttribute('height', CANVAS_SIZE.toString());
   svgWrapper.setAttribute('viewBox', `0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`);
   
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-  const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-  clipPath.setAttribute('id', 'rounded-rect');
-  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  rect.setAttribute('width', CANVAS_SIZE.toString());
-  rect.setAttribute('height', CANVAS_SIZE.toString());
-  rect.setAttribute('rx', ((config.radius / 100) * CANVAS_SIZE).toString());
-  clipPath.appendChild(rect);
-  defs.appendChild(clipPath);
-  svgWrapper.appendChild(defs);
-  
-  const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  bgRect.setAttribute('width', CANVAS_SIZE.toString());
-  bgRect.setAttribute('height', CANVAS_SIZE.toString());
-  bgRect.setAttribute('clip-path', 'url(#rounded-rect)');
   
   if (config.gradient !== 'none') {
     const gradientName = config.gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
@@ -201,16 +188,22 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
       gradient.appendChild(stop1);
       gradient.appendChild(stop2);
       defs.appendChild(gradient);
-      bgRect.setAttribute('fill', 'url(#bg-gradient)');
     }
-  } else {
-    bgRect.setAttribute('fill', config.bgColor);
   }
+  
+  svgWrapper.appendChild(defs);
+  
+  const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  bgRect.setAttribute('width', CANVAS_SIZE.toString());
+  bgRect.setAttribute('height', CANVAS_SIZE.toString());
+  bgRect.setAttribute('rx', ((config.radius / 100) * CANVAS_SIZE).toString());
+  bgRect.setAttribute('fill', config.gradient !== 'none' ? 'url(#bg-gradient)' : config.bgColor);
   svgWrapper.appendChild(bgRect);
   
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  g.setAttribute('transform', `translate(${CANVAS_SIZE / 2}, ${CANVAS_SIZE / 2 + (config.offsetY * CANVAS_SIZE / 200)}) rotate(${config.rotation})`);
-  g.setAttribute('clip-path', 'url(#rounded-rect)');
+  const translateX = CANVAS_SIZE / 2;
+  const translateY = CANVAS_SIZE / 2 + (config.offsetY * CANVAS_SIZE / 200);
+  g.setAttribute('transform', `translate(${translateX}, ${translateY}) rotate(${config.rotation})`);
   
   const clonedIcon = svgNode.cloneNode(true) as SVGSVGElement;
   const iconSize = (config.size / 100) * CANVAS_SIZE;
@@ -218,7 +211,21 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   clonedIcon.setAttribute('height', iconSize.toString());
   clonedIcon.setAttribute('x', (-iconSize / 2).toString());
   clonedIcon.setAttribute('y', (-iconSize / 2).toString());
-  clonedIcon.setAttribute('color', config.fgColor);
+  clonedIcon.setAttribute('stroke', config.fgColor);
+  clonedIcon.setAttribute('fill', config.fgColor);
+  
+  if (config.shadow) {
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', 'shadow');
+    const feDropShadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+    feDropShadow.setAttribute('dx', '0');
+    feDropShadow.setAttribute('dy', (CANVAS_SIZE * SHADOW_OFFSET_RATIO).toString());
+    feDropShadow.setAttribute('stdDeviation', (CANVAS_SIZE * SHADOW_BLUR_RATIO / 2).toString());
+    feDropShadow.setAttribute('flood-opacity', '0.3');
+    filter.appendChild(feDropShadow);
+    defs.appendChild(filter);
+    g.setAttribute('filter', 'url(#shadow)');
+  }
   
   g.appendChild(clonedIcon);
   svgWrapper.appendChild(g);
