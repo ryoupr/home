@@ -4,99 +4,56 @@
 
 ## 本番ビルドの作成
 
-### 1. すべてのアセットをビルド
+### ビルドコマンド
 
 ```bash
-npm run build:all
+npm run build
 ```
 
-このコマンドは以下を実行します：
+このコマンドはViteを使用して以下を実行します：
 
-- Tailwind CSSを最小化（`css/output.css`）
-- すべてのJavaScriptファイルを最小化（`*.min.js`）
-- 本番用HTMLファイルを生成（`index.prod.html`）
+- TypeScript/TSXファイルのトランスパイル
+- Reactコンポーネントのバンドル
+- Tailwind CSSの最適化
+- アセットの最小化
+- `dist/` ディレクトリへの出力
 
-### 2. ビルド結果の確認
-
-以下のファイルが生成されていることを確認：
-
-- `css/output.css` - 最小化されたCSS
-- `js/**/*.min.js` - 最小化されたJavaScriptファイル
-- `index.prod.html` - 最小化されたアセットを参照するHTML
-
-### 3. 本番HTMLの適用
+### ビルド結果の確認
 
 ```bash
-# 開発用HTMLをバックアップ
-cp index.html index.dev.html
-
-# 本番HTMLを適用
-cp index.prod.html index.html
+# ビルド結果をローカルでプレビュー
+npm run preview
 ```
+
+ブラウザで `http://localhost:4173` を開いて確認できます。
 
 ## GitHub Pagesへのデプロイ
 
-### 方法1: GitHub Actionsを使用（推奨）
+### 方法1: デプロイスクリプト（推奨）
 
-`.github/workflows/deploy.yml`を作成：
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Build assets
-        run: npm run build:all
-      
-      - name: Apply production HTML
-        run: cp index.prod.html index.html
-      
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          exclude_assets: 'node_modules,scripts,.git*,*.dev.html,*.prod.html'
+```bash
+./deploy.sh
 ```
+
+このスクリプトが自動的にビルドとデプロイを実行します。
 
 ### 方法2: 手動デプロイ
 
-1. ビルドを実行：
-
 ```bash
-npm run build:all
-cp index.prod.html index.html
-```
+# 1. 本番用ビルド
+npm run build
 
-1. 変更をコミット：
-
-```bash
+# 2. GitHubにプッシュ
 git add .
-git commit -m "Build for production"
+git commit -m "Update site"
 git push origin main
 ```
 
-1. GitHubリポジトリの設定：
-   - Settings → Pages
-   - Source: Deploy from a branch
-   - Branch: main / (root)
-   - Save
+GitHub Actionsが自動的にデプロイを実行します。
+
+### 方法3: GitHub Actions（自動デプロイ）
+
+`.github/workflows/deploy.yml` が設定済みです。`main` ブランチへのプッシュで自動デプロイされます。
 
 ## カスタムドメインの設定
 
@@ -133,10 +90,8 @@ www.yourdomain.com → username.github.io
 
 ## デプロイ前のチェックリスト
 
-- [ ] すべてのテストが通過している
-- [ ] 画像が最適化されている
-- [ ] `npm run build:all`が正常に完了
-- [ ] ローカルで本番ビルドをテスト（`npm run dev`）
+- [ ] `npm run build` が正常に完了
+- [ ] `npm run preview` でローカル確認
 - [ ] アクセシビリティ監査を実行（Lighthouse）
 - [ ] 複数のブラウザでテスト
 - [ ] モバイルデバイスでテスト
@@ -145,64 +100,65 @@ www.yourdomain.com → username.github.io
 
 ## トラブルシューティング
 
+### ビルドエラー
+
+```bash
+# 依存関係を再インストール
+rm -rf node_modules package-lock.json
+npm install
+
+# 再ビルド
+npm run build
+```
+
 ### CSSが適用されない
 
-- `css/output.css`が生成されているか確認
-- `npm run build`を再実行
 - ブラウザのキャッシュをクリア
+- `dist/` ディレクトリを削除して再ビルド
 
 ### JavaScriptが動作しない
 
 - ブラウザのコンソールでエラーを確認
-- `*.min.js`ファイルが生成されているか確認
-- `npm run build:js`を再実行
-
-### 画像が表示されない
-
-- 画像パスが正しいか確認（相対パス使用）
-- 画像ファイルがコミットされているか確認
-- ブラウザのネットワークタブでエラーを確認
+- `vite.config.ts` の `base` 設定を確認（GitHub Pagesの場合は `/home/`）
 
 ### GitHub Pagesで404エラー
 
-- `index.html`がルートディレクトリにあるか確認
-- GitHub Pages設定でブランチが正しいか確認
+- GitHub Pages設定でブランチが正しいか確認（`gh-pages` ブランチ）
 - デプロイが完了するまで数分待つ
+- `deploy.sh` を再実行
 
 ## パフォーマンス最適化
 
 ### ビルド後のサイズ確認
 
 ```bash
-# CSSサイズ
-ls -lh css/output.css
-
-# JavaScriptサイズ
-find js -name "*.min.js" -exec ls -lh {} \;
-
-# 合計サイズ
-du -sh .
+# ビルド結果のサイズ
+du -sh dist/
 ```
 
 ### 目標サイズ
 
-- CSS: < 50KB
-- JavaScript（合計）: < 100KB
-- 画像（合計）: < 500KB
-- 合計ページサイズ: < 1MB
+- 初回ロード: < 200KB (gzip圧縮後)
+- 合計バンドルサイズ: < 500KB
+
+### 最適化のヒント
+
+- 画像を最適化（WebP形式推奨）
+- 不要な依存関係を削除
+- コード分割を活用（React.lazy）
 
 ## 継続的な更新
 
-### プロジェクトの追加
+### コンテンツの更新
 
-1. `js/data/projects.js`を編集
-2. プロジェクト画像を`images/projects/`に追加
-3. ビルドとデプロイ
+1. `src/data/config.json` を編集
+2. ローカルで確認（`npm run dev`）
+3. ビルドとデプロイ（`./deploy.sh`）
 
-### 個人情報の更新
+### コンポーネントの追加
 
-1. `js/config.js`を編集
-2. `index.html`のメタタグを更新
+1. `src/app/components/` に新しいコンポーネントを作成
+2. 必要に応じてページに追加
 3. ビルドとデプロイ
 
 ## サポート
@@ -210,5 +166,6 @@ du -sh .
 問題が発生した場合：
 
 1. ブラウザのコンソールでエラーを確認
-2. GitHub Actionsのログを確認（自動デプロイの場合）
-3. [GitHub Pages ドキュメント](https://docs.github.com/pages)を参照
+2. GitHub Actionsのログを確認
+3. [Vite ドキュメント](https://vitejs.dev/)を参照
+4. [GitHub Pages ドキュメント](https://docs.github.com/pages)を参照
