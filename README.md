@@ -50,10 +50,10 @@ npm run lint
 
 ```json
 {
-  "developer": {
+  "personal": {
     "name": "Your Name",
     "role": "Your Role",
-    "bio": "Your bio..."
+    "description": "Your bio..."
   },
   "projects": [...]
 }
@@ -103,6 +103,8 @@ npm run build
 - [編集ガイド](docs/HOW_TO_EDIT.md)
 - [デプロイガイド](docs/DEPLOYMENT.md)
 - [コンテンツ管理](docs/CONTENT.md)
+- [ツール管理](docs/TOOLS.md)
+- [ビルドフロー](docs/build-flow.md)
 - [画像最適化ガイド](images/IMAGE_OPTIMIZATION_GUIDE.md)
 
 ## License

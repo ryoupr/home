@@ -1,47 +1,68 @@
-# ポートフォリオサイト コンテンツ
+# ポートフォリオサイト コンテンツ管理
 
-このファイルを編集するだけでサイトの内容を更新できます。
+このファイルでは、サイトのコンテンツを管理する方法を説明します。
 
-## 個人情報
+## 個人情報の編集
 
-- **名前**: Your Name
-- **役職**: Web Developer
-- **説明**: Webアプリケーション、プログラム、Chrome拡張機能の開発を行っています。
-- **メール**: <your.email@example.com>
-- **GitHub**: <https://github.com/yourusername>
-- **LinkedIn**: <https://linkedin.com/in/yourusername>
+`src/data/config.json` の `personal` セクションを編集：
 
----
+```json
+{
+  "personal": {
+    "name": "あなたの名前",
+    "role": "あなたの役職",
+    "description": "自己紹介文",
+    "email": "your.email@example.com",
+    "github": "https://github.com/yourusername",
+    "linkedin": "https://linkedin.com/in/yourusername",
+    "qiita": "https://qiita.com/yourusername",
+    "skills": ["React", "TypeScript", "AWS"]
+  }
+}
+```
 
-## プロジェクト
+## プロジェクトの編集
 
-### プロジェクト1
+`src/data/config.json` の `projects` 配列を編集：
 
-- **タイトル**: タスク管理アプリ
-- **説明**: React と TypeScript で作成したタスク管理アプリケーション
-- **画像**: /images/project1.jpg
-- **タグ**: React, TypeScript, Tailwind CSS
-- **GitHub**: <https://github.com/yourusername/project1>
-- **デモ**: <https://project1-demo.com>
+```json
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "プロジェクト名",
+      "description": "プロジェクトの説明",
+      "tags": ["React", "TypeScript"],
+      "demoUrl": "https://demo.com",
+      "githubUrl": "https://github.com/user/project",
+      "category": "webapp"
+    }
+  ]
+}
+```
 
-### プロジェクト2
+**category の種類:**
+- `"webapp"` - Webアプリケーション
+- `"program"` - プログラム・ツール
+- `"extension"` - Chrome拡張機能
 
-- **タイトル**: Chrome拡張機能
-- **説明**: 生産性を向上させるChrome拡張機能
-- **画像**: /images/project2.jpg
-- **タグ**: JavaScript, Chrome API
-- **GitHub**: <https://github.com/yourusername/project2>
-- **デモ**: <https://chrome.google.com/webstore/>...
+## 更新手順
 
----
-
-## 更新方法
-
-1. このファイル（CONTENT.md）を編集
-2. 以下のコマンドを実行:
-
+1. `src/data/config.json` を編集
+2. ローカルで確認:
    ```bash
-   npm run update-content
+   npm run dev
+   ```
+3. ビルドとデプロイ:
+   ```bash
    npm run build
    ./deploy.sh
    ```
+
+## 画像の追加
+
+- `images/hero/` - アバター画像
+- `images/projects/` - プロジェクトスクリーンショット
+- `images/icons/` - アイコン（SVG推奨）
+
+詳細は [IMAGE_OPTIMIZATION_GUIDE.md](../images/IMAGE_OPTIMIZATION_GUIDE.md) を参照。
