@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Upload as UploadIcon, Image as ImageIconLucide } from 'lucide-react';
+import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Upload as UploadIcon, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
 import { iconMap, iconKeys } from './iconMap';
 import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
 import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, drawText, drawUploadedImage, downloadCanvas, downloadSVG, exportMultipleSizes } from './iconGeneratorHelpers';
@@ -10,7 +10,19 @@ export default function IconGeneratorPage() {
   const [presets, setPresets] = useLocalStorage<IconConfig[]>('icon-presets', []);
   const [searchQuery, setSearchQuery] = useState('');
   const [zoom, setZoom] = useState(1);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const downloadMenuRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setShowDownloadMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredIcons = useMemo(() => {
     if (!searchQuery) return iconKeys;
@@ -105,14 +117,52 @@ export default function IconGeneratorPage() {
             >
               <Redo2 size={18} />
             </button>
-            <button
-              onClick={handleDownload}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm"
-              aria-label="Download icon as PNG"
-            >
-              <Download size={18} />
-              <span>PNG</span>
-            </button>
+            <div className="relative" ref={downloadMenuRef}>
+              <button
+                onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm"
+                aria-label="Download menu"
+              >
+                <Download size={18} />
+                <span>Download</span>
+                <ChevronDown size={16} />
+              </button>
+              {showDownloadMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20">
+                  <button
+                    onClick={() => {
+                      handleDownload();
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  >
+                    <Download size={16} />
+                    PNG (1024x1024)
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDownloadSVG();
+                      setShowDownloadMenu(false);
+                    }}
+                    disabled={config.type !== 'icon'}
+                    className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Download size={16} />
+                    SVG (Vector)
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleExportMultiple();
+                      setShowDownloadMenu(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                  >
+                    <Download size={16} />
+                    All Sizes
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
