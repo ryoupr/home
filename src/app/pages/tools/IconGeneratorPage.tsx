@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Upload as UploadIcon, Image as ImageIconLucide } from 'lucide-react';
 import { iconMap, iconKeys } from './iconMap';
-import { GRADIENTS, CANVAS_SIZE } from './iconGeneratorConstants';
+import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
 import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, drawText, drawUploadedImage, downloadCanvas, downloadSVG, exportMultipleSizes } from './iconGeneratorHelpers';
 import { useUndoRedo, useLocalStorage } from './iconGeneratorHooks';
 
@@ -213,7 +213,15 @@ export default function IconGeneratorPage() {
                   {GRADIENTS.map((g) => (
                     <button
                       key={g.name}
-                      onClick={() => setConfig({ ...config, gradient: g.value })}
+                      onClick={() => {
+                        if (g.value === 'none') {
+                          setConfig({ ...config, gradient: 'none' });
+                        } else {
+                          const gradientName = g.value.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
+                          const newBgColor = gradientName && GRADIENT_COLORS[gradientName] ? GRADIENT_COLORS[gradientName][0] : config.bgColor;
+                          setConfig({ ...config, gradient: g.value, bgColor: newBgColor });
+                        }
+                      }}
                       className={`w-10 h-10 rounded-full flex-shrink-0 border-2 transition-all ${config.gradient === g.value ? 'border-blue-500 scale-110' : 'border-transparent hover:scale-105'}`}
                       style={{ background: g.value === 'none' ? config.bgColor : g.value }}
                       title={g.name}

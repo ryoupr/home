@@ -168,6 +168,7 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   svgWrapper.setAttribute('viewBox', `0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`);
   
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  let bgFill = config.bgColor;
   
   if (config.gradient !== 'none') {
     const gradientName = config.gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
@@ -188,6 +189,7 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
       gradient.appendChild(stop1);
       gradient.appendChild(stop2);
       defs.appendChild(gradient);
+      bgFill = 'url(#bg-gradient)';
     }
   }
   
@@ -209,7 +211,7 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   bgRect.setAttribute('width', CANVAS_SIZE.toString());
   bgRect.setAttribute('height', CANVAS_SIZE.toString());
   bgRect.setAttribute('rx', ((config.radius / 100) * CANVAS_SIZE).toString());
-  bgRect.setAttribute('fill', config.gradient !== 'none' ? 'url(#bg-gradient)' : config.bgColor);
+  bgRect.setAttribute('fill', bgFill);
   svgWrapper.appendChild(bgRect);
   
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
