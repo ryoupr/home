@@ -191,6 +191,18 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
     }
   }
   
+  if (config.shadow) {
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', 'shadow');
+    const feDropShadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+    feDropShadow.setAttribute('dx', '0');
+    feDropShadow.setAttribute('dy', (CANVAS_SIZE * SHADOW_OFFSET_RATIO).toString());
+    feDropShadow.setAttribute('stdDeviation', (CANVAS_SIZE * SHADOW_BLUR_RATIO / 2).toString());
+    feDropShadow.setAttribute('flood-opacity', '0.3');
+    filter.appendChild(feDropShadow);
+    defs.appendChild(filter);
+  }
+  
   svgWrapper.appendChild(defs);
   
   const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -205,29 +217,26 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   const translateY = CANVAS_SIZE / 2 + (config.offsetY * CANVAS_SIZE / 200);
   g.setAttribute('transform', `translate(${translateX}, ${translateY}) rotate(${config.rotation})`);
   
-  const clonedIcon = svgNode.cloneNode(true) as SVGSVGElement;
-  const iconSize = (config.size / 100) * CANVAS_SIZE;
-  clonedIcon.setAttribute('width', iconSize.toString());
-  clonedIcon.setAttribute('height', iconSize.toString());
-  clonedIcon.setAttribute('x', (-iconSize / 2).toString());
-  clonedIcon.setAttribute('y', (-iconSize / 2).toString());
-  clonedIcon.setAttribute('stroke', config.fgColor);
-  clonedIcon.setAttribute('fill', config.fgColor);
-  
   if (config.shadow) {
-    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-    filter.setAttribute('id', 'shadow');
-    const feDropShadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
-    feDropShadow.setAttribute('dx', '0');
-    feDropShadow.setAttribute('dy', (CANVAS_SIZE * SHADOW_OFFSET_RATIO).toString());
-    feDropShadow.setAttribute('stdDeviation', (CANVAS_SIZE * SHADOW_BLUR_RATIO / 2).toString());
-    feDropShadow.setAttribute('flood-opacity', '0.3');
-    filter.appendChild(feDropShadow);
-    defs.appendChild(filter);
     g.setAttribute('filter', 'url(#shadow)');
   }
   
-  g.appendChild(clonedIcon);
+  const iconSize = (config.size / 100) * CANVAS_SIZE;
+  const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  iconGroup.setAttribute('transform', `translate(${-iconSize / 2}, ${-iconSize / 2}) scale(${iconSize / 24})`);
+  
+  const paths = svgNode.querySelectorAll('path, circle, rect, line, polyline, polygon');
+  paths.forEach(path => {
+    const clonedPath = path.cloneNode(true) as SVGElement;
+    clonedPath.setAttribute('stroke', config.fgColor);
+    clonedPath.setAttribute('fill', 'none');
+    clonedPath.setAttribute('stroke-width', '2');
+    clonedPath.setAttribute('stroke-linecap', 'round');
+    clonedPath.setAttribute('stroke-linejoin', 'round');
+    iconGroup.appendChild(clonedPath);
+  });
+  
+  g.appendChild(iconGroup);
   svgWrapper.appendChild(g);
   
   const svgData = new XMLSerializer().serializeToString(svgWrapper);
