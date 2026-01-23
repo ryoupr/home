@@ -105,6 +105,14 @@ export default function IconGeneratorPage() {
             >
               <Redo2 size={18} />
             </button>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm"
+              aria-label="Download icon as PNG"
+            >
+              <Download size={18} />
+              <span>PNG</span>
+            </button>
           </div>
         </div>
       </header>
