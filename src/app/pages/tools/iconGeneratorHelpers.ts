@@ -59,9 +59,9 @@ export const applyGradient = (ctx: CanvasRenderingContext2D, gradient: string, b
     return;
   }
   
-  const gradientName = gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
-  if (gradientName && GRADIENT_COLORS[gradientName]) {
-    const [start, end] = GRADIENT_COLORS[gradientName];
+  const colorMatches = gradient.match(/#[0-9a-fA-F]{6}/g);
+  if (colorMatches && colorMatches.length >= 2) {
+    const [start, end] = colorMatches;
     const grad = ctx.createLinearGradient(0, 0, size, size);
     grad.addColorStop(0, start);
     grad.addColorStop(1, end);
@@ -161,9 +161,6 @@ export const downloadCanvas = (canvas: HTMLCanvasElement, filename: string) => {
 export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, filename: string) => {
   if (!svgNode) return;
   
-  console.log('downloadSVG config:', config);
-  console.log('gradient value:', config.gradient);
-  
   const svgWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svgWrapper.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   svgWrapper.setAttribute('width', CANVAS_SIZE.toString());
@@ -174,12 +171,10 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
   let bgFill = config.bgColor;
   
   if (config.gradient !== 'none') {
-    console.log('Gradient is not none, extracting gradient name...');
-    const gradientName = config.gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
-    console.log('Extracted gradient name:', gradientName);
-    if (gradientName && GRADIENT_COLORS[gradientName]) {
-      console.log('Found gradient colors:', GRADIENT_COLORS[gradientName]);
-      const [start, end] = GRADIENT_COLORS[gradientName];
+    // グラデーション文字列から色を抽出
+    const colorMatches = config.gradient.match(/#[0-9a-fA-F]{6}/g);
+    if (colorMatches && colorMatches.length >= 2) {
+      const [start, end] = colorMatches;
       const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
       gradient.setAttribute('id', 'bg-gradient');
       gradient.setAttribute('x1', '0%');
@@ -196,12 +191,7 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
       gradient.appendChild(stop2);
       defs.appendChild(gradient);
       bgFill = 'url(#bg-gradient)';
-      console.log('bgFill set to:', bgFill);
-    } else {
-      console.log('Gradient name not found in GRADIENT_COLORS');
     }
-  } else {
-    console.log('Gradient is none, using bgColor:', config.bgColor);
   }
   
   if (config.shadow) {
