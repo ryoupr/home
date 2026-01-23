@@ -56,17 +56,18 @@ export const drawRoundedRect = (ctx: CanvasRenderingContext2D, size: number, rad
 export const applyGradient = (ctx: CanvasRenderingContext2D, gradient: string, bgColor: string, size: number) => {
   if (gradient === 'none') {
     ctx.fillStyle = bgColor;
+    return;
+  }
+  
+  const gradientName = gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
+  if (gradientName && GRADIENT_COLORS[gradientName]) {
+    const [start, end] = GRADIENT_COLORS[gradientName];
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    grad.addColorStop(0, start);
+    grad.addColorStop(1, end);
+    ctx.fillStyle = grad;
   } else {
-    const gradientName = gradient.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
-    if (gradientName && GRADIENT_COLORS[gradientName]) {
-      const [start, end] = GRADIENT_COLORS[gradientName];
-      const grad = ctx.createLinearGradient(0, 0, size, size);
-      grad.addColorStop(0, start);
-      grad.addColorStop(1, end);
-      ctx.fillStyle = grad;
-    } else {
-      ctx.fillStyle = bgColor;
-    }
+    ctx.fillStyle = bgColor;
   }
 };
 
