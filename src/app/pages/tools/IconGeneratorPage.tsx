@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Upload as UploadIcon, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
+import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
 import { iconMap, iconKeys } from './iconMap';
 import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
 import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, drawText, drawUploadedImage, downloadCanvas, downloadSVG, exportMultipleSizes } from './iconGeneratorHelpers';

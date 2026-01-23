@@ -1,4 +1,4 @@
-import { CANVAS_SIZE, SHADOW_BLUR_RATIO, SHADOW_OFFSET_RATIO, TEXT_BASELINE_OFFSET, GRADIENT_COLORS } from './iconGeneratorConstants';
+import { CANVAS_SIZE, SHADOW_BLUR_RATIO, SHADOW_OFFSET_RATIO, TEXT_BASELINE_OFFSET } from './iconGeneratorConstants';
 
 export interface IconConfig {
   type: 'icon' | 'text' | 'image';
