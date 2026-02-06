@@ -89,6 +89,13 @@ const getFiscalInfo = (date: Date) => {
   return { fy, label: `${fy}年度` };
 };
 
+const getISOWeek = (date: Date): number => {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+};
+
 // --- Japanese Holiday Logic ---
 
 const getJapaneseHolidays = (year: number): Record<string, string> => {
@@ -277,8 +284,16 @@ export function YabaneSchedulePage() {
     });
   };
 
+  const laneTasksByCategory = useMemo(() => {
+    const result: Record<string, LaneTask[]> = {};
+    categories.forEach(cat => {
+      result[cat] = getTasksInLanes(tasks.filter(t => t.category === cat));
+    });
+    return result;
+  }, [tasks, categories, leftCols, rightCols, timelineUnits, unitWidth, viewMode]);
+
   const addTask = (category: string) => {
-    const newTask: Task = { id: Math.random().toString(36).substr(2, 9), title: '新規タスク', start: formatDate(new Date(viewStart)), end: formatDate(new Date(viewStart)), startType: 'date', endType: 'date', color: 'bg-blue-500', category: category || categories[0] };
+    const newTask: Task = { id: crypto.randomUUID(), title: '新規タスク', start: formatDate(new Date(viewStart)), end: formatDate(new Date(viewStart)), startType: 'date', endType: 'date', color: 'bg-blue-500', category: category || categories[0] };
     setTasks([...tasks, newTask]);
     setEditingTask(newTask);
   };
@@ -290,7 +305,8 @@ export function YabaneSchedulePage() {
 
   const deleteTask = (id: string) => { setTasks(tasks.filter(t => t.id !== id)); setEditingTask(null); };
 
-  const handleDragStart = (e: React.DragEvent, taskId: string) => { setDragTaskId(taskId); e.dataTransfer.effectAllowed = 'move'; };
+  const draggedRef = useRef(false);
+  const handleDragStart = (e: React.DragEvent, taskId: string) => { setDragTaskId(taskId); draggedRef.current = true; e.dataTransfer.effectAllowed = 'move'; };
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); };
   const handleDrop = (e: React.DragEvent, targetTaskId: string) => {
     e.preventDefault();
@@ -301,7 +317,8 @@ export function YabaneSchedulePage() {
     const newTasks = [...tasks]; const [moved] = newTasks.splice(si, 1); newTasks.splice(ti, 0, moved);
     setTasks(newTasks); setDragTaskId(null);
   };
-  const handleDragEnd = () => { setDragTaskId(null); };
+  const handleDragEnd = () => { setDragTaskId(null); setTimeout(() => { draggedRef.current = false; }, 0); };
+  const handleTaskClick = (task: Task) => { if (!draggedRef.current) setEditingTask(task); };
 
   const attemptDeleteCategory = (catName: string) => {
     if (tasks.some(t => t.category === catName)) setCategoryConfirmDelete(catName);
@@ -324,7 +341,7 @@ export function YabaneSchedulePage() {
   };
 
   const handleExportJSON = () => {
-    const data = { version: "1.9", tasks, categories, viewStart, viewEnd, viewMode, unitWidth, leftCols, rightCols };
+    const data = { version: "2.0", tasks, categories, viewStart, viewEnd, viewMode, unitWidth, leftCols, rightCols, useJapaneseHolidays };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `yabane-${formatDate(new Date())}.json`; a.click(); URL.revokeObjectURL(url);
   };
@@ -335,12 +352,17 @@ export function YabaneSchedulePage() {
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
+        if (!Array.isArray(data.tasks) || !Array.isArray(data.categories)) throw new Error('invalid format');
         setTasks(data.tasks); setCategories(data.categories);
         if (data.viewStart) setViewStart(data.viewStart);
         if (data.viewEnd) setViewEnd(data.viewEnd);
         if (data.viewMode) setViewMode(data.viewMode);
+        if (data.unitWidth) setUnitWidth(data.unitWidth);
+        if (Array.isArray(data.leftCols)) setLeftCols(data.leftCols);
+        if (Array.isArray(data.rightCols)) setRightCols(data.rightCols);
+        if (typeof data.useJapaneseHolidays === 'boolean') setUseJapaneseHolidays(data.useJapaneseHolidays);
         setMessage({ type: 'success', text: 'データを復元しました' });
-      } catch { setMessage({ type: 'error', text: '読込失敗' }); }
+      } catch { setMessage({ type: 'error', text: '読込失敗: 不正なファイル形式です' }); }
       e.target.value = '';
     };
     reader.readAsText(file);
@@ -376,7 +398,7 @@ export function YabaneSchedulePage() {
 
       const HEADER_HEIGHT = 0.6, MIN_ROW_HEIGHT = 0.7, TASK_V_STEP = 0.35, TASK_SHAPE_H = 0.25;
       const categoryHeights = activeCategories.map(category => {
-        const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
+        const laneTasks = laneTasksByCategory[category] || [];
         const maxLane = Math.max(-1, ...laneTasks.map(t => t.laneIndex));
         return Math.max(MIN_ROW_HEIGHT, (maxLane + 1) * TASK_V_STEP + 0.3);
       });
@@ -390,7 +412,7 @@ export function YabaneSchedulePage() {
         const isSun = isHolidayMode && date.getDay() === 0;
         let label = "";
         if (viewMode === 'day') label = `${date.getMonth() + 1}/${date.getDate()}`;
-        else if (viewMode === 'week') label = `W${Math.ceil(date.getDate() / 7)}`;
+        else if (viewMode === 'week') label = `W${getISOWeek(date)}`;
         else if (viewMode === 'month') label = `${date.getFullYear()}年\n${date.getMonth() + 1}月`;
         else if (viewMode === 'year') label = `${date.getFullYear()}年`;
         else if (viewMode === 'fy') label = getFiscalInfo(date).label;
@@ -406,7 +428,7 @@ export function YabaneSchedulePage() {
       const totalTableWidthInch = colWidths.reduce((sum, w) => sum + w, 0);
       slide.addTable(tableRows, { x: START_X, y: START_Y, w: totalTableWidthInch, colW: colWidths, rowH: tableRowHeights, autoPage: false });
       activeCategories.forEach((category, catIdx) => {
-        const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
+        const laneTasks = laneTasksByCategory[category] || [];
         let currentCatY = START_Y + HEADER_HEIGHT;
         for (let i = 0; i < catIdx; i++) currentCatY += categoryHeights[i];
         laneTasks.forEach(task => {
@@ -426,7 +448,7 @@ export function YabaneSchedulePage() {
       await pptx.writeFile({ fileName: `yabane-schedule-${formatDate(new Date())}.pptx` });
       setMessage({ type: 'success', text: 'PPTX出力完了' });
     } catch (err: any) { setMessage({ type: 'error', text: `PPTX出力エラー: ${err.message}` }); } finally { setIsExporting(false); }
-  }, [pptxReady, categories, tasks, totalTimelineWidth, unitWidth, leftCols, rightCols, timelineUnits, viewMode, useJapaneseHolidays, holidays]);
+  }, [pptxReady, categories, tasks, totalTimelineWidth, unitWidth, leftCols, rightCols, timelineUnits, viewMode, useJapaneseHolidays, holidays, laneTasksByCategory]);
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
@@ -452,19 +474,19 @@ export function YabaneSchedulePage() {
         <div className="flex items-center space-x-2">
           <div className="relative" ref={rangePickerRef}>
             <div className="flex items-center bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm">
-              <button onClick={() => shiftView(-1)} className="p-1.5 hover:bg-slate-50 border-r border-slate-200"><ChevronLeft size={16} /></button>
+              <button onClick={() => shiftView(-1)} className="p-1.5 hover:bg-slate-50 border-r border-slate-200" aria-label="前の期間"><ChevronLeft size={16} /></button>
               <button onClick={() => setShowRangePicker(!showRangePicker)} className="px-3 py-1.5 text-xs font-bold flex items-center space-x-2 hover:bg-slate-50 transition-colors">
                 <CalendarDays size={14} className="text-indigo-500" />
                 <span>{viewStart.replace(/-/g, '/')} 〜 {viewEnd.replace(/-/g, '/')}</span>
               </button>
-              <button onClick={() => shiftView(1)} className="p-1.5 hover:bg-slate-50 border-l border-slate-200"><ChevronRight size={16} /></button>
+              <button onClick={() => shiftView(1)} className="p-1.5 hover:bg-slate-50 border-l border-slate-200" aria-label="次の期間"><ChevronRight size={16} /></button>
             </div>
             {showRangePicker && (
               <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-4">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 font-bold text-sm">表示範囲設定<button onClick={() => setShowRangePicker(false)}><X size={16}/></button></div>
                 <div className="space-y-4">
-                  <div className="space-y-1"><label className="text-[10px] text-slate-400 font-bold uppercase">開始日</label><input type="date" value={viewStart} onChange={(e) => setViewStart(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
-                  <div className="space-y-1"><label className="text-[10px] text-slate-400 font-bold uppercase">終了日</label><input type="date" value={viewEnd} onChange={(e) => setViewEnd(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                  <div className="space-y-1"><label className="text-[10px] text-slate-400 font-bold uppercase">開始日</label><input type="date" value={viewStart} onChange={(e) => { if (e.target.value <= viewEnd) setViewStart(e.target.value); }} className="w-full px-3 py-2 border rounded-lg text-sm" max={viewEnd} /></div>
+                  <div className="space-y-1"><label className="text-[10px] text-slate-400 font-bold uppercase">終了日</label><input type="date" value={viewEnd} onChange={(e) => { if (e.target.value >= viewStart) setViewEnd(e.target.value); }} className="w-full px-3 py-2 border rounded-lg text-sm" min={viewStart} /></div>
                 </div>
                 <button onClick={() => setShowRangePicker(false)} className="w-full mt-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">適用</button>
               </div>
@@ -477,8 +499,8 @@ export function YabaneSchedulePage() {
             <button onClick={handleExportJSON} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="JSON保存"><FileJson size={18} /></button>
             <button onClick={handleExportPPTX} disabled={isExporting || !pptxReady} className="p-2 hover:bg-slate-100 rounded-md text-indigo-600 disabled:opacity-50" title={pptxReady ? "PowerPoint出力" : "ライブラリ読込中..."}>{isExporting ? <Loader2 size={18} className="animate-spin" /> : <Presentation size={18} />}</button>
           </div>
-          <button onClick={() => setShowSettings(!showSettings)} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="設定"><Settings size={18} /></button>
-          <button onClick={() => window.print()} className="bg-slate-700 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 text-xs font-bold flex items-center space-x-1 shadow-sm"><Download size={14} /><span>印刷</span></button>
+          <button onClick={() => setShowSettings(!showSettings)} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="設定" aria-label="設定"><Settings size={18} /></button>
+          <button onClick={() => window.print()} className="bg-slate-700 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 text-xs font-bold flex items-center space-x-1 shadow-sm" aria-label="印刷"><Download size={14} /><span>印刷</span></button>
         </div>
       </header>
 
@@ -494,7 +516,7 @@ export function YabaneSchedulePage() {
                 const isSun = isHolidayMode && date.getDay() === 0;
                 let mainLabel = "", subLabel = "";
                 if (viewMode === 'day') { mainLabel = date.getDate() === 1 || i === 0 ? `${date.getMonth() + 1}月` : ""; subLabel = date.getDate().toString(); }
-                else if (viewMode === 'week') { mainLabel = `${date.getMonth() + 1}月`; subLabel = `W${Math.ceil(date.getDate() / 7)}`; }
+                else if (viewMode === 'week') { mainLabel = `${date.getMonth() + 1}月`; subLabel = `W${getISOWeek(date)}`; }
                 else if (viewMode === 'month') { mainLabel = `${date.getFullYear()}年`; subLabel = `${date.getMonth() + 1}月`; }
                 else if (viewMode === 'year') { subLabel = `${date.getFullYear()}年`; }
                 else if (viewMode === 'fy') { subLabel = getFiscalInfo(date).label; }
@@ -511,7 +533,7 @@ export function YabaneSchedulePage() {
 
           <div className="flex-1 min-w-full w-max">
             {categories.map((category) => {
-              const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
+              const laneTasks = laneTasksByCategory[category] || [];
               const maxLane = Math.max(-1, ...laneTasks.map(t => t.laneIndex));
               const swimlaneHeight = Math.max(70, (maxLane + 1) * (TASK_HEIGHT + TASK_GAP) + 12);
               return (
@@ -535,7 +557,7 @@ export function YabaneSchedulePage() {
                         return (
                           <div key={task.id} style={{ left: `${task.xStart + 5}px`, width: `${task.width - 10}px`, top: `${top}px`, height: `${TASK_HEIGHT}px`, opacity: dragTaskId === task.id ? 0.5 : 1 }}
                             className="absolute transition-all hover:z-10 flex items-center justify-center cursor-move"
-                            draggable="true" onDragStart={(e) => handleDragStart(e, task.id)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, task.id)} onDragEnd={handleDragEnd} onClick={() => setEditingTask(task)}>
+                            draggable="true" onDragStart={(e) => handleDragStart(e, task.id)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, task.id)} onDragEnd={handleDragEnd} onClick={() => handleTaskClick(task)}>
                             <div className={`absolute inset-0 ${task.color} opacity-90 shadow-sm ${editingTask?.id === task.id ? 'ring-2 ring-indigo-400 ring-offset-1' : ''} group`}
                               style={{ clipPath: 'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%)' }}>
                               <div className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-50 text-white"><GripVertical size={12} /></div>
@@ -593,7 +615,7 @@ export function YabaneSchedulePage() {
                   </select>
                 ) : (<input type="date" value={editingTask.end} onChange={(e) => updateTask(editingTask.id, { end: e.target.value })} className="w-full p-1.5 border rounded text-xs" />)}
               </div>
-              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400">カラー</label><div className="grid grid-cols-4 gap-2">{COLORS.map(c => <button key={c.bg} onClick={() => updateTask(editingTask.id, { color: c.bg })} className={`h-8 rounded ${c.bg} ${editingTask.color === c.bg ? 'ring-2 ring-slate-400' : ''}`} />)}</div></div>
+              <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400">カラー</label><div className="grid grid-cols-4 gap-2" role="radiogroup" aria-label="タスクカラー">{COLORS.map(c => <button key={c.bg} onClick={() => updateTask(editingTask.id, { color: c.bg })} className={`h-8 rounded ${c.bg} ${editingTask.color === c.bg ? 'ring-2 ring-slate-400' : ''}`} role="radio" aria-checked={editingTask.color === c.bg} aria-label={c.name} />)}</div></div>
               <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400">工程カテゴリ</label><select value={editingTask.category} onChange={(e) => updateTask(editingTask.id, { category: e.target.value })} className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm bg-white">{categories.map(c => <option key={c} value={c}>{c}</option>)}</select></div>
               <div className="pt-4 border-t"><button onClick={() => deleteTask(editingTask.id)} className="w-full py-2 text-rose-500 text-xs font-bold border border-rose-100 rounded hover:bg-rose-50 flex items-center justify-center space-x-1"><Trash2 size={14}/><span>タスク削除</span></button></div>
             </div>
@@ -602,7 +624,7 @@ export function YabaneSchedulePage() {
       </main>
 
       {showAddCategoryModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="工程区分の追加">
           <div className="bg-white rounded-xl shadow-2xl w-80 p-6">
             <h3 className="font-bold text-lg mb-4 flex items-center space-x-2 text-indigo-600"><PlusCircle size={20}/><span>工程区分の追加</span></h3>
             <div className="space-y-1 mb-6">
@@ -618,13 +640,13 @@ export function YabaneSchedulePage() {
       )}
 
       {categoryConfirmDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-label="区分の削除確認">
           <div className="bg-white rounded-xl shadow-2xl w-80 p-6"><h3 className="font-bold text-lg text-rose-600 mb-2">区分の削除</h3><p className="text-sm text-slate-600 mb-6">「{categoryConfirmDelete}」内のタスクもすべて削除されます。</p><div className="flex space-x-3"><button onClick={() => setCategoryConfirmDelete(null)} className="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold">キャンセル</button><button onClick={confirmDeleteCategory} className="flex-1 py-2 bg-rose-600 text-white rounded-lg text-xs font-bold shadow-md">削除</button></div></div>
         </div>
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-label="設定">
           <div className="bg-white rounded-xl shadow-2xl w-96 overflow-hidden">
             <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-bold text-sm">設定<button onClick={() => setShowSettings(false)}><X size={18}/></button></div>
             <div className="p-4 space-y-6 overflow-y-auto max-h-[80vh]">
