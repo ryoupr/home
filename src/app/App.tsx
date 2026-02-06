@@ -5,6 +5,7 @@ import { ToolsPage } from './pages/ToolsPage';
 import { SampleToolPage } from './pages/tools/SampleToolPage';
 import { CsvGraphViewerPage } from './pages/tools/CsvGraphViewerPage';
 import IconGeneratorPage from './pages/tools/IconGeneratorPage';
+import { YabaneSchedulePage } from './pages/tools/YabaneSchedulePage';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/tools/sample" element={<SampleToolPage />} />
         <Route path="/tools/csv-graph-viewer" element={<CsvGraphViewerPage />} />
         <Route path="/tools/icon-generator" element={<IconGeneratorPage />} />
+        <Route path="/tools/yabane-schedule" element={<YabaneSchedulePage />} />
       </Routes>
     </BrowserRouter>
   );

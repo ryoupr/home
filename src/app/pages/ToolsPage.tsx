@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BarChart2, Box } from 'lucide-react';
+import { BarChart2, Box, Calendar } from 'lucide-react';
 
 export function ToolsPage() {
   return (
@@ -74,6 +74,34 @@ export function ToolsPage() {
                   </span>
                   <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded-full">
                     カスタマイズ
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* 矢羽スケジュール */}
+            <Link to="/tools/yabane-schedule">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    矢羽スケジュール
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  矢羽（シェブロン）形状のガントチャートを作成。日本の祝日対応、日次〜年度表示の切替、PowerPoint出力に対応したプロジェクト管理ツールです。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                    ガントチャート
+                  </span>
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                    PPTX出力
+                  </span>
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
+                    祝日対応
                   </span>
                 </div>
               </div>

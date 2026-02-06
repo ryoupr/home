@@ -61,3 +61,6 @@ temp/
 # Mise
 .mise.local.toml
 .tool-versions.local
+
+# Daily notes
+daily_notes/
