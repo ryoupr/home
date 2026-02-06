@@ -404,7 +404,7 @@ export function YabaneSchedulePage() {
         tableRows.push(row);
       });
       const totalTableWidthInch = colWidths.reduce((sum, w) => sum + w, 0);
-      slide.addTable(tableRows, { x: START_X, y: START_Y, w: totalTableWidthInch, colWidths, rowH: tableRowHeights, autoPage: false });
+      slide.addTable(tableRows, { x: START_X, y: START_Y, w: totalTableWidthInch, colW: colWidths, rowH: tableRowHeights, autoPage: false });
       activeCategories.forEach((category, catIdx) => {
         const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
         let currentCatY = START_Y + HEADER_HEIGHT;
