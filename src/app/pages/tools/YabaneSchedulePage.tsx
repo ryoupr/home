@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Plus, Trash2, Settings, Download, Upload, FileJson, Presentation,
@@ -6,7 +6,17 @@ import {
   Edit2, X, AlertCircle, Loader2, Check, CalendarDays, PlusCircle
 } from 'lucide-react';
 
+// --- PptxGenJS type declaration ---
+declare global {
+  interface Window { PptxGenJS?: new () => any; }
+}
+
 // --- Constants & Helpers ---
+
+const PPTX_CDN_URL = "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js";
+const PPTX_SCRIPT_ID = "pptxgenjs-cdn";
+/** テーブルセルとシェブロン図形の水平位置補正値（インチ） */
+const PPTX_SHAPE_OFFSET_X = -0.02;
 
 const COLORS = [
   { name: 'Blue', bg: 'bg-blue-500', hex: '3B82F6' },
@@ -155,6 +165,7 @@ export function YabaneSchedulePage() {
   const [categoryConfirmDelete, setCategoryConfirmDelete] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [pptxReady, setPptxReady] = useState(() => !!window.PptxGenJS);
   const [dragTaskId, setDragTaskId] = useState<string | null>(null);
   const [useJapaneseHolidays, setUseJapaneseHolidays] = useState(true);
 
@@ -181,11 +192,15 @@ export function YabaneSchedulePage() {
   }, [viewStart, useJapaneseHolidays]);
 
   useEffect(() => {
+    if (window.PptxGenJS) { setPptxReady(true); return; }
+    if (document.getElementById(PPTX_SCRIPT_ID)) return;
     const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js";
+    script.id = PPTX_SCRIPT_ID;
+    script.src = PPTX_CDN_URL;
     script.async = true;
+    script.onload = () => setPptxReady(true);
+    script.onerror = () => setPptxReady(false);
     document.body.appendChild(script);
-    return () => { if (document.body.contains(script)) document.body.removeChild(script); };
   }, []);
 
   const timelineUnits = useMemo(() => {
@@ -331,11 +346,11 @@ export function YabaneSchedulePage() {
     reader.readAsText(file);
   };
 
-  const handleExportPPTX = async () => {
-    if (typeof (window as any).PptxGenJS === 'undefined') { setMessage({ type: 'error', text: 'ライブラリ読込中... 再試行してください' }); return; }
+  const handleExportPPTX = useCallback(async () => {
+    if (!pptxReady || !window.PptxGenJS) { setMessage({ type: 'error', text: 'ライブラリ読込中... 再試行してください' }); return; }
     setIsExporting(true);
     try {
-      const pptx = new (window as any).PptxGenJS();
+      const pptx = new window.PptxGenJS();
       pptx.layout = 'LAYOUT_WIDE';
       const slide = pptx.addSlide();
       slide.addText("矢羽スケジュール", { x: 0.5, y: 0.2, w: 9, h: 0.5, fontSize: 24, bold: true, color: '333333' });
@@ -347,9 +362,20 @@ export function YabaneSchedulePage() {
       const leftColWidthInch = SPECIAL_COL_WIDTH * pxToInch;
       const unitWidthInch = unitWidth * pxToInch;
       const rightColWidthInch = SPECIAL_COL_WIDTH * pxToInch;
+
+      // Fix #6: タスクが存在するカテゴリのみ出力
+      const activeCategories = categories.filter(cat => tasks.some(t => t.category === cat));
+      if (activeCategories.length === 0) { setMessage({ type: 'error', text: '出力するタスクがありません' }); return; }
+
       const colWidths = [CATEGORY_COL_WIDTH, ...Array(leftCols.length).fill(leftColWidthInch), ...Array(timelineUnits.length).fill(unitWidthInch), ...Array(rightCols.length).fill(rightColWidthInch)];
+
+      // Fix #5: 日次モードで列数が多すぎる場合に警告
+      if (viewMode === 'day' && timelineUnits.length > 90) {
+        setMessage({ type: 'error', text: '日次モードの表示範囲が広すぎます（90日以内に絞ってください）' }); return;
+      }
+
       const HEADER_HEIGHT = 0.6, MIN_ROW_HEIGHT = 0.7, TASK_V_STEP = 0.35, TASK_SHAPE_H = 0.25;
-      const categoryHeights = categories.map(category => {
+      const categoryHeights = activeCategories.map(category => {
         const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
         const maxLane = Math.max(-1, ...laneTasks.map(t => t.laneIndex));
         return Math.max(MIN_ROW_HEIGHT, (maxLane + 1) * TASK_V_STEP + 0.3);
@@ -372,14 +398,14 @@ export function YabaneSchedulePage() {
       });
       rightCols.forEach(c => headerRow.push({ text: c, options: { ...headerOptions, fill: 'E2E8F0' } }));
       const tableRows: any[][] = [headerRow];
-      categories.forEach(cat => {
+      activeCategories.forEach(cat => {
         const row: any[] = [{ text: cat, options: { bold: true, valign: 'middle', align: 'center', border: { pt: 1, color: 'CBD5E1' }, margin: 0 } }];
         for (let i = 0; i < leftCols.length + timelineUnits.length + rightCols.length; i++) row.push({ text: "", options: { border: { pt: 1, color: 'F1F5F9' }, margin: 0 } });
         tableRows.push(row);
       });
       const totalTableWidthInch = colWidths.reduce((sum, w) => sum + w, 0);
       slide.addTable(tableRows, { x: START_X, y: START_Y, w: totalTableWidthInch, colWidths, rowH: tableRowHeights, autoPage: false });
-      categories.forEach((category, catIdx) => {
+      activeCategories.forEach((category, catIdx) => {
         const laneTasks = getTasksInLanes(tasks.filter(t => t.category === category));
         let currentCatY = START_Y + HEADER_HEIGHT;
         for (let i = 0; i < catIdx; i++) currentCatY += categoryHeights[i];
@@ -387,7 +413,7 @@ export function YabaneSchedulePage() {
           let shapeX_px = task.xStart, shapeW_px = task.width;
           if (shapeX_px < 0) { shapeW_px += shapeX_px; shapeX_px = 0; }
           if (shapeX_px + shapeW_px > totalTimelineWidth) shapeW_px = totalTimelineWidth - shapeX_px;
-          const shapeX = START_X + CATEGORY_COL_WIDTH + shapeX_px * pxToInch - 0.02;
+          const shapeX = START_X + CATEGORY_COL_WIDTH + shapeX_px * pxToInch + PPTX_SHAPE_OFFSET_X;
           const shapeW = shapeW_px * pxToInch;
           const shapeY = currentCatY + 0.15 + task.laneIndex * TASK_V_STEP;
           if (shapeW > 0) {
@@ -400,7 +426,7 @@ export function YabaneSchedulePage() {
       await pptx.writeFile({ fileName: `yabane-schedule-${formatDate(new Date())}.pptx` });
       setMessage({ type: 'success', text: 'PPTX出力完了' });
     } catch (err: any) { setMessage({ type: 'error', text: `PPTX出力エラー: ${err.message}` }); } finally { setIsExporting(false); }
-  };
+  }, [pptxReady, categories, tasks, totalTimelineWidth, unitWidth, leftCols, rightCols, timelineUnits, viewMode, useJapaneseHolidays, holidays]);
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
@@ -449,7 +475,7 @@ export function YabaneSchedulePage() {
             <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="JSON読込"><Upload size={18} /></button>
             <input type="file" ref={fileInputRef} onChange={handleImportJSON} className="hidden" accept=".json" />
             <button onClick={handleExportJSON} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="JSON保存"><FileJson size={18} /></button>
-            <button onClick={handleExportPPTX} disabled={isExporting} className="p-2 hover:bg-slate-100 rounded-md text-indigo-600 disabled:opacity-50" title="PowerPoint出力">{isExporting ? <Loader2 size={18} className="animate-spin" /> : <Presentation size={18} />}</button>
+            <button onClick={handleExportPPTX} disabled={isExporting || !pptxReady} className="p-2 hover:bg-slate-100 rounded-md text-indigo-600 disabled:opacity-50" title={pptxReady ? "PowerPoint出力" : "ライブラリ読込中..."}>{isExporting ? <Loader2 size={18} className="animate-spin" /> : <Presentation size={18} />}</button>
           </div>
           <button onClick={() => setShowSettings(!showSettings)} className="p-2 hover:bg-slate-100 rounded-md text-slate-500" title="設定"><Settings size={18} /></button>
           <button onClick={() => window.print()} className="bg-slate-700 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 text-xs font-bold flex items-center space-x-1 shadow-sm"><Download size={14} /><span>印刷</span></button>
