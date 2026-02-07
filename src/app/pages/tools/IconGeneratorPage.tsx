@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
 import { iconMap, iconKeys } from './iconMap';
 import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
@@ -6,6 +6,7 @@ import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, draw
 import { useUndoRedo, useLocalStorage } from './iconGeneratorHooks';
 
 export default function IconGeneratorPage() {
+  useEffect(() => { document.title = 'Icon Generator | ryoupr'; }, []);
   const { currentState: config, setState: setConfig, undo, redo, canUndo, canRedo } = useUndoRedo<IconConfig>(defaultConfig);
   const [presets, setPresets] = useLocalStorage<IconConfig[]>('icon-presets', []);
   const [searchQuery, setSearchQuery] = useState('');

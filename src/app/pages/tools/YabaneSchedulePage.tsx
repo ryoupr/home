@@ -151,6 +151,7 @@ const getJapaneseHolidays = (year: number): Record<string, string> => {
 // --- Main Component ---
 
 export function YabaneSchedulePage() {
+  useEffect(() => { document.title = 'Yabane Schedule | ryoupr'; }, []);
   const [tasks, setTasks] = useState<Task[]>([
     { id: '1', title: '要件定義', start: '2026-04-05', end: '2026-04-15', color: 'bg-blue-500', category: '設計', startType: 'date', endType: 'date' },
     { id: '2', title: '基本設計', start: '2026-04-12', end: '2026-04-25', color: 'bg-emerald-500', category: '設計', startType: 'date', endType: 'date' },
