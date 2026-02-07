@@ -6,7 +6,7 @@ import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, draw
 import { useUndoRedo, useLocalStorage } from './iconGeneratorHooks';
 
 export default function IconGeneratorPage() {
-  useEffect(() => { document.title = 'Icon Generator'; return () => { document.title = 'Portfolio | ryoupr'; }; }, []);
+  useEffect(() => { document.title = 'Icon Generator | ryoupr'; }, []);
   const { currentState: config, setState: setConfig, undo, redo, canUndo, canRedo } = useUndoRedo<IconConfig>(defaultConfig);
   const [presets, setPresets] = useLocalStorage<IconConfig[]>('icon-presets', []);
   const [searchQuery, setSearchQuery] = useState('');

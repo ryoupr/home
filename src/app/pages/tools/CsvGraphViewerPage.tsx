@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceArea, LabelList } from 'recharts';
 import { Upload, FileText, BarChart2, TrendingUp, Activity, Trash2, Settings, Table as TableIcon, Download, Plus, X, ScanLine, Palette, Type } from 'lucide-react';
 
@@ -89,6 +89,7 @@ const COLOR_PALETTES: Record<string, string[]> = {
 };
 
 export function CsvGraphViewerPage() {
+  useEffect(() => { document.title = 'CSV Graph Viewer | ryoupr'; }, []);
   const [rawData, setRawData] = useState<ParsedData[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [fileName, setFileName] = useState('');

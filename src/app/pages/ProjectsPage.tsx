@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ProjectsSection } from '../components/ProjectsSection';
 import { Footer } from '../components/Footer';
 
 export function ProjectsPage() {
+  useEffect(() => { document.title = 'Projects | ryoupr'; }, []);
   return (
     <div className="size-full bg-slate-950">
       {/* Header */}
