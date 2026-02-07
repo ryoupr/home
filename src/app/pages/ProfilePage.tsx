@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen, Wrench } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
@@ -5,6 +6,7 @@ import { useGitHubStats, extractGitHubUsername } from '../hooks/useGitHubStats';
 import config from '../../data/config.json';
 
 export function ProfilePage() {
+  useEffect(() => { document.title = 'Portfolio | ryoupr'; }, []);
   const { personal } = config;
   const { totalStars, totalRepos, loading } = useGitHubStats(extractGitHubUsername(personal.github));
 
