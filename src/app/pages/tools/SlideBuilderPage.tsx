@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Eye, Code, Loader2, X } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 declare global {
   interface Window { PptxGenJS?: new () => any; }
@@ -762,7 +763,7 @@ export function SlideBuilderPage() {
           resolve(doc ? extractSlides(doc) : [[]]);
         } catch (e) { console.warn('Extraction failed:', e); resolve([[]]); }
       };
-      tmp.srcdoc = htmlContent;
+      tmp.srcdoc = DOMPurify.sanitize(htmlContent, { WHOLE_DOCUMENT: true, ADD_TAGS: ['style', 'link'], ADD_ATTR: ['class', 'style'] });
     });
   }, []);
 
@@ -865,7 +866,7 @@ export function SlideBuilderPage() {
                   <div style={{ width: 1280 * previewScale, height: 720 * previewScale, flexShrink: 0 }}>
                     <iframe
                       ref={iframeRef}
-                      srcDoc={html}
+                      srcDoc={DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true, ADD_TAGS: ['style', 'link'], ADD_ATTR: ['class', 'style'] })}
                       onLoad={onIframeLoad}
                       title="スライドプレビュー"
                       className="bg-white shadow-lg"

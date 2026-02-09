@@ -6,7 +6,7 @@ export function Footer() {
           <span className="text-cyan-400">&gt;</span> お仕事のご依頼やお問い合わせは、メールまたはSNSからお気軽にご連絡ください。
         </p>
         <p className="text-sm text-slate-600 font-mono">
-          © 2026 Your Name. All rights reserved.
+          © {new Date().getFullYear()} Your Name. All rights reserved.
         </p>
       </div>
     </footer>

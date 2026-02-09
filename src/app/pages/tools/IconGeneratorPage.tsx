@@ -68,14 +68,16 @@ export default function IconGeneratorPage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageUrl = event.target?.result as string;
-        setConfig({ ...config, type: 'image', uploadedImage: imageUrl });
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 10 * 1024 * 1024) return; // 10MB limit
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageUrl = event.target?.result as string;
+      if (imageUrl) setConfig({ ...config, type: 'image', uploadedImage: imageUrl });
+    };
+    reader.onerror = () => console.error('FileReader error:', reader.error);
+    reader.readAsDataURL(file);
   };
 
   const savePreset = () => {
