@@ -77,6 +77,7 @@ interface SlideElement {
   type: 'shape' | 'text' | 'image' | 'list' | 'table';
   x: number; y: number; w: number; h: number;
   zIndex: number;
+  domOrder: number;
   fill?: string;
   gradient?: { angle: number; color1: string; color2: string };
   opacity?: number;
@@ -158,15 +159,15 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
 }
 
 // Extract pseudo-element (::before/::after) as a shape or text
-function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: ReturnType<typeof Object>, zIndex: number, scaleX: number, scaleY: number): SlideElement | null {
+interface Pos { x: number; y: number; w: number; h: number }
+
+function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: Pos, zIndex: number, domOrder: number, scaleX: number, scaleY: number): SlideElement | null {
   const ps = getComputedStyle(el, pseudo);
   const content = ps.content;
   if (!content || content === 'none' || content === 'normal' || content === '""') return null;
-  // #2: Skip function values (counter, attr, url, etc.)
   if (/^(counter|attr|url|open-quote|close-quote)\(/.test(content)) return null;
 
   const text = content.replace(/^["']|["']$/g, '');
-  // #1: Use computed width/height from the pseudo-element style when available
   const psWidth = parseFloat(ps.width);
   const psHeight = parseFloat(ps.height);
   const fontSize = parseFloat(ps.fontSize) * 0.75;
@@ -175,19 +176,19 @@ function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: Retur
   if (w < 0.01 && h < 0.01) return null;
 
   const bgColor = !isTransparent(ps.backgroundColor) ? rgbToHex(ps.backgroundColor) : undefined;
-  const x = pseudo === '::before' ? (p as any).x - w : (p as any).x + (p as any).w;
-  const y = (p as any).y;
+  const x = pseudo === '::before' ? p.x - w : p.x + p.w;
+  const y = p.y;
 
   if (text && text.trim()) {
     return {
-      type: 'text', x, y, w: Math.max(w, 0.1), h: Math.max(h, 0.1), zIndex,
+      type: 'text', x, y, w: Math.max(w, 0.1), h: Math.max(h, 0.1), zIndex, domOrder,
       text, fontSize, fontColor: rgbToHex(ps.color) || '333333',
       fontFamily: ps.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
       fontBold: parseInt(ps.fontWeight) >= 700,
     };
   }
   if (bgColor && w > 0.01 && h > 0.01) {
-    return { type: 'shape', x, y, w, h, zIndex, fill: bgColor };
+    return { type: 'shape', x, y, w, h, zIndex, domOrder, fill: bgColor };
   }
   return null;
 }
@@ -245,19 +246,21 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
     const p = pos(rect);
     if (p.x + p.w < 0 || p.y + p.h < 0 || p.x > SLIDE_W || p.y > SLIDE_H) return;
 
+    // #3: Separate explicit z-index from DOM order
     const parsed = parseInt(style.zIndex);
-    const zIndex = isNaN(parsed) ? order++ : parsed;
+    const zIndex = isNaN(parsed) ? 0 : parsed;
+    const domOrder = order++;
     const opacity = parseFloat(style.opacity);
     const rotate = parseRotation(style.transform);
     const shadowData = parseBoxShadow(style.boxShadow);
 
     // Common props
-    const common = { ...p, zIndex, opacity: opacity < 1 ? opacity : undefined, rotate: rotate || undefined, shadow: shadowData || undefined };
+    const common = { ...p, zIndex, domOrder, opacity: opacity < 1 ? opacity : undefined, rotate: rotate || undefined, shadow: shadowData || undefined };
 
     // ::before / ::after pseudo-elements
-    const before = extractPseudo(el, '::before', p, zIndex, scaleX, scaleY);
+    const before = extractPseudo(el, '::before', p, zIndex, domOrder, scaleX, scaleY);
     if (before) elements.push(before);
-    const after = extractPseudo(el, '::after', p, zIndex, scaleX, scaleY);
+    const after = extractPseudo(el, '::after', p, zIndex, domOrder, scaleX, scaleY);
     if (after) elements.push(after);
 
     // --- SVG ---
@@ -421,6 +424,8 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       const fullText = rich.map(s => s.text).join('');
       if (fullText && !textOwners.has(el)) {
         textOwners.add(el);
+        // #2: Also mark child text nodes to prevent plain text re-extraction
+        Array.from(el.childNodes).forEach(n => { if (n.nodeType === Node.TEXT_NODE) textOwners.add(n); });
         const padT = parseFloat(style.paddingTop) * scaleY;
         const padR = parseFloat(style.paddingRight) * scaleX;
         const padB = parseFloat(style.paddingBottom) * scaleY;
@@ -482,7 +487,8 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
   }
 
   walk(container, 0);
-  elements.sort((a, b) => a.zIndex - b.zIndex);
+  // #3: Two-level sort: explicit z-index first, then DOM order
+  elements.sort((a, b) => a.zIndex !== b.zIndex ? a.zIndex - b.zIndex : a.domOrder - b.domOrder);
   return elements;
 }
 
@@ -657,7 +663,7 @@ body { margin: 0; font-family: sans-serif; }
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl">
+    <div role="alert" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl">
       <span className="text-sm">{message}</span>
       <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
     </div>
@@ -677,36 +683,61 @@ export function SlideBuilderPage() {
 
   useEffect(() => { document.title = 'Slide Builder | ryoupr'; }, []);
 
+  // ResizeObserver with debounce
   useEffect(() => {
     const el = previewContainerRef.current;
     if (!el) return;
+    let timer: ReturnType<typeof setTimeout>;
     const obs = new ResizeObserver(entries => {
-      const { width } = entries[0].contentRect;
-      setPreviewScale(Math.min((width - 32) / 1280, 0.9));
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const { width } = entries[0].contentRect;
+        setPreviewScale(Math.min((width - 32) / 1280, 0.9));
+      }, 100);
     });
     obs.observe(el);
-    return () => obs.disconnect();
+    return () => { obs.disconnect(); clearTimeout(timer); };
   }, [showPreview]);
 
+  // CDN load with SRI and state management
+  const [cdnReady, setCdnReady] = useState(!!window.PptxGenJS);
   useEffect(() => {
-    if (document.getElementById('pptxgenjs-cdn')) return;
+    if (document.getElementById('pptxgenjs-cdn')) { setCdnReady(!!window.PptxGenJS); return; }
     const s = document.createElement('script');
     s.id = 'pptxgenjs-cdn';
     s.src = PPTX_CDN;
+    s.integrity = 'sha384-LhFjyMXOFrGJuBeclhKCfpJTFpFcaorjS3PKgBBlSJbj9IbKqtjmO0MBkCbuGgpK';
+    s.crossOrigin = 'anonymous';
+    s.onload = () => setCdnReady(true);
     document.head.appendChild(s);
   }, []);
 
-  const updateStats = useCallback(() => {
-    try {
-      const doc = iframeRef.current?.contentDocument;
-      if (doc) {
-        const slides = extractSlides(doc);
-        setStats({ slides: slides.length, elements: slides.reduce((s, sl) => s + sl.length, 0) });
-      }
-    } catch { setStats({ slides: 0, elements: 0 }); }
+  // #1: Create temporary iframe with allow-same-origin (no scripts) for DOM extraction
+  const extractWithTempIframe = useCallback((htmlContent: string): Promise<SlideElement[][]> => {
+    return new Promise((resolve) => {
+      const tmp = document.createElement('iframe');
+      tmp.sandbox.add('allow-same-origin');
+      tmp.style.cssText = 'position:fixed;left:-9999px;width:1280px;height:720px;visibility:hidden';
+      tmp.srcdoc = htmlContent;
+      tmp.onload = () => {
+        try {
+          const doc = tmp.contentDocument;
+          resolve(doc ? extractSlides(doc) : [[]]);
+        } catch { resolve([[]]); }
+        finally { tmp.remove(); }
+      };
+      document.body.appendChild(tmp);
+    });
   }, []);
 
-  const onIframeLoad = useCallback(() => updateStats(), [updateStats]);
+  const updateStats = useCallback(async () => {
+    try {
+      const slides = await extractWithTempIframe(html);
+      setStats({ slides: slides.length, elements: slides.reduce((s, sl) => s + sl.length, 0) });
+    } catch { setStats({ slides: 0, elements: 0 }); }
+  }, [html, extractWithTempIframe]);
+
+  const onIframeLoad = useCallback(() => { updateStats(); }, [updateStats]);
 
   useEffect(() => {
     const t = setTimeout(updateStats, 500);
@@ -716,20 +747,17 @@ export function SlideBuilderPage() {
   const showToast = useCallback((msg: string) => setToast(msg), []);
 
   const handleExport = useCallback(async () => {
-    if (!window.PptxGenJS) { showToast('PptxGenJS を読み込み中...'); return; }
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) { showToast('プレビューが読み込まれていません'); return; }
+    if (!cdnReady || !window.PptxGenJS) { showToast('PptxGenJS を読み込み中...'); return; }
     setExporting(true);
     try {
-      await new Promise(r => setTimeout(r, 100));
-      const slides = extractSlides(doc);
+      const slides = await extractWithTempIframe(html);
       generatePptx(slides, 'slide-output.pptx');
     } catch (e) {
       showToast('エクスポートエラー: ' + (e as Error).message);
     } finally {
       setExporting(false);
     }
-  }, [showToast]);
+  }, [html, showToast, extractWithTempIframe]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
@@ -785,6 +813,7 @@ export function SlideBuilderPage() {
                 onChange={e => setHtml(e.target.value)}
                 className="flex-1 p-4 font-mono text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 resize-none focus:outline-none"
                 spellCheck={false}
+                aria-label="HTMLコード入力"
                 placeholder="HTMLスライドコードを貼り付けてください..."
               />
             </div>
@@ -800,9 +829,10 @@ export function SlideBuilderPage() {
                       ref={iframeRef}
                       srcDoc={html}
                       onLoad={onIframeLoad}
+                      title="スライドプレビュー"
                       className="bg-white shadow-lg"
                       style={{ width: 1280, height: 720, transform: `scale(${previewScale})`, transformOrigin: 'top left', border: 'none' }}
-                      sandbox="allow-same-origin allow-scripts"
+                      sandbox="allow-scripts"
                     />
                   </div>
                 </div>
