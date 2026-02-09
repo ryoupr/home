@@ -263,7 +263,7 @@ export function SlideBuilderPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <Link to="/tools" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 transition-colors">
+            <Link to="/tools" className="text-rose-600 hover:text-rose-700 dark:text-rose-400 transition-colors">
               ← ツール一覧に戻る
             </Link>
             <div className="flex items-center justify-between mt-2">

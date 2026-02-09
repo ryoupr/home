@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceArea, LabelList } from 'recharts';
 import { Upload, FileText, BarChart2, TrendingUp, Activity, Trash2, Settings, Table as TableIcon, Download, Plus, X, ScanLine, Palette, Type } from 'lucide-react';
 
@@ -273,11 +274,14 @@ export function CsvGraphViewerPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* ヘッダー */}
         <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-lg shadow-lg">
-              <BarChart2 className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-4">
+            <Link to="/tools" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">← ツール一覧</Link>
+            <div className="flex items-center gap-3">
+              <div className="bg-indigo-600 p-2 rounded-lg shadow-lg">
+                <BarChart2 className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">CSV Graph Viewer</h1>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">CSV Graph Viewer</h1>
           </div>
           {fileName && (
             <button
