@@ -12,11 +12,10 @@ const SLIDE_H = 7.5;
 
 // --- Color helpers ---
 function rgbToHex(rgb: string): string | null {
-  const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
   if (!m) return null;
-  const [, r, g, b] = m.map(Number);
-  if (rgb.includes('rgba') && rgb.match(/,\s*([\d.]+)\)/) && parseFloat(rgb.match(/,\s*([\d.]+)\)/)![1]) < 0.05) return null;
-  return [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('').toUpperCase();
+  if (m[4] !== undefined && parseFloat(m[4]) < 0.05) return null;
+  return [m[1], m[2], m[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
 function isTransparent(color: string): boolean {
