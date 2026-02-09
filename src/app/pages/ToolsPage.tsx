@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart2, Box, Calendar } from 'lucide-react';
+import { BarChart2, Box, Calendar, Presentation } from 'lucide-react';
 
 export function ToolsPage() {
   useEffect(() => { document.title = 'Tools | ryoupr'; }, []);
@@ -27,7 +27,7 @@ export function ToolsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* CSVグラフビューアー */}
             <Link to="/tools/csv-graph-viewer">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                     <BarChart2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -55,7 +55,7 @@ export function ToolsPage() {
 
             {/* Icon Generator */}
             <Link to="/tools/icon-generator">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                     <Box className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -83,7 +83,7 @@ export function ToolsPage() {
 
             {/* 矢羽スケジュール */}
             <Link to="/tools/yabane-schedule">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                     <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -104,6 +104,34 @@ export function ToolsPage() {
                   </span>
                   <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs rounded-full">
                     祝日対応
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Slide Builder */}
+            <Link to="/tools/slide-builder">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-rose-100 dark:bg-rose-900 rounded-lg">
+                    <Presentation className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Slide Builder
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  AIが生成したHTMLスライドコードを貼り付けるだけで、各要素が個別に編集可能なPowerPointファイルを生成。デザインの微調整が自由自在です。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs rounded-full">
+                    HTML→PPTX
+                  </span>
+                  <span className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs rounded-full">
+                    AI連携
+                  </span>
+                  <span className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs rounded-full">
+                    個別編集可能
                   </span>
                 </div>
               </div>

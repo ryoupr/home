@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
 import { iconMap, iconKeys } from './iconMap';
 import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
@@ -91,13 +92,16 @@ export default function IconGeneratorPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-              <Box size={20} />
+          <div className="flex items-center gap-4">
+            <Link to="/tools" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">← ツール一覧</Link>
+            <div className="flex items-center gap-2">
+              <div className="bg-blue-600 text-white p-1.5 rounded-lg">
+                <Box size={20} />
+              </div>
+              <h1 className="font-bold text-xl tracking-tight">
+                IconMaker<span className="text-blue-600">.</span>
+              </h1>
             </div>
-            <h1 className="font-bold text-xl tracking-tight">
-              IconMaker<span className="text-blue-600">.</span>
-            </h1>
           </div>
           <div className="flex gap-2">
             <button

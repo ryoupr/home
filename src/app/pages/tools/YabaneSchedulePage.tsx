@@ -462,7 +462,7 @@ export function YabaneSchedulePage() {
 
       <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200 shadow-sm z-30">
         <div className="flex items-center space-x-4">
-          <Link to="/tools" className="text-indigo-600 hover:text-indigo-700 text-xs font-bold whitespace-nowrap">← 戻る</Link>
+          <Link to="/tools" className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">← ツール一覧</Link>
           <div className="bg-indigo-600 p-2 rounded-lg text-white"><CalendarIcon size={20} /></div>
           <h1 className="text-lg font-bold tracking-tight hidden lg:block text-slate-700">矢羽スケジュール</h1>
           <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
