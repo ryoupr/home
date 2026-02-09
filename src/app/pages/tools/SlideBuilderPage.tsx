@@ -205,8 +205,22 @@ export function SlideBuilderPage() {
   const [exporting, setExporting] = useState(false);
   const [elementCount, setElementCount] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [previewScale, setPreviewScale] = useState(0.5);
 
   useEffect(() => { document.title = 'Slide Builder | ryoupr'; }, []);
+
+  // Fit preview to container
+  useEffect(() => {
+    const el = previewContainerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(entries => {
+      const { width } = entries[0].contentRect;
+      setPreviewScale(Math.min((width - 32) / 1280, 0.9));
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [showPreview]);
 
   // Load pptxgenjs
   useEffect(() => {
@@ -248,35 +262,37 @@ export function SlideBuilderPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <Link to="/tools" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 transition-colors">
-                ← ツール一覧に戻る
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">Slide Builder</h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
-                HTMLスライドコードを貼り付けて、各要素が個別に編集可能なPPTXファイルを生成
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {elementCount > 0 && `${elementCount} 要素検出`}
-              </span>
-              <button
-                onClick={() => setShowPreview(p => !p)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-              >
-                {showPreview ? <Code className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                {showPreview ? 'コードのみ' : 'プレビュー表示'}
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={exporting}
-                className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
-              >
-                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                PPTX出力
-              </button>
+          <div className="mb-6">
+            <Link to="/tools" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 transition-colors">
+              ← ツール一覧に戻る
+            </Link>
+            <div className="flex items-center justify-between mt-2">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Slide Builder</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">
+                  HTMLスライドコードを貼り付けて、各要素が個別に編集可能なPPTXファイルを生成
+                </p>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {elementCount > 0 && `${elementCount} 要素検出`}
+                </span>
+                <button
+                  onClick={() => setShowPreview(p => !p)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  {showPreview ? <Code className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPreview ? 'コードのみ' : 'プレビュー表示'}
+                </button>
+                <button
+                  onClick={handleExport}
+                  disabled={exporting}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors font-medium"
+                >
+                  {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  PPTX ダウンロード
+                </button>
+              </div>
             </div>
           </div>
 
@@ -302,15 +318,17 @@ export function SlideBuilderPage() {
                 <div className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 border-b dark:border-gray-600">
                   プレビュー
                 </div>
-                <div className="flex-1 overflow-auto bg-gray-200 dark:bg-gray-900 flex items-start justify-center p-4">
-                  <iframe
-                    ref={iframeRef}
-                    srcDoc={html}
-                    onLoad={onIframeLoad}
-                    className="bg-white shadow-lg"
-                    style={{ width: '1280px', height: '720px', transform: 'scale(0.5)', transformOrigin: 'top center', border: 'none' }}
-                    sandbox="allow-same-origin"
-                  />
+                <div ref={previewContainerRef} className="flex-1 overflow-hidden bg-gray-200 dark:bg-gray-900 flex items-start justify-center p-4">
+                  <div style={{ width: 1280 * previewScale, height: 720 * previewScale, flexShrink: 0 }}>
+                    <iframe
+                      ref={iframeRef}
+                      srcDoc={html}
+                      onLoad={onIframeLoad}
+                      className="bg-white shadow-lg"
+                      style={{ width: 1280, height: 720, transform: `scale(${previewScale})`, transformOrigin: 'top left', border: 'none' }}
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
                 </div>
               </div>
             )}
