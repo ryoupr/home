@@ -27,7 +27,7 @@ export function ToolsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* CSVグラフビューアー */}
             <Link to="/tools/csv-graph-viewer">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                     <BarChart2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -55,7 +55,7 @@ export function ToolsPage() {
 
             {/* Icon Generator */}
             <Link to="/tools/icon-generator">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                     <Box className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -83,7 +83,7 @@ export function ToolsPage() {
 
             {/* 矢羽スケジュール */}
             <Link to="/tools/yabane-schedule">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                     <Calendar className="w-6 h-6 text-purple-600 dark:text-purple-400" />
@@ -111,7 +111,7 @@ export function ToolsPage() {
 
             {/* Slide Builder */}
             <Link to="/tools/slide-builder">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-rose-100 dark:bg-rose-900 rounded-lg">
                     <Presentation className="w-6 h-6 text-rose-600 dark:text-rose-400" />

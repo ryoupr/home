@@ -275,7 +275,7 @@ export function CsvGraphViewerPage() {
         {/* ヘッダー */}
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/tools" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">← ツール一覧</Link>
+            <Link to="/tools" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">← ツール一覧</Link>
             <div className="flex items-center gap-3">
               <div className="bg-indigo-600 p-2 rounded-lg shadow-lg">
                 <BarChart2 className="w-6 h-6 text-white" />
