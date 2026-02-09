@@ -71,6 +71,7 @@ function svgToDataUri(el: SVGElement): string | null {
 interface RichTextSegment {
   text: string; bold?: boolean; italic?: boolean; underline?: boolean; strike?: boolean;
   fontSize?: number; color?: string; fontFamily?: string; hyperlink?: string;
+  breakAfter?: boolean;
 }
 
 interface SlideElement {
@@ -129,9 +130,13 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
       });
     } else if (child.nodeType === Node.ELEMENT_NODE) {
       const ce = child as HTMLElement;
-      // <br> → newline
+      // <br> → line break via breakAfter on previous segment
       if (ce.tagName === 'BR') {
-        segments.push({ text: '\n', fontSize: parseFloat(parentStyle.fontSize) * 0.75, color: rgbToHex(parentStyle.color) || '333333' });
+        if (segments.length > 0) {
+          segments[segments.length - 1].breakAfter = true;
+        } else {
+          segments.push({ text: '', breakAfter: true, fontSize: parseFloat(parentStyle.fontSize) * 0.75, color: rgbToHex(parentStyle.color) || '333333' });
+        }
         continue;
       }
       const cs = getComputedStyle(ce);
@@ -157,14 +162,16 @@ function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: Retur
   const ps = getComputedStyle(el, pseudo);
   const content = ps.content;
   if (!content || content === 'none' || content === 'normal' || content === '""') return null;
+  // #2: Skip function values (counter, attr, url, etc.)
+  if (/^(counter|attr|url|open-quote|close-quote)\(/.test(content)) return null;
 
-  // Extract text content (strip quotes)
   const text = content.replace(/^["']|["']$/g, '');
-  const rect = el.getBoundingClientRect();
-  // Estimate pseudo size from font size
+  // #1: Use computed width/height from the pseudo-element style when available
+  const psWidth = parseFloat(ps.width);
+  const psHeight = parseFloat(ps.height);
   const fontSize = parseFloat(ps.fontSize) * 0.75;
-  const w = text ? (text.length * fontSize * 0.6 / 72) : (parseFloat(ps.width) || 0) * scaleX;
-  const h = text ? (fontSize * 1.4 / 72) : (parseFloat(ps.height) || 0) * scaleY;
+  const w = (!isNaN(psWidth) && psWidth > 0) ? psWidth * scaleX : text ? Math.max(text.length * fontSize * 0.8 / 72, 0.1) : 0;
+  const h = (!isNaN(psHeight) && psHeight > 0) ? psHeight * scaleY : fontSize * 1.4 / 72;
   if (w < 0.01 && h < 0.01) return null;
 
   const bgColor = !isTransparent(ps.backgroundColor) ? rgbToHex(ps.backgroundColor) : undefined;
@@ -271,31 +278,40 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
 
     // --- TABLE (with colspan/rowspan) ---
     if (el.tagName === 'TABLE') {
-      const trs = Array.from(el.querySelectorAll('tr'));
-      const maxCols = trs.reduce((max, tr) => {
-        let cols = 0;
-        tr.querySelectorAll('th, td').forEach(td => { cols += (td as HTMLTableCellElement).colSpan || 1; });
-        return Math.max(max, cols);
-      }, 0);
-      // Build grid with merged cells
-      const grid: string[][] = [];
-      const occupied = new Map<string, boolean>();
+      const trs = Array.from(el.querySelectorAll(':scope > thead > tr, :scope > tbody > tr, :scope > tr'));
+      if (!trs.length) return;
+      // #4: Pre-scan to determine grid size including rowspan expansion
+      const occupied = new Map<string, string>();
+      const numRows = trs.length;
+      let maxCols = 0;
+
+      // First pass: calculate occupied cells and max columns
       trs.forEach((tr, ri) => {
-        const row: string[] = new Array(maxCols).fill('');
         let ci = 0;
-        tr.querySelectorAll('th, td').forEach(td => {
+        tr.querySelectorAll(':scope > th, :scope > td').forEach(td => {
           while (occupied.has(`${ri},${ci}`)) ci++;
           const cell = td as HTMLTableCellElement;
           const cs = cell.colSpan || 1;
           const rs = cell.rowSpan || 1;
-          row[ci] = cell.innerText.trim();
+          const text = cell.innerText.trim();
+          // #5: Mark all spanned cells with the text (primary cell) or empty (spanned)
           for (let r = 0; r < rs; r++)
             for (let c = 0; c < cs; c++)
-              if (r > 0 || c > 0) occupied.set(`${ri + r},${ci + c}`, true);
+              occupied.set(`${ri + r},${ci + c}`, (r === 0 && c === 0) ? text : '');
           ci += cs;
         });
-        grid.push(row);
+        maxCols = Math.max(maxCols, ci);
       });
+
+      // Build grid from occupied map
+      const grid: string[][] = [];
+      for (let ri = 0; ri < numRows; ri++) {
+        const row: string[] = [];
+        for (let ci = 0; ci < maxCols; ci++) {
+          row.push(occupied.get(`${ri},${ci}`) ?? '');
+        }
+        grid.push(row);
+      }
       if (grid.length) elements.push({ type: 'table', ...common, tableRows: grid, fontSize: parseFloat(style.fontSize) * 0.75, fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim() });
       return;
     }
@@ -524,6 +540,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
               color: seg.color || '333333',
               fontFace: seg.fontFamily || el.fontFamily || 'Yu Gothic',
               hyperlink: seg.hyperlink ? { url: seg.hyperlink } : undefined,
+              breakLine: seg.breakAfter || false,
             },
           }));
           slide.addText(segments, baseOpts);
