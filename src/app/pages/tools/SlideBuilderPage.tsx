@@ -7,15 +7,20 @@ declare global {
 }
 
 const PPTX_CDN = 'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+const PPTX_SRI = 'sha384-Cck14aA9cifjYolcnjebXRfWGkz5ltHMBiG4px/j8GS+xQcb7OhNQWZYyWjQ+UwQ';
 const SLIDE_W = 13.333;
 const SLIDE_H = 7.5;
+const PX_TO_PT = 0.75;
+const MIN_CONTAINER_W = 800;
+const MIN_CONTAINER_H = 400;
+const MAX_ELEMENTS = 2000;
 
 // --- Color helpers ---
 function rgbToHex(rgb: string): string | null {
   const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
   if (!m) return null;
   if (m[4] !== undefined && parseFloat(m[4]) < 0.05) return null;
-  return [m[1], m[2], m[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+  return [m[1], m[2], m[3]].map(v => Math.min(255, Math.max(0, Number(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
 function isTransparent(color: string): boolean {
@@ -63,7 +68,7 @@ function svgToDataUri(el: SVGElement): string | null {
   try {
     const s = new XMLSerializer().serializeToString(el);
     return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s)));
-  } catch { return null; }
+  } catch (e) { console.warn('svgToDataUri failed:', e); return null; }
 }
 
 // --- Types ---
@@ -125,7 +130,7 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
         italic: parentStyle.fontStyle === 'italic',
         underline: parentStyle.textDecorationLine.includes('underline'),
         strike: parentStyle.textDecorationLine.includes('line-through'),
-        fontSize: parseFloat(parentStyle.fontSize) * 0.75,
+        fontSize: parseFloat(parentStyle.fontSize) * PX_TO_PT,
         color: rgbToHex(parentStyle.color) || '333333',
         fontFamily: parentStyle.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
       });
@@ -136,7 +141,7 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
         if (segments.length > 0) {
           segments[segments.length - 1].breakAfter = true;
         } else {
-          segments.push({ text: '', breakAfter: true, fontSize: parseFloat(parentStyle.fontSize) * 0.75, color: rgbToHex(parentStyle.color) || '333333' });
+          segments.push({ text: '', breakAfter: true, fontSize: parseFloat(parentStyle.fontSize) * PX_TO_PT, color: rgbToHex(parentStyle.color) || '333333' });
         }
         continue;
       }
@@ -148,7 +153,7 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
         italic: cs.fontStyle === 'italic',
         underline: cs.textDecorationLine.includes('underline'),
         strike: cs.textDecorationLine.includes('line-through'),
-        fontSize: parseFloat(cs.fontSize) * 0.75,
+        fontSize: parseFloat(cs.fontSize) * PX_TO_PT,
         color: rgbToHex(cs.color) || '333333',
         fontFamily: cs.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
         hyperlink: ce.tagName === 'A' ? (ce as HTMLAnchorElement).href : undefined,
@@ -170,7 +175,7 @@ function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: Pos, 
   const text = content.replace(/^["']|["']$/g, '');
   const psWidth = parseFloat(ps.width);
   const psHeight = parseFloat(ps.height);
-  const fontSize = parseFloat(ps.fontSize) * 0.75;
+  const fontSize = parseFloat(ps.fontSize) * PX_TO_PT;
   const w = (!isNaN(psWidth) && psWidth > 0) ? psWidth * scaleX : text ? Math.max(text.length * fontSize * 0.8 / 72, 0.1) : 0;
   const h = (!isNaN(psHeight) && psHeight > 0) ? psHeight * scaleY : fontSize * 1.4 / 72;
   if (w < 0.01 && h < 0.01) return null;
@@ -202,7 +207,7 @@ function extractSlides(doc: Document): SlideElement[][] {
   const containers: HTMLElement[] = [];
   for (const el of all) {
     const r = el.getBoundingClientRect();
-    if (r.width >= 800 && r.height >= 400) {
+    if (r.width >= MIN_CONTAINER_W && r.height >= MIN_CONTAINER_H) {
       // Don't add if a parent is already a container
       const isChild = containers.some(c => c.contains(el) && c !== el);
       if (!isChild) {
@@ -238,6 +243,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
   }
 
   function walk(el: HTMLElement, depth: number) {
+    if (elements.length >= MAX_ELEMENTS) return;
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
     if (rect.width < 1 || rect.height < 1) return;
@@ -275,7 +281,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       try {
         const uri = (el as HTMLCanvasElement).toDataURL('image/png');
         if (uri) elements.push({ type: 'image', ...common, imgSrc: uri });
-      } catch { /* tainted canvas */ }
+      } catch (e) { console.warn('Canvas export failed:', e); }
       return;
     }
 
@@ -294,8 +300,8 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
         tr.querySelectorAll(':scope > th, :scope > td').forEach(td => {
           while (occupied.has(`${ri},${ci}`)) ci++;
           const cell = td as HTMLTableCellElement;
-          const cs = cell.colSpan || 1;
-          const rs = cell.rowSpan || 1;
+          const cs = Math.max(1, cell.colSpan || 1);
+          const rs = Math.max(1, cell.rowSpan || 1);
           const text = cell.innerText.trim();
           // #5: Mark all spanned cells with the text (primary cell) or empty (spanned)
           for (let r = 0; r < rs; r++)
@@ -315,7 +321,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
         }
         grid.push(row);
       }
-      if (grid.length) elements.push({ type: 'table', ...common, tableRows: grid, fontSize: parseFloat(style.fontSize) * 0.75, fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim() });
+      if (grid.length) elements.push({ type: 'table', ...common, tableRows: grid, fontSize: parseFloat(style.fontSize) * PX_TO_PT, fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim() });
       return;
     }
 
@@ -334,7 +340,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
             bullets.push({
               text: liText, indentLevel: level,
               bold: parseInt(liStyle.fontWeight) >= 700,
-              fontSize: parseFloat(liStyle.fontSize) * 0.75,
+              fontSize: parseFloat(liStyle.fontSize) * PX_TO_PT,
               color: rgbToHex(liStyle.color) || '333333',
             });
           }
@@ -454,7 +460,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
 
     if (directText && !textNodes.some(n => textOwners.has(n))) {
       textNodes.forEach(n => textOwners.add(n));
-      const fontSize = parseFloat(style.fontSize) * 0.75;
+      const fontSize = parseFloat(style.fontSize) * PX_TO_PT;
       const padT = parseFloat(style.paddingTop) * scaleY;
       const padR = parseFloat(style.paddingRight) * scaleX;
       const padB = parseFloat(style.paddingBottom) * scaleY;
@@ -479,7 +485,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
         align: style.textAlign === 'center' ? 'center' : style.textAlign === 'right' ? 'right' : 'left',
         valign: style.display === 'flex' && style.alignItems === 'center' ? 'middle' : 'top',
         lineHeight: parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.4,
-        charSpacing: !isNaN(ls) && ls !== 0 ? ls * 0.75 : undefined,
+        charSpacing: !isNaN(ls) && ls !== 0 ? ls * PX_TO_PT : undefined,
         padding: hasPadOrIndent ? { t: padT, r: padR, b: padB, l: effectivePadL } : undefined,
         hyperlink: el.tagName === 'A' ? (el as HTMLAnchorElement).href : undefined,
       });
@@ -506,7 +512,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
       const transparency = el.opacity != null ? Math.round((1 - el.opacity) * 100) : undefined;
       const rotOpt = el.rotate ? { rotate: el.rotate } : {};
       const shadowOpt = el.shadow ? {
-        shadow: { type: 'outer', blur: el.shadow.blur * 0.75, offset: Math.max(Math.abs(el.shadow.offsetX), Math.abs(el.shadow.offsetY)) * 0.75, angle: Math.atan2(el.shadow.offsetY, el.shadow.offsetX) * 180 / Math.PI, color: el.shadow.color, opacity: el.shadow.opacity },
+        shadow: { type: 'outer', blur: el.shadow.blur * PX_TO_PT, offset: Math.max(Math.abs(el.shadow.offsetX), Math.abs(el.shadow.offsetY)) * PX_TO_PT, angle: Math.atan2(el.shadow.offsetY, el.shadow.offsetX) * 180 / Math.PI, color: el.shadow.color, opacity: el.shadow.opacity },
       } : {};
 
       if (el.type === 'shape') {
@@ -514,7 +520,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
           ? { type: 'gradient', color1: el.gradient.color1, color2: el.gradient.color2 }
           : el.fill ? { color: el.fill, transparency } : { type: 'none' };
         const lineOpt: any = el.borderColor
-          ? { color: el.borderColor, width: Math.max(0.5, (el.borderWidth || 1) * 0.75) }
+          ? { color: el.borderColor, width: Math.max(0.5, (el.borderWidth || 1) * PX_TO_PT) }
           : el.borders
             ? undefined // handled below
             : { type: 'none' };
@@ -535,7 +541,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
           ];
           for (const s of sides) {
             if (s.b.width > 0) {
-              slide.addShape('line', { x: s.x1, y: s.y1, w: s.x2 - s.x1 || 0.001, h: s.y2 - s.y1 || 0.001, line: { color: s.b.color, width: s.b.width * 0.75 } });
+              slide.addShape('line', { x: s.x1, y: s.y1, w: s.x2 - s.x1 || 0.001, h: s.y2 - s.y1 || 0.001, line: { color: s.b.color, width: s.b.width * PX_TO_PT } });
             }
           }
         }
@@ -628,7 +634,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
             imgBase.sizing = { type: 'contain', w: p.w, h: p.h };
           }
           slide.addImage(imgBase);
-        } catch { /* skip */ }
+        } catch (e) { console.warn('Image add failed:', e); }
       }
     }
   }
@@ -663,9 +669,9 @@ body { margin: 0; font-family: sans-serif; }
 function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
   return (
-    <div role="alert" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl">
+    <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl">
       <span className="text-sm">{message}</span>
-      <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
+      <button onClick={onClose} aria-label="通知を閉じる" className="text-gray-400 hover:text-white"><X className="w-4 h-4" /></button>
     </div>
   );
 }
@@ -706,35 +712,41 @@ export function SlideBuilderPage() {
     const s = document.createElement('script');
     s.id = 'pptxgenjs-cdn';
     s.src = PPTX_CDN;
-    s.integrity = 'sha384-LhFjyMXOFrGJuBeclhKCfpJTFpFcaorjS3PKgBBlSJbj9IbKqtjmO0MBkCbuGgpK';
+    s.integrity = PPTX_SRI;
     s.crossOrigin = 'anonymous';
     s.onload = () => setCdnReady(true);
     document.head.appendChild(s);
   }, []);
 
-  // #1: Create temporary iframe with allow-same-origin (no scripts) for DOM extraction
+  // #1: Reusable hidden iframe with allow-same-origin (no scripts) for DOM extraction
+  const extractIframeRef = useRef<HTMLIFrameElement | null>(null);
   const extractWithTempIframe = useCallback((htmlContent: string): Promise<SlideElement[][]> => {
     return new Promise((resolve) => {
-      const tmp = document.createElement('iframe');
-      tmp.sandbox.add('allow-same-origin');
-      tmp.style.cssText = 'position:fixed;left:-9999px;width:1280px;height:720px;visibility:hidden';
-      tmp.srcdoc = htmlContent;
+      let tmp = extractIframeRef.current;
+      if (!tmp || !tmp.isConnected) {
+        tmp = document.createElement('iframe');
+        tmp.sandbox.add('allow-same-origin');
+        tmp.style.cssText = 'position:fixed;left:-9999px;width:1280px;height:720px;visibility:hidden';
+        document.body.appendChild(tmp);
+        extractIframeRef.current = tmp;
+      }
       tmp.onload = () => {
         try {
-          const doc = tmp.contentDocument;
+          const doc = tmp!.contentDocument;
           resolve(doc ? extractSlides(doc) : [[]]);
-        } catch { resolve([[]]); }
-        finally { tmp.remove(); }
+        } catch (e) { console.warn('Extraction failed:', e); resolve([[]]); }
       };
-      document.body.appendChild(tmp);
+      tmp.srcdoc = htmlContent;
     });
   }, []);
+
+  useEffect(() => () => { extractIframeRef.current?.remove(); }, []);
 
   const updateStats = useCallback(async () => {
     try {
       const slides = await extractWithTempIframe(html);
       setStats({ slides: slides.length, elements: slides.reduce((s, sl) => s + sl.length, 0) });
-    } catch { setStats({ slides: 0, elements: 0 }); }
+    } catch (e) { console.warn('Stats update failed:', e); setStats({ slides: 0, elements: 0 }); }
   }, [html, extractWithTempIframe]);
 
   const onIframeLoad = useCallback(() => { updateStats(); }, [updateStats]);
@@ -793,7 +805,7 @@ export function SlideBuilderPage() {
                 </div>
                 <button
                   onClick={handleExport}
-                  disabled={exporting}
+                  disabled={exporting || !cdnReady}
                   className="flex items-center gap-2 px-6 py-2.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors font-medium shadow-md"
                 >
                   {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
