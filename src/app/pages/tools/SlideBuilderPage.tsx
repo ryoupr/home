@@ -90,7 +90,7 @@ interface SlideElement {
   fontFamily?: string; align?: string; valign?: string;
   charSpacing?: number; lineHeight?: number; hyperlink?: string;
   richText?: RichTextSegment[];
-  bullets?: { text: string; bold: boolean; fontSize: number; color: string }[];
+  bullets?: { text: string; bold: boolean; fontSize: number; color: string; indentLevel?: number }[];
   listType?: 'bullet' | 'number';
   tableRows?: string[][];
   imgSrc?: string;
@@ -108,7 +108,9 @@ function applyTextTransform(text: string, transform: string): string {
 
 function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): RichTextSegment[] | null {
   const children = Array.from(el.childNodes);
-  const hasInline = children.some(n => n.nodeType === Node.ELEMENT_NODE && INLINE_TAGS.has((n as HTMLElement).tagName));
+  const hasInline = children.some(n =>
+    (n.nodeType === Node.ELEMENT_NODE && (INLINE_TAGS.has((n as HTMLElement).tagName) || (n as HTMLElement).tagName === 'BR'))
+  );
   if (!hasInline) return null;
 
   const segments: RichTextSegment[] = [];
@@ -127,6 +129,11 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
       });
     } else if (child.nodeType === Node.ELEMENT_NODE) {
       const ce = child as HTMLElement;
+      // <br> → newline
+      if (ce.tagName === 'BR') {
+        segments.push({ text: '\n', fontSize: parseFloat(parentStyle.fontSize) * 0.75, color: rgbToHex(parentStyle.color) || '333333' });
+        continue;
+      }
       const cs = getComputedStyle(ce);
       const t = ce.innerText?.trim();
       if (t) segments.push({
@@ -143,6 +150,39 @@ function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): Ric
     }
   }
   return segments.length > 0 ? segments : null;
+}
+
+// Extract pseudo-element (::before/::after) as a shape or text
+function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: ReturnType<typeof Object>, zIndex: number, scaleX: number, scaleY: number): SlideElement | null {
+  const ps = getComputedStyle(el, pseudo);
+  const content = ps.content;
+  if (!content || content === 'none' || content === 'normal' || content === '""') return null;
+
+  // Extract text content (strip quotes)
+  const text = content.replace(/^["']|["']$/g, '');
+  const rect = el.getBoundingClientRect();
+  // Estimate pseudo size from font size
+  const fontSize = parseFloat(ps.fontSize) * 0.75;
+  const w = text ? (text.length * fontSize * 0.6 / 72) : (parseFloat(ps.width) || 0) * scaleX;
+  const h = text ? (fontSize * 1.4 / 72) : (parseFloat(ps.height) || 0) * scaleY;
+  if (w < 0.01 && h < 0.01) return null;
+
+  const bgColor = !isTransparent(ps.backgroundColor) ? rgbToHex(ps.backgroundColor) : undefined;
+  const x = pseudo === '::before' ? (p as any).x - w : (p as any).x + (p as any).w;
+  const y = (p as any).y;
+
+  if (text && text.trim()) {
+    return {
+      type: 'text', x, y, w: Math.max(w, 0.1), h: Math.max(h, 0.1), zIndex,
+      text, fontSize, fontColor: rgbToHex(ps.color) || '333333',
+      fontFamily: ps.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
+      fontBold: parseInt(ps.fontWeight) >= 700,
+    };
+  }
+  if (bgColor && w > 0.01 && h > 0.01) {
+    return { type: 'shape', x, y, w, h, zIndex, fill: bgColor };
+  }
+  return null;
 }
 
 // --- DOM extraction ---
@@ -177,7 +217,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
   const scaleX = SLIDE_W / cRect.width;
   const scaleY = SLIDE_H / cRect.height;
   const elements: SlideElement[] = [];
-  const textOwners = new Set<string>();
+  const textOwners = new WeakSet<Node>();
   let order = 0;
 
   function pos(rect: DOMRect) {
@@ -198,13 +238,20 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
     const p = pos(rect);
     if (p.x + p.w < 0 || p.y + p.h < 0 || p.x > SLIDE_W || p.y > SLIDE_H) return;
 
-    const zIndex = parseInt(style.zIndex) || order++;
+    const parsed = parseInt(style.zIndex);
+    const zIndex = isNaN(parsed) ? order++ : parsed;
     const opacity = parseFloat(style.opacity);
     const rotate = parseRotation(style.transform);
     const shadowData = parseBoxShadow(style.boxShadow);
 
     // Common props
     const common = { ...p, zIndex, opacity: opacity < 1 ? opacity : undefined, rotate: rotate || undefined, shadow: shadowData || undefined };
+
+    // ::before / ::after pseudo-elements
+    const before = extractPseudo(el, '::before', p, zIndex, scaleX, scaleY);
+    if (before) elements.push(before);
+    const after = extractPseudo(el, '::after', p, zIndex, scaleX, scaleY);
+    if (after) elements.push(after);
 
     // --- SVG ---
     if (el.tagName === 'svg' || el instanceof SVGElement) {
@@ -222,34 +269,65 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       return;
     }
 
-    // --- TABLE ---
+    // --- TABLE (with colspan/rowspan) ---
     if (el.tagName === 'TABLE') {
-      const rows: string[][] = [];
-      el.querySelectorAll('tr').forEach(tr => {
-        const cells: string[] = [];
-        tr.querySelectorAll('th, td').forEach(td => cells.push((td as HTMLElement).innerText.trim()));
-        if (cells.length) rows.push(cells);
+      const trs = Array.from(el.querySelectorAll('tr'));
+      const maxCols = trs.reduce((max, tr) => {
+        let cols = 0;
+        tr.querySelectorAll('th, td').forEach(td => { cols += (td as HTMLTableCellElement).colSpan || 1; });
+        return Math.max(max, cols);
+      }, 0);
+      // Build grid with merged cells
+      const grid: string[][] = [];
+      const occupied = new Map<string, boolean>();
+      trs.forEach((tr, ri) => {
+        const row: string[] = new Array(maxCols).fill('');
+        let ci = 0;
+        tr.querySelectorAll('th, td').forEach(td => {
+          while (occupied.has(`${ri},${ci}`)) ci++;
+          const cell = td as HTMLTableCellElement;
+          const cs = cell.colSpan || 1;
+          const rs = cell.rowSpan || 1;
+          row[ci] = cell.innerText.trim();
+          for (let r = 0; r < rs; r++)
+            for (let c = 0; c < cs; c++)
+              if (r > 0 || c > 0) occupied.set(`${ri + r},${ci + c}`, true);
+          ci += cs;
+        });
+        grid.push(row);
       });
-      if (rows.length) elements.push({ type: 'table', ...common, tableRows: rows, fontSize: parseFloat(style.fontSize) * 0.75, fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim() });
+      if (grid.length) elements.push({ type: 'table', ...common, tableRows: grid, fontSize: parseFloat(style.fontSize) * 0.75, fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim() });
       return;
     }
 
-    // --- UL/OL (list) ---
+    // --- UL/OL (list with nesting) ---
     if (el.tagName === 'UL' || el.tagName === 'OL') {
       const bullets: SlideElement['bullets'] = [];
-      el.querySelectorAll(':scope > li').forEach(li => {
-        const liStyle = getComputedStyle(li);
-        bullets.push({
-          text: (li as HTMLElement).innerText.trim(),
-          bold: parseInt(liStyle.fontWeight) >= 700,
-          fontSize: parseFloat(liStyle.fontSize) * 0.75,
-          color: rgbToHex(liStyle.color) || '333333',
-        });
-      });
+      function walkList(list: HTMLElement, level: number) {
+        for (const li of Array.from(list.querySelectorAll(':scope > li'))) {
+          const liEl = li as HTMLElement;
+          const liStyle = getComputedStyle(liEl);
+          // Get direct text (exclude nested list text)
+          const liText = Array.from(liEl.childNodes)
+            .filter(n => n.nodeType === Node.TEXT_NODE || (n.nodeType === Node.ELEMENT_NODE && !(n as HTMLElement).matches?.('ul, ol')))
+            .map(n => n.textContent?.trim()).filter(Boolean).join(' ');
+          if (liText) {
+            bullets.push({
+              text: liText, indentLevel: level,
+              bold: parseInt(liStyle.fontWeight) >= 700,
+              fontSize: parseFloat(liStyle.fontSize) * 0.75,
+              color: rgbToHex(liStyle.color) || '333333',
+            });
+          }
+          // Nested lists
+          const nested = liEl.querySelector(':scope > ul, :scope > ol');
+          if (nested) walkList(nested as HTMLElement, level + 1);
+        }
+      }
+      walkList(el, 0);
       if (bullets.length) {
         elements.push({
-          type: 'list', ...common,
-          bullets,
+          type: 'list', ...common, bullets,
           listType: el.tagName === 'OL' ? 'number' : 'bullet',
           fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
         });
@@ -309,8 +387,8 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
     const rich = extractRichText(el, style);
     if (rich && rich.length > 0) {
       const fullText = rich.map(s => s.text).join('');
-      if (fullText && !textOwners.has(fullText)) {
-        textOwners.add(fullText);
+      if (fullText && !textOwners.has(el)) {
+        textOwners.add(el);
         const padT = parseFloat(style.paddingTop) * scaleY;
         const padR = parseFloat(style.paddingRight) * scaleX;
         const padB = parseFloat(style.paddingBottom) * scaleY;
@@ -334,14 +412,11 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
     }
 
     // Plain text (direct text nodes only)
-    const directText = Array.from(el.childNodes)
-      .filter(n => n.nodeType === Node.TEXT_NODE)
-      .map(n => n.textContent?.trim())
-      .filter(Boolean)
-      .join(' ');
+    const textNodes = Array.from(el.childNodes).filter(n => n.nodeType === Node.TEXT_NODE);
+    const directText = textNodes.map(n => n.textContent?.trim()).filter(Boolean).join(' ');
 
-    if (directText && !textOwners.has(directText)) {
-      textOwners.add(directText);
+    if (directText && !textNodes.some(n => textOwners.has(n))) {
+      textNodes.forEach(n => textOwners.add(n));
       const fontSize = parseFloat(style.fontSize) * 0.75;
       const padT = parseFloat(style.paddingTop) * scaleY;
       const padR = parseFloat(style.paddingRight) * scaleX;
@@ -349,6 +424,9 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       const padL = parseFloat(style.paddingLeft) * scaleX;
       const hasPad = padT > 0.01 || padR > 0.01 || padB > 0.01 || padL > 0.01;
       const ls = parseFloat(style.letterSpacing);
+      const textIndent = parseFloat(style.textIndent) * scaleX;
+      const effectivePadL = padL + (textIndent > 0 ? textIndent : 0);
+      const hasPadOrIndent = padT > 0.01 || padR > 0.01 || padB > 0.01 || effectivePadL > 0.01;
       const transformed = applyTextTransform(directText, style.textTransform);
 
       elements.push({
@@ -365,7 +443,7 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
         valign: style.display === 'flex' && style.alignItems === 'center' ? 'middle' : 'top',
         lineHeight: parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.4,
         charSpacing: !isNaN(ls) && ls !== 0 ? ls * 0.75 : undefined,
-        padding: hasPad ? { t: padT, r: padR, b: padB, l: padL } : undefined,
+        padding: hasPadOrIndent ? { t: padT, r: padR, b: padB, l: effectivePadL } : undefined,
         hyperlink: el.tagName === 'A' ? (el as HTMLAnchorElement).href : undefined,
       });
     }
@@ -474,6 +552,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
             color: b.color || '333333',
             fontFace: el.fontFamily || 'Yu Gothic',
             bullet: el.listType === 'number' ? { type: 'number' } : true,
+            indentLevel: b.indentLevel || 0,
           },
         }));
         slide.addText(rows, { ...p, ...rotOpt, wrap: true, valign: 'top', transparency });
