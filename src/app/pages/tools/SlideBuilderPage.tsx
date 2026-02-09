@@ -198,9 +198,35 @@ function extractPseudo(el: HTMLElement, pseudo: '::before' | '::after', p: Pos, 
   return null;
 }
 
+// --- Pre-process: reveal hidden slide-deck patterns ---
+function revealHiddenSlides(doc: Document): void {
+  const children = Array.from(doc.body.children) as HTMLElement[];
+  const groups = new Map<string, HTMLElement[]>();
+  for (const el of children) {
+    const key = el.tagName + '.' + Array.from(el.classList).sort().join('.');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(el);
+  }
+  for (const [, els] of groups) {
+    if (els.length < 2) continue;
+    const hidden = els.filter(el => getComputedStyle(el).display === 'none');
+    if (hidden.length === 0 || hidden.length === els.length) continue;
+    const visible = els.find(el => getComputedStyle(el).display !== 'none');
+    if (!visible || visible.offsetWidth < MIN_CONTAINER_W || visible.offsetHeight < MIN_CONTAINER_H) continue;
+    const style = getComputedStyle(visible);
+    for (const el of hidden) {
+      el.style.display = style.display || 'flex';
+      el.style.width = visible.offsetWidth + 'px';
+      el.style.height = visible.offsetHeight + 'px';
+      el.style.position = 'relative';
+    }
+  }
+}
+
 // --- DOM extraction ---
 function extractSlides(doc: Document): SlideElement[][] {
   if (!doc.body) return [[]];
+  revealHiddenSlides(doc);
 
   // Find all slide containers
   const all = Array.from(doc.body.querySelectorAll('*')) as HTMLElement[];
