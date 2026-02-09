@@ -68,6 +68,11 @@ function svgToDataUri(el: SVGElement): string | null {
 }
 
 // --- Types ---
+interface RichTextSegment {
+  text: string; bold?: boolean; italic?: boolean; underline?: boolean; strike?: boolean;
+  fontSize?: number; color?: string; fontFamily?: string; hyperlink?: string;
+}
+
 interface SlideElement {
   type: 'shape' | 'text' | 'image' | 'list' | 'table';
   x: number; y: number; w: number; h: number;
@@ -76,16 +81,68 @@ interface SlideElement {
   gradient?: { angle: number; color1: string; color2: string };
   opacity?: number;
   borderColor?: string; borderWidth?: number; borderRadius?: number;
+  borders?: { color: string; width: number }[];
   shadow?: { blur: number; offsetX: number; offsetY: number; color: string; opacity: number };
   rotate?: number;
   padding?: { t: number; r: number; b: number; l: number };
-  text?: string; fontSize?: number; fontBold?: boolean; fontColor?: string;
+  text?: string; fontSize?: number; fontBold?: boolean; fontItalic?: boolean;
+  fontUnderline?: boolean; fontStrike?: boolean; fontColor?: string;
   fontFamily?: string; align?: string; valign?: string;
-  lineHeight?: number;
+  charSpacing?: number; lineHeight?: number; hyperlink?: string;
+  richText?: RichTextSegment[];
   bullets?: { text: string; bold: boolean; fontSize: number; color: string }[];
   listType?: 'bullet' | 'number';
   tableRows?: string[][];
   imgSrc?: string;
+}
+
+// Inline tags that form rich text segments
+const INLINE_TAGS = new Set(['SPAN', 'A', 'STRONG', 'EM', 'B', 'I', 'U', 'S', 'DEL', 'MARK', 'CODE', 'SUB', 'SUP']);
+
+function applyTextTransform(text: string, transform: string): string {
+  if (transform === 'uppercase') return text.toUpperCase();
+  if (transform === 'lowercase') return text.toLowerCase();
+  if (transform === 'capitalize') return text.replace(/\b\w/g, c => c.toUpperCase());
+  return text;
+}
+
+function extractRichText(el: HTMLElement, parentStyle: CSSStyleDeclaration): RichTextSegment[] | null {
+  const children = Array.from(el.childNodes);
+  const hasInline = children.some(n => n.nodeType === Node.ELEMENT_NODE && INLINE_TAGS.has((n as HTMLElement).tagName));
+  if (!hasInline) return null;
+
+  const segments: RichTextSegment[] = [];
+  for (const child of children) {
+    if (child.nodeType === Node.TEXT_NODE) {
+      const t = child.textContent?.trim();
+      if (t) segments.push({
+        text: applyTextTransform(t, parentStyle.textTransform),
+        bold: parseInt(parentStyle.fontWeight) >= 700,
+        italic: parentStyle.fontStyle === 'italic',
+        underline: parentStyle.textDecorationLine.includes('underline'),
+        strike: parentStyle.textDecorationLine.includes('line-through'),
+        fontSize: parseFloat(parentStyle.fontSize) * 0.75,
+        color: rgbToHex(parentStyle.color) || '333333',
+        fontFamily: parentStyle.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
+      });
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      const ce = child as HTMLElement;
+      const cs = getComputedStyle(ce);
+      const t = ce.innerText?.trim();
+      if (t) segments.push({
+        text: applyTextTransform(t, cs.textTransform),
+        bold: parseInt(cs.fontWeight) >= 700,
+        italic: cs.fontStyle === 'italic',
+        underline: cs.textDecorationLine.includes('underline'),
+        strike: cs.textDecorationLine.includes('line-through'),
+        fontSize: parseFloat(cs.fontSize) * 0.75,
+        color: rgbToHex(cs.color) || '333333',
+        fontFamily: cs.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
+        hyperlink: ce.tagName === 'A' ? (ce as HTMLAnchorElement).href : undefined,
+      });
+    }
+  }
+  return segments.length > 0 ? segments : null;
 }
 
 // --- DOM extraction ---
@@ -156,6 +213,15 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       return;
     }
 
+    // --- CANVAS ---
+    if (el.tagName === 'CANVAS') {
+      try {
+        const uri = (el as HTMLCanvasElement).toDataURL('image/png');
+        if (uri) elements.push({ type: 'image', ...common, imgSrc: uri });
+      } catch { /* tainted canvas */ }
+      return;
+    }
+
     // --- TABLE ---
     if (el.tagName === 'TABLE') {
       const rows: string[][] = [];
@@ -191,13 +257,25 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       return;
     }
 
-    // --- Shape (background/border) ---
+    // --- Shape (background/border/background-image) ---
     const bg = style.backgroundColor;
     const bgImage = style.backgroundImage;
     const hasBg = !isTransparent(bg);
     const gradient = parseGradient(bgImage);
-    const borderW = parseFloat(style.borderTopWidth) || 0;
-    const hasBorder = borderW > 0 && !isTransparent(style.borderTopColor);
+
+    // Background image (url)
+    const bgUrlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+    if (bgUrlMatch && !gradient) {
+      elements.push({ type: 'image', ...common, imgSrc: bgUrlMatch[1] });
+    }
+
+    // Per-side borders
+    const bTop = { w: parseFloat(style.borderTopWidth) || 0, c: style.borderTopColor };
+    const bRight = { w: parseFloat(style.borderRightWidth) || 0, c: style.borderRightColor };
+    const bBottom = { w: parseFloat(style.borderBottomWidth) || 0, c: style.borderBottomColor };
+    const bLeft = { w: parseFloat(style.borderLeftWidth) || 0, c: style.borderLeftColor };
+    const allSame = bTop.w === bRight.w && bTop.w === bBottom.w && bTop.w === bLeft.w && bTop.c === bRight.c && bTop.c === bBottom.c && bTop.c === bLeft.c;
+    const hasBorder = [bTop, bRight, bBottom, bLeft].some(b => b.w > 0 && !isTransparent(b.c));
     const borderRadius = parseFloat(style.borderRadius) || 0;
 
     if (hasBg || hasBorder || gradient) {
@@ -207,9 +285,13 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       } else if (hasBg) {
         elem.fill = rgbToHex(bg) || undefined;
       }
-      if (hasBorder) {
-        elem.borderColor = rgbToHex(style.borderTopColor) || undefined;
-        elem.borderWidth = borderW;
+      if (hasBorder && allSame) {
+        elem.borderColor = rgbToHex(bTop.c) || undefined;
+        elem.borderWidth = bTop.w;
+      } else if (hasBorder && !allSame) {
+        elem.borders = [bTop, bRight, bBottom, bLeft].map(b => ({
+          color: rgbToHex(b.c) || '000000', width: b.w,
+        }));
       }
       if (borderRadius > 0) elem.borderRadius = borderRadius * scaleX;
       elements.push(elem);
@@ -222,12 +304,36 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       return;
     }
 
+    // --- Text (rich text or plain) ---
+    // Try rich text first (inline children with different styles)
+    const rich = extractRichText(el, style);
+    if (rich && rich.length > 0) {
+      const fullText = rich.map(s => s.text).join('');
+      if (fullText && !textOwners.has(fullText)) {
+        textOwners.add(fullText);
+        const padT = parseFloat(style.paddingTop) * scaleY;
+        const padR = parseFloat(style.paddingRight) * scaleX;
+        const padB = parseFloat(style.paddingBottom) * scaleY;
+        const padL = parseFloat(style.paddingLeft) * scaleX;
+        const hasPad = padT > 0.01 || padR > 0.01 || padB > 0.01 || padL > 0.01;
+        elements.push({
+          type: 'text', ...common, richText: rich,
+          fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
+          align: style.textAlign === 'center' ? 'center' : style.textAlign === 'right' ? 'right' : 'left',
+          valign: style.display === 'flex' && style.alignItems === 'center' ? 'middle' : 'top',
+          lineHeight: parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.4,
+          padding: hasPad ? { t: padT, r: padR, b: padB, l: padL } : undefined,
+        });
+      }
+      return; // Don't recurse into inline children
+    }
+
     // Recurse children first
     for (const child of Array.from(el.children) as HTMLElement[]) {
       walk(child, depth + 1);
     }
 
-    // --- Text ---
+    // Plain text (direct text nodes only)
     const directText = Array.from(el.childNodes)
       .filter(n => n.nodeType === Node.TEXT_NODE)
       .map(n => n.textContent?.trim())
@@ -242,18 +348,25 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       const padB = parseFloat(style.paddingBottom) * scaleY;
       const padL = parseFloat(style.paddingLeft) * scaleX;
       const hasPad = padT > 0.01 || padR > 0.01 || padB > 0.01 || padL > 0.01;
+      const ls = parseFloat(style.letterSpacing);
+      const transformed = applyTextTransform(directText, style.textTransform);
 
       elements.push({
         type: 'text', ...common,
-        text: directText,
+        text: transformed,
         fontSize: Math.max(6, Math.min(72, fontSize)),
         fontBold: parseInt(style.fontWeight) >= 700 || style.fontWeight === 'bold',
+        fontItalic: style.fontStyle === 'italic',
+        fontUnderline: style.textDecorationLine.includes('underline'),
+        fontStrike: style.textDecorationLine.includes('line-through'),
         fontColor: rgbToHex(style.color) || '333333',
         fontFamily: style.fontFamily.split(',')[0].replace(/['"]/g, '').trim(),
         align: style.textAlign === 'center' ? 'center' : style.textAlign === 'right' ? 'right' : 'left',
         valign: style.display === 'flex' && style.alignItems === 'center' ? 'middle' : 'top',
         lineHeight: parseFloat(style.lineHeight) / parseFloat(style.fontSize) || 1.4,
+        charSpacing: !isNaN(ls) && ls !== 0 ? ls * 0.75 : undefined,
         padding: hasPad ? { t: padT, r: padR, b: padB, l: padL } : undefined,
+        hyperlink: el.tagName === 'A' ? (el as HTMLAnchorElement).href : undefined,
       });
     }
   }
@@ -284,31 +397,72 @@ function generatePptx(slides: SlideElement[][], filename: string) {
         const fill: any = el.gradient
           ? { type: 'gradient', color1: el.gradient.color1, color2: el.gradient.color2 }
           : el.fill ? { color: el.fill, transparency } : { type: 'none' };
-        const opts: any = {
-          ...p, ...rotOpt, ...shadowOpt, fill,
-          line: el.borderColor ? { color: el.borderColor, width: Math.max(0.5, (el.borderWidth || 1) * 0.75) } : { type: 'none' },
-        };
+        const lineOpt: any = el.borderColor
+          ? { color: el.borderColor, width: Math.max(0.5, (el.borderWidth || 1) * 0.75) }
+          : el.borders
+            ? undefined // handled below
+            : { type: 'none' };
+        const opts: any = { ...p, ...rotOpt, ...shadowOpt, fill };
+        if (lineOpt) opts.line = lineOpt;
         if (el.borderRadius && el.borderRadius > 0) {
           opts.rectRadius = Math.min(el.borderRadius, Math.min(el.w, el.h) / 2);
         }
         slide.addShape('rect', opts);
+
+        // Per-side borders as separate thin lines
+        if (el.borders) {
+          const sides = [
+            { b: el.borders[0], x1: p.x, y1: p.y, x2: p.x + p.w, y2: p.y },           // top
+            { b: el.borders[1], x1: p.x + p.w, y1: p.y, x2: p.x + p.w, y2: p.y + p.h }, // right
+            { b: el.borders[2], x1: p.x, y1: p.y + p.h, x2: p.x + p.w, y2: p.y + p.h }, // bottom
+            { b: el.borders[3], x1: p.x, y1: p.y, x2: p.x, y2: p.y + p.h },             // left
+          ];
+          for (const s of sides) {
+            if (s.b.width > 0) {
+              slide.addShape('line', { x: s.x1, y: s.y1, w: s.x2 - s.x1 || 0.001, h: s.y2 - s.y1 || 0.001, line: { color: s.b.color, width: s.b.width * 0.75 } });
+            }
+          }
+        }
       }
 
-      if (el.type === 'text' && el.text) {
+      if (el.type === 'text') {
         const margin = el.padding ? [el.padding.t * 72, el.padding.r * 72, el.padding.b * 72, el.padding.l * 72] : undefined;
-        slide.addText(el.text, {
+        const baseOpts: any = {
           ...p, ...rotOpt, ...shadowOpt,
-          fontSize: el.fontSize || 12,
-          bold: el.fontBold || false,
-          color: el.fontColor || '333333',
-          fontFace: el.fontFamily || 'Yu Gothic',
-          align: el.align || 'left',
-          valign: el.valign || 'top',
-          wrap: true,
-          lineSpacingMultiple: el.lineHeight || 1.4,
-          margin,
-          transparency,
-        });
+          align: el.align || 'left', valign: el.valign || 'top',
+          wrap: true, lineSpacingMultiple: el.lineHeight || 1.4, margin, transparency,
+        };
+
+        if (el.richText && el.richText.length > 0) {
+          // Rich text: array of segments
+          const segments = el.richText.map(seg => ({
+            text: seg.text,
+            options: {
+              fontSize: seg.fontSize || 12,
+              bold: seg.bold || false,
+              italic: seg.italic || false,
+              underline: seg.underline ? { style: 'sng' as const } : undefined,
+              strike: seg.strike ? 'sngStrike' as const : undefined,
+              color: seg.color || '333333',
+              fontFace: seg.fontFamily || el.fontFamily || 'Yu Gothic',
+              hyperlink: seg.hyperlink ? { url: seg.hyperlink } : undefined,
+            },
+          }));
+          slide.addText(segments, baseOpts);
+        } else if (el.text) {
+          slide.addText(el.text, {
+            ...baseOpts,
+            fontSize: el.fontSize || 12,
+            bold: el.fontBold || false,
+            italic: el.fontItalic || false,
+            underline: el.fontUnderline ? { style: 'sng' as const } : undefined,
+            strike: el.fontStrike ? 'sngStrike' as const : undefined,
+            color: el.fontColor || '333333',
+            fontFace: el.fontFamily || 'Yu Gothic',
+            charSpacing: el.charSpacing,
+            hyperlink: el.hyperlink ? { url: el.hyperlink } : undefined,
+          });
+        }
       }
 
       if (el.type === 'list' && el.bullets?.length) {
