@@ -94,6 +94,7 @@ interface SlideElement {
   listType?: 'bullet' | 'number';
   tableRows?: string[][];
   imgSrc?: string;
+  imgSizing?: 'cover' | 'contain' | 'crop';
 }
 
 // Inline tags that form rich text segments
@@ -390,10 +391,26 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
       elements.push(elem);
     }
 
-    // --- IMG ---
+    // --- IMG (with object-fit / overflow clipping) ---
     if (el.tagName === 'IMG') {
       const src = (el as HTMLImageElement).src;
-      if (src) elements.push({ type: 'image', ...common, imgSrc: src });
+      if (!src) return;
+      const objectFit = style.objectFit;
+      // Check if parent clips overflow
+      const parent = el.parentElement;
+      const parentOverflow = parent ? getComputedStyle(parent).overflow : '';
+      const isClipped = parentOverflow === 'hidden' || parentOverflow === 'clip';
+
+      if (isClipped && parent) {
+        // Use parent's bounding rect as the visible area
+        const parentRect = parent.getBoundingClientRect();
+        const clipped = pos(parentRect);
+        elements.push({ type: 'image', ...common, x: clipped.x, y: clipped.y, w: clipped.w, h: clipped.h, imgSrc: src, imgSizing: 'crop' });
+      } else if (objectFit === 'cover' || objectFit === 'contain') {
+        elements.push({ type: 'image', ...common, imgSrc: src, imgSizing: objectFit });
+      } else {
+        elements.push({ type: 'image', ...common, imgSrc: src });
+      }
       return;
     }
 
@@ -592,11 +609,19 @@ function generatePptx(slides: SlideElement[][], filename: string) {
 
       if (el.type === 'image' && el.imgSrc) {
         try {
+          const imgBase: any = { ...p, ...rotOpt, transparency };
           if (el.imgSrc.startsWith('data:')) {
-            slide.addImage({ data: el.imgSrc, ...p, ...rotOpt, transparency });
+            imgBase.data = el.imgSrc;
           } else {
-            slide.addImage({ path: el.imgSrc, ...p, ...rotOpt, transparency });
+            imgBase.path = el.imgSrc;
           }
+          // object-fit / overflow clipping
+          if (el.imgSizing === 'crop' || el.imgSizing === 'cover') {
+            imgBase.sizing = { type: 'cover', w: p.w, h: p.h };
+          } else if (el.imgSizing === 'contain') {
+            imgBase.sizing = { type: 'contain', w: p.w, h: p.h };
+          }
+          slide.addImage(imgBase);
         } catch { /* skip */ }
       }
     }
