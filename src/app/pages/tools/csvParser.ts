@@ -16,7 +16,9 @@ export interface ParseResult {
 
 /** Sanitize cell value to prevent CSV formula injection */
 function sanitizeCell(val: string): string {
-  if (/^[=+\-@\t\r]/.test(val)) return `'${val}`;
+  if (/^[=+\-@\t\r|!;]/.test(val)) return `'${val}`;
+  // Block DDE commands (e.g. "DDE(…)", "cmd|…")
+  if (/^(DDE|cmd)\b/i.test(val)) return `'${val}`;
   return val;
 }
 

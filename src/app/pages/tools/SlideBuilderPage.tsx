@@ -110,7 +110,6 @@ export function SlideBuilderPage() {
           'footer',
           'nav',
           'main',
-          'style',
         ],
         ALLOWED_ATTR: [
           'class',

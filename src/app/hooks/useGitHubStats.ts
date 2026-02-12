@@ -41,7 +41,8 @@ function getCached(
       return null;
     }
     return data;
-  } catch {
+  } catch (e) {
+    console.warn('sessionStorage getCached failed:', e);
     return null;
   }
 }
@@ -52,8 +53,8 @@ function setCache(
 ) {
   try {
     sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
-  } catch {
-    // sessionStorage full or unavailable
+  } catch (e) {
+    console.warn('sessionStorage setItem failed:', e);
   }
 }
 

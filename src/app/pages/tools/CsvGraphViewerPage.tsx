@@ -21,33 +21,9 @@ import {
   type ReferenceAreaConfig,
   type ReferenceLineConfig,
 } from './CsvChart';
+import { CsvDataTable } from './CsvDataTable';
+import { COLOR_PALETTES, getContrastTextColor } from './csvConstants';
 import { type ParsedData, parseCSV } from './csvParser';
-
-// 色の輝度を判定してテキスト色（黒/白）を返す関数
-const getContrastTextColor = (hexColor: string): string => {
-  if (!hexColor) return '#1e293b';
-  const r = parseInt(hexColor.substring(1, 3), 16);
-  const g = parseInt(hexColor.substring(3, 5), 16);
-  const b = parseInt(hexColor.substring(5, 7), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? '#1e293b' : '#f8fafc';
-};
-
-// プリセットパレット定義
-const COLOR_PALETTES: Record<string, string[]> = {
-  default: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'],
-  cool: ['#2563EB', '#0EA5E9', '#06B6D4', '#14B8A6', '#6366F1', '#8B5CF6'],
-  warm: ['#DC2626', '#EA580C', '#D97706', '#CA8A04', '#BE123C', '#9F1239'],
-  pastel: ['#FDA4AF', '#FDBA74', '#FDE047', '#86EFAC', '#67E8F9', '#C4B5FD'],
-  monochrome: [
-    '#334155',
-    '#475569',
-    '#64748b',
-    '#94a3b8',
-    '#cbd5e1',
-    '#e2e8f0',
-  ],
-};
 
 export function CsvGraphViewerPage() {
   usePageTitle('CSV Graph Viewer');
@@ -613,52 +589,12 @@ export function CsvGraphViewerPage() {
 
                 <div className="flex-1 w-full min-h-[400px]" ref={graphRef}>
                   {showTable ? (
-                    <div className="overflow-x-auto bg-white rounded-lg p-4">
-                      <table className="w-full text-sm text-left text-slate-600">
-                        <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
-                          <tr>
-                            <th className="px-4 py-3 w-10">表示</th>
-                            {headers.map((h, i) => (
-                              <th
-                                key={i}
-                                className="px-4 py-3 font-semibold whitespace-nowrap"
-                              >
-                                {h}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rawData.map((row, i) => (
-                            <tr
-                              key={i}
-                              className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                                excludedRows.has(row._id)
-                                  ? 'bg-slate-50 opacity-50'
-                                  : ''
-                              }`}
-                            >
-                              <td className="px-4 py-3 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={!excludedRows.has(row._id)}
-                                  onChange={() => toggleRowExclusion(row._id)}
-                                  className="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                />
-                              </td>
-                              {headers.map((h, j) => (
-                                <td
-                                  key={j}
-                                  className="px-4 py-3 whitespace-nowrap font-mono text-xs"
-                                >
-                                  {row[h]}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <CsvDataTable
+                      headers={headers}
+                      rawData={rawData}
+                      excludedRows={excludedRows}
+                      onToggleRow={toggleRowExclusion}
+                    />
                   ) : (
                     <CsvChart
                       chartType={chartType}

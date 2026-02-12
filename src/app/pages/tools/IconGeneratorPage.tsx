@@ -138,16 +138,32 @@ export default function IconGeneratorPage() {
     }
   };
 
+  const ALLOWED_IMAGE_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/svg+xml',
+    'image/webp',
+  ];
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageUrl = event.target?.result as string;
-        setConfig({ ...config, type: 'image', uploadedImage: imageUrl });
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setDownloadError('対応形式: PNG, JPEG, GIF, SVG, WebP');
+      return;
     }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setDownloadError('ファイルサイズは5MB以下にしてください');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageUrl = event.target?.result as string;
+      setConfig({ ...config, type: 'image', uploadedImage: imageUrl });
+    };
+    reader.readAsDataURL(file);
   };
 
   const savePreset = () => {

@@ -219,7 +219,7 @@ export function ProfilePage() {
       {/* Footer */}
       <footer className="border-t mt-12 py-6">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          © 2026 {personal.name}. All rights reserved.
+          © {new Date().getFullYear()} {personal.name}. All rights reserved.
         </div>
       </footer>
     </div>

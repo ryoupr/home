@@ -13,8 +13,20 @@ interface Project {
   category: 'webapp' | 'program' | 'extension';
 }
 
-// Load projects from config.json
-const projects: Project[] = config.projects as Project[];
+function isProject(v: unknown): v is Project {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof (v as Record<string, unknown>).id === 'number' &&
+    typeof (v as Record<string, unknown>).title === 'string' &&
+    typeof (v as Record<string, unknown>).category === 'string'
+  );
+}
+
+// Load projects from config.json with runtime validation
+const projects: Project[] = Array.isArray(config.projects)
+  ? config.projects.filter(isProject)
+  : [];
 const webapps = projects.filter((p) => p.category === 'webapp');
 const programs = projects.filter((p) => p.category === 'program');
 const extensions = projects.filter((p) => p.category === 'extension');

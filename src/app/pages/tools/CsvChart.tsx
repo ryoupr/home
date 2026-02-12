@@ -57,15 +57,15 @@ const TOOLTIP_STYLE = {
 const formatValue = (value: unknown) => (value as number).toLocaleString();
 
 export function CsvChart({
-  chartType,
+  chartType = 'bar',
   data,
   xAxisKey,
-  dataKeys,
-  colors,
-  textColor,
-  showDataLabels,
-  referenceLines,
-  referenceAreas,
+  dataKeys = [],
+  colors = ['#4F46E5'],
+  textColor = '#1e293b',
+  showDataLabels = false,
+  referenceLines = [],
+  referenceAreas = [],
 }: Props) {
   const axisProps = {
     stroke: textColor,

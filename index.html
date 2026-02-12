@@ -5,7 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio | ryoupr</title>
-    <!-- GitHub Pages SPA redirect handler -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-VV2NoRCtP9E2vE6pY6OC1Z4Yhh7UGrTSJCgJUA9dlJo=' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com; font-src 'self' https://fonts.gstatic.com;" />
+    <!-- GitHub Pages SPA redirect handler (inline required: runs before SPA bundle) -->
     <script>
       (function(l) {
         if (l.search[1] === '/') {

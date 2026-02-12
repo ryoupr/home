@@ -48,10 +48,16 @@ import {
 import { generateYabanePptx } from './yabaneSchedulePptx';
 
 // PptxGenJS CDN type declaration
+interface PptxGenInstance {
+  defineLayout(opts: { name: string; width: number; height: number }): void;
+  layout: string;
+  addSlide(): Record<string, unknown>;
+  writeFile(opts: { fileName: string }): Promise<void>;
+}
+
 declare global {
   interface Window {
-    // PptxGenJS loaded from CDN, no type package available
-    PptxGenJS?: new () => Record<string, any>;
+    PptxGenJS?: new () => PptxGenInstance;
   }
 }
 
@@ -398,8 +404,15 @@ export function YabaneSchedulePage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const data = JSON.parse(event.target?.result as string);
-        if (!Array.isArray(data.tasks) || !Array.isArray(data.categories))
+        const raw = event.target?.result;
+        if (typeof raw !== 'string') throw new Error('invalid file');
+        const data = JSON.parse(raw);
+        if (
+          !data ||
+          typeof data !== 'object' ||
+          !Array.isArray(data.tasks) ||
+          !Array.isArray(data.categories)
+        )
           throw new Error('invalid format');
         setTasks(data.tasks);
         setCategories(data.categories);
