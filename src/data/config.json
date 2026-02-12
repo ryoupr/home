@@ -1,13 +1,15 @@
 {
+  "_comment": "Static site configuration. GitHub Pages does not support server-side env vars, so settings are managed here. Sensitive values (email) are Base64-encoded. See docs/HOW_TO_EDIT.md for editing guide.",
   "personal": {
     "name": "Ryoichiro Teshima",
     "role": "Cloud Engineer",
     "description": "本業はクラウドエンジニアですが、本業の傍らWebアプリケーション、プログラム、Chrome拡張機能の開発を行っています。ユーザー体験を重視した実用的なツールを作ることに情熱を注いでいます。",
-    "email": "ryou120710@gmail.com",
+    "email": "cnlvdTEyMDcxMEBnbWFpbC5jb20=",
+    "emailEncoded": true,
     "github": "https://github.com/ryoupr",
     "linkedin": "https://www.linkedin.com/in/ryoichiro-teshima-434437379/",
     "qiita": "https://qiita.com/r61",
-    "skills": ["AWS", "TypeScript", "Python","Rust"]
+    "skills": ["AWS", "TypeScript", "Python", "Rust"]
   },
   "projects": [
     {

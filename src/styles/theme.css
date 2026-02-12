@@ -1,3 +1,5 @@
+/* Tailwind CSS 4.x custom variant syntax for dark mode.
+   See: https://tailwindcss.com/docs/dark-mode#using-a-selector */
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -129,9 +131,9 @@
   }
 
   /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
+   * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+   * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+   */
 
   html {
     font-size: var(--font-size);

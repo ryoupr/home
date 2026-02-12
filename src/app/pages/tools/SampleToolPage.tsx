@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function SampleToolPage() {
-  useEffect(() => { document.title = 'Sample Tool | ryoupr'; }, []);
+  usePageTitle('Sample Tool');
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">

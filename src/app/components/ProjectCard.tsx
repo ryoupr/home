@@ -1,7 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { ExternalLink, Github, Chrome } from 'lucide-react';
-import { Button } from './ui/button';
+import { Chrome, ExternalLink, Github } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Button } from './ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 
 interface ProjectCardProps {
   title: string;
@@ -12,19 +18,29 @@ interface ProjectCardProps {
   category: 'webapp' | 'program' | 'extension';
 }
 
-export function ProjectCard({ title, description, tags, demoUrl, githubUrl, category }: ProjectCardProps) {
-  const categoryLabels = {
-    webapp: 'Web App',
-    program: 'Program',
-    extension: 'Extension',
-  };
+const CATEGORY_LABELS = {
+  webapp: 'Web App',
+  program: 'Program',
+  extension: 'Extension',
+} as const;
 
-  const categoryColors = {
-    webapp: 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/50',
-    program: 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/50',
-    extension: 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/50',
-  };
+const CATEGORY_COLORS = {
+  webapp:
+    'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/50',
+  program:
+    'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/50',
+  extension:
+    'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/50',
+} as const;
 
+export function ProjectCard({
+  title,
+  description,
+  tags,
+  demoUrl,
+  githubUrl,
+  category,
+}: ProjectCardProps) {
   // Chrome拡張機能かどうかで表示を変える
   const isExtension = category === 'extension';
 
@@ -44,11 +60,15 @@ export function ProjectCard({ title, description, tags, demoUrl, githubUrl, cate
               <span className="text-cyan-400 text-sm">//</span>
               {title}
             </CardTitle>
-            <span className={`px-3 py-1 rounded-md text-xs font-mono ${categoryColors[category]}`}>
-              {categoryLabels[category]}
+            <span
+              className={`px-3 py-1 rounded-md text-xs font-mono ${CATEGORY_COLORS[category]}`}
+            >
+              {CATEGORY_LABELS[category]}
             </span>
           </div>
-          <CardDescription className="text-base text-slate-400">{description}</CardDescription>
+          <CardDescription className="text-base text-slate-400">
+            {description}
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col justify-between">
           <div className="flex flex-wrap gap-2 mb-4">
@@ -63,10 +83,10 @@ export function ProjectCard({ title, description, tags, demoUrl, githubUrl, cate
           </div>
           <div className="flex gap-2">
             {demoUrl && (
-              <Button 
-                variant="default" 
-                size="sm" 
-                asChild 
+              <Button
+                variant="default"
+                size="sm"
+                asChild
                 className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white border-0 shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] font-mono"
               >
                 <a href={demoUrl} target="_blank" rel="noopener noreferrer">
@@ -85,10 +105,10 @@ export function ProjectCard({ title, description, tags, demoUrl, githubUrl, cate
               </Button>
             )}
             {githubUrl && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                asChild 
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
                 className="flex-1 border-slate-700 text-slate-300 hover:border-cyan-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-mono"
               >
                 <a href={githubUrl} target="_blank" rel="noopener noreferrer">

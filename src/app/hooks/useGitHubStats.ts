@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface GitHubStats {
   totalStars: number;
@@ -20,22 +20,65 @@ interface GitHubRepository {
   private: boolean;
 }
 
+const CACHE_TTL = 10 * 60 * 1000; // 10分
+
+function getCached(
+  key: string
+): { totalStars: number; totalRepos: number } | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    if (typeof ts !== 'number' || Date.now() - ts > CACHE_TTL) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    if (
+      typeof data?.totalStars !== 'number' ||
+      typeof data?.totalRepos !== 'number'
+    ) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch (e) {
+    console.warn('sessionStorage getCached failed:', e);
+    return null;
+  }
+}
+
+function setCache(
+  key: string,
+  data: { totalStars: number; totalRepos: number }
+) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+  } catch (e) {
+    console.warn('sessionStorage setItem failed:', e);
+  }
+}
+
 // GitHub URL からユーザー名を抽出するヘルパー関数
+const GITHUB_USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+
 export function extractGitHubUsername(urlOrUsername: string): string {
   if (!urlOrUsername) return '';
-  
+
+  let candidate = urlOrUsername;
+
   // URL の場合はパースしてユーザー名を抽出
   try {
     const url = new URL(urlOrUsername);
     if (url.hostname === 'github.com') {
-      const pathParts = url.pathname.split('/').filter(Boolean);
-      return pathParts[0] || '';
+      candidate = url.pathname.split('/').filter(Boolean)[0] || '';
+    } else {
+      return '';
     }
   } catch {
     // URL でない場合はそのままユーザー名として扱う
   }
-  
-  return urlOrUsername;
+
+  return GITHUB_USERNAME_RE.test(candidate) ? candidate : '';
 }
 
 export function useGitHubStats(username: string): GitHubStats {
@@ -48,9 +91,16 @@ export function useGitHubStats(username: string): GitHubStats {
 
   useEffect(() => {
     const extractedUsername = extractGitHubUsername(username);
-    
+
     if (!extractedUsername) {
-      setStats(prev => ({ ...prev, loading: false }));
+      setStats((prev) => ({ ...prev, loading: false }));
+      return;
+    }
+
+    const cacheKey = `gh_stats_${extractedUsername}`;
+    const cached = getCached(cacheKey);
+    if (cached) {
+      setStats({ ...cached, loading: false, error: null });
       return;
     }
 
@@ -62,9 +112,17 @@ export function useGitHubStats(username: string): GitHubStats {
 
         // レート制限のチェック
         if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+          const rateLimitRemaining = response.headers.get(
+            'X-RateLimit-Remaining'
+          );
           if (rateLimitRemaining === '0') {
-            throw new Error('GitHub API rate limit exceeded. Please try again later.');
+            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const retryAfter = resetTime
+              ? Math.ceil((Number(resetTime) * 1000 - Date.now()) / 60000)
+              : null;
+            throw new Error(
+              `GitHub API rate limit exceeded.${retryAfter ? ` Retry in ~${retryAfter} min.` : ''}`
+            );
           }
         }
 
@@ -83,14 +141,16 @@ export function useGitHubStats(username: string): GitHubStats {
           0
         );
 
+        const data = { totalStars, totalRepos: repos.length };
+        setCache(cacheKey, data);
+
         setStats({
-          totalStars,
-          totalRepos: repos.length,
+          ...data,
           loading: false,
           error: null,
         });
       } catch (error) {
-        setStats(prev => ({
+        setStats((prev) => ({
           ...prev,
           loading: false,
           error: error instanceof Error ? error.message : 'Unknown error',

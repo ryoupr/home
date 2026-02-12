@@ -1,33 +1,15 @@
 /**
  * JavaScript Minification Script
- * Minifies all JavaScript files in the js/ directory
- * Creates minified versions with .min.js extension
+ * Minifies all JavaScript files in the js/ directory using terser.
+ *
+ * Note: This project uses Vite for production builds which handles
+ * minification automatically. This script is for standalone JS files
+ * outside the Vite pipeline (e.g. js/ directory).
  */
 
 const fs = require('fs');
 const path = require('path');
-
-/**
- * Simple JavaScript minifier
- * Removes comments, unnecessary whitespace, and line breaks
- * @param {string} code - JavaScript code to minify
- * @returns {string} Minified JavaScript code
- */
-function minifyJS(code) {
-  return code
-    // Remove single-line comments
-    .replace(/\/\/.*$/gm, '')
-    // Remove multi-line comments
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    // Remove leading/trailing whitespace from lines
-    .replace(/^\s+|\s+$/gm, '')
-    // Replace multiple spaces with single space
-    .replace(/\s+/g, ' ')
-    // Remove spaces around operators and punctuation
-    .replace(/\s*([{}();,:])\s*/g, '$1')
-    // Remove line breaks
-    .replace(/\n/g, '');
-}
+const { minify } = require('terser');
 
 /**
  * Recursively find all .js files in a directory
@@ -37,65 +19,67 @@ function minifyJS(code) {
  */
 function findJSFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
-
-  files.forEach(file => {
+  for (const file of files) {
     const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
+    if (fs.statSync(filePath).isDirectory()) {
       findJSFiles(filePath, fileList);
     } else if (file.endsWith('.js') && !file.endsWith('.min.js')) {
       fileList.push(filePath);
     }
-  });
-
+  }
   return fileList;
 }
 
 /**
  * Minify all JavaScript files in the js/ directory
  */
-function minifyAllJS() {
+async function minifyAllJS() {
   const jsDir = path.join(__dirname, '..', 'js');
-  
+
   if (!fs.existsSync(jsDir)) {
     console.error('Error: js/ directory not found');
     process.exit(1);
   }
 
   const jsFiles = findJSFiles(jsDir);
-  
   console.log(`Found ${jsFiles.length} JavaScript files to minify`);
 
   let successCount = 0;
   let errorCount = 0;
 
-  jsFiles.forEach(filePath => {
+  for (const filePath of jsFiles) {
     try {
       const code = fs.readFileSync(filePath, 'utf8');
-      const minified = minifyJS(code);
-      
+      const result = await minify(code, { sourceMap: false });
+
+      if (!result.code) {
+        throw new Error('Minification produced empty output');
+      }
+
       const minFilePath = filePath.replace(/\.js$/, '.min.js');
-      fs.writeFileSync(minFilePath, minified, 'utf8');
-      
+      fs.writeFileSync(minFilePath, result.code, 'utf8');
+
       const originalSize = Buffer.byteLength(code, 'utf8');
-      const minifiedSize = Buffer.byteLength(minified, 'utf8');
+      const minifiedSize = Buffer.byteLength(result.code, 'utf8');
       const savings = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
-      
-      console.log(`✓ ${path.relative(process.cwd(), filePath)} → ${path.basename(minFilePath)} (${savings}% smaller)`);
+
+      console.log(
+        `✓ ${path.relative(process.cwd(), filePath)} → ${path.basename(minFilePath)} (${savings}% smaller)`
+      );
       successCount++;
     } catch (error) {
       console.error(`✗ Error minifying ${filePath}:`, error.message);
       errorCount++;
     }
-  });
+  }
 
-  console.log(`\nMinification complete: ${successCount} succeeded, ${errorCount} failed`);
-  
+  console.log(
+    `\nMinification complete: ${successCount} succeeded, ${errorCount} failed`
+  );
+
   if (errorCount > 0) {
     process.exit(1);
   }
 }
 
-// Run minification
 minifyAllJS();

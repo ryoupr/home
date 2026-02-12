@@ -1,12 +1,18 @@
 export function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer id="contact" className="border-t border-slate-800 py-8 px-4 bg-slate-950">
+    <footer
+      id="contact"
+      className="border-t border-slate-800 py-8 px-4 bg-slate-950"
+    >
       <div className="container mx-auto max-w-4xl text-center">
         <p className="text-slate-400 mb-4 font-mono text-sm">
-          <span className="text-cyan-400">&gt;</span> お仕事のご依頼やお問い合わせは、メールまたはSNSからお気軽にご連絡ください。
+          <span className="text-cyan-400">&gt;</span>{' '}
+          お仕事のご依頼やお問い合わせは、メールまたはSNSからお気軽にご連絡ください。
         </p>
         <p className="text-sm text-slate-600 font-mono">
-          © 2026 Your Name. All rights reserved.
+          © {year} Ryoichiro Teshima. All rights reserved.
         </p>
       </div>
     </footer>

@@ -1,11 +1,32 @@
 // BoxNote JSON → Markdown converter
 
+interface BoxMark {
+  type: 'strong' | 'strikethrough' | 'code' | 'link';
+  attrs?: { href?: string };
+}
+
 interface BoxNode {
-  type: string;
+  type:
+    | 'doc'
+    | 'heading'
+    | 'paragraph'
+    | 'bullet_list'
+    | 'ordered_list'
+    | 'list_item'
+    | 'table'
+    | 'table_row'
+    | 'table_cell'
+    | 'table_header'
+    | 'code_block'
+    | 'blockquote'
+    | 'horizontal_rule'
+    | 'text'
+    | 'hard_break'
+    | 'image';
   attrs?: Record<string, unknown>;
   content?: BoxNode[];
   text?: string;
-  marks?: Array<{ type: string; attrs?: Record<string, unknown> }>;
+  marks?: BoxMark[];
 }
 
 function renderMarks(text: string, marks?: BoxNode['marks']): string {
@@ -82,10 +103,7 @@ function renderBlock(node: BoxNode, indent = 0): string {
       for (const child of node.content ?? []) {
         if (child.type === 'paragraph')
           parts.push(`${pfx}- ${renderInline(child.content).trim()}`);
-        else if (
-          child.type === 'bullet_list' ||
-          child.type === 'ordered_list'
-        )
+        else if (child.type === 'bullet_list' || child.type === 'ordered_list')
           parts.push(renderBlock(child, indent + 1));
         else parts.push(renderBlock(child, indent + 1));
       }
@@ -113,7 +131,12 @@ function renderBlock(node: BoxNode, indent = 0): string {
   }
 }
 
+const MAX_JSON_SIZE = 10 * 1024 * 1024; // 10MB
+
 export function convertBoxNoteToMarkdown(json: string): string {
+  if (json.length > MAX_JSON_SIZE) {
+    throw new Error('JSON data too large (max 10MB)');
+  }
   const parsed = JSON.parse(json) as { doc?: BoxNode } & BoxNode;
   const doc = parsed.doc ?? parsed;
   const raw = renderBlock(doc);
