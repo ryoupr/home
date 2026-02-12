@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read the HTML file
-const htmlPath = path.join(__dirname, 'index.html');
+const htmlPath = path.join(__dirname, '..', 'index.html');
 const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
 
 // Test results

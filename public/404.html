@@ -2,6 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <!--
+      SPA redirect for GitHub Pages.
+      Inline JS is required here because this file is served directly by GitHub Pages
+      before the SPA bundle loads. CSP nonce/hash cannot be applied to static hosting.
+      See: https://github.com/rafgraph/spa-github-pages
+    -->
     <script>
       // GitHub Pages SPA redirect
       // https://github.com/rafgraph/spa-github-pages

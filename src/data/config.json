@@ -1,4 +1,5 @@
 {
+  "_comment": "Static site configuration. GitHub Pages does not support server-side env vars, so settings are managed here. Sensitive values (email) are Base64-encoded. See docs/HOW_TO_EDIT.md for editing guide.",
   "personal": {
     "name": "Ryoichiro Teshima",
     "role": "Cloud Engineer",

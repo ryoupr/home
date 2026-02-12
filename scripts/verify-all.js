@@ -36,7 +36,8 @@ for (const { name, file } of targets) {
   console.log('='.repeat(60));
   try {
     execSync(`node ${path.join(__dirname, file)}`, { stdio: 'inherit' });
-  } catch {
+  } catch (err) {
+    console.error(`✗ ${name} failed:`, err.message || err);
     failed = true;
   }
 }

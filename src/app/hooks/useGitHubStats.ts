@@ -108,8 +108,12 @@ export function useGitHubStats(username: string): GitHubStats {
             'X-RateLimit-Remaining'
           );
           if (rateLimitRemaining === '0') {
+            const resetTime = response.headers.get('X-RateLimit-Reset');
+            const retryAfter = resetTime
+              ? Math.ceil((Number(resetTime) * 1000 - Date.now()) / 60000)
+              : null;
             throw new Error(
-              'GitHub API rate limit exceeded. Please try again later.'
+              `GitHub API rate limit exceeded.${retryAfter ? ` Retry in ~${retryAfter} min.` : ''}`
             );
           }
         }

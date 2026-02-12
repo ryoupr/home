@@ -322,21 +322,25 @@ export const exportMultipleSizes = async (
   if (!previewElement) return;
 
   for (const size of sizes) {
-    const [canvas, ctx] = createCanvas(size);
-    drawBackground(ctx, config, size);
+    try {
+      const [canvas, ctx] = createCanvas(size);
+      drawBackground(ctx, config, size);
 
-    if (config.type === 'icon') {
-      const svgNode = previewElement.querySelector('svg');
-      if (svgNode) {
-        await drawIcon(ctx, svgNode, config, size);
+      if (config.type === 'icon') {
+        const svgNode = previewElement.querySelector('svg');
+        if (svgNode) {
+          await drawIcon(ctx, svgNode, config, size);
+          downloadCanvas(canvas, `icon-${size}x${size}.png`);
+        }
+      } else if (config.type === 'text') {
+        drawText(ctx, config, size);
+        downloadCanvas(canvas, `icon-${size}x${size}.png`);
+      } else if (config.type === 'image' && config.uploadedImage) {
+        await drawUploadedImage(ctx, config.uploadedImage, config, size);
         downloadCanvas(canvas, `icon-${size}x${size}.png`);
       }
-    } else if (config.type === 'text') {
-      drawText(ctx, config, size);
-      downloadCanvas(canvas, `icon-${size}x${size}.png`);
-    } else if (config.type === 'image' && config.uploadedImage) {
-      await drawUploadedImage(ctx, config.uploadedImage, config, size);
-      downloadCanvas(canvas, `icon-${size}x${size}.png`);
+    } catch (err) {
+      console.warn(`Failed to export ${size}x${size}:`, err);
     }
   }
 };

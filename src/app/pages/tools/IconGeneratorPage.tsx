@@ -12,7 +12,7 @@ import {
   Type,
   Undo2,
 } from 'lucide-react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import {
@@ -49,6 +49,8 @@ export default function IconGeneratorPage() {
     'icon-presets',
     []
   );
+  // Core state managed by custom hooks (useUndoRedo, useLocalStorage).
+  // Remaining useState hooks are minimal UI state (search, zoom, menu toggle).
   const [searchQuery, setSearchQuery] = useState('');
   const [zoom, setZoom] = useState(1);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);

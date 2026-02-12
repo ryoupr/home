@@ -5,10 +5,15 @@ import config from '../../data/config.json';
 
 export function Hero() {
   const { personal } = config;
-  const email = useMemo(
-    () => (personal.emailEncoded ? atob(personal.email) : personal.email),
-    [personal.email, personal.emailEncoded]
-  );
+  const email = useMemo(() => {
+    if (!personal.emailEncoded) return personal.email;
+    try {
+      const decoded = atob(personal.email);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(decoded) ? decoded : '';
+    } catch {
+      return '';
+    }
+  }, [personal.email, personal.emailEncoded]);
 
   return (
     <section

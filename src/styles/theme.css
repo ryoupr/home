@@ -1,3 +1,5 @@
+/* Tailwind CSS 4.x custom variant syntax for dark mode.
+   See: https://tailwindcss.com/docs/dark-mode#using-a-selector */
 @custom-variant dark (&:is(.dark *));
 
 :root {

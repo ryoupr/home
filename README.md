@@ -17,7 +17,7 @@ React + TypeScript + Vite で構築した個人ポートフォリオサイト。
 - Vite 6.x
 - Tailwind CSS 4.x
 - React Router DOM
-- Radix UI / Material-UI
+- Radix UI
 - Lucide React
 
 ## Development

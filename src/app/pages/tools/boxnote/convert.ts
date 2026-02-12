@@ -1,11 +1,32 @@
 // BoxNote JSON → Markdown converter
 
+interface BoxMark {
+  type: 'strong' | 'strikethrough' | 'code' | 'link';
+  attrs?: { href?: string };
+}
+
 interface BoxNode {
-  type: string;
+  type:
+    | 'doc'
+    | 'heading'
+    | 'paragraph'
+    | 'bullet_list'
+    | 'ordered_list'
+    | 'list_item'
+    | 'table'
+    | 'table_row'
+    | 'table_cell'
+    | 'table_header'
+    | 'code_block'
+    | 'blockquote'
+    | 'horizontal_rule'
+    | 'text'
+    | 'hard_break'
+    | 'image';
   attrs?: Record<string, unknown>;
   content?: BoxNode[];
   text?: string;
-  marks?: Array<{ type: string; attrs?: Record<string, unknown> }>;
+  marks?: BoxMark[];
 }
 
 function renderMarks(text: string, marks?: BoxNode['marks']): string {

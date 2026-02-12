@@ -23,7 +23,12 @@ function createProductionHTML() {
   // No change needed as build script already minifies it
 
   // Replace JS references with minified versions
+  const originalHtml = html;
   html = html.replace(/src="(js\/[^"]+)\.js"/g, 'src="$1.min.js"');
+
+  if (html === originalHtml) {
+    console.log('⚠ No JS file references found to replace');
+  }
 
   // Create production HTML file
   const prodHtmlPath = path.join(__dirname, '..', 'index.prod.html');

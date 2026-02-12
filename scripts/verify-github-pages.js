@@ -94,7 +94,9 @@ function checkReferencedFiles() {
         !url.startsWith('http') &&
         !url.startsWith('//') &&
         !url.startsWith('#') &&
-        !url.startsWith('mailto:')
+        !url.startsWith('mailto:') &&
+        !url.startsWith('data:') &&
+        !url.startsWith('blob:')
     );
 
   let allExist = true;

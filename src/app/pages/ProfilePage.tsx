@@ -8,7 +8,7 @@ import {
   User,
   Wrench,
 } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import config from '../../data/config.json';
 import { Card, CardContent } from '../components/ui/card';
@@ -18,10 +18,16 @@ import { usePageTitle } from '../hooks/usePageTitle';
 export function ProfilePage() {
   usePageTitle('Portfolio');
   const { personal } = config;
-  const email = useMemo(
-    () => (personal.emailEncoded ? atob(personal.email) : personal.email),
-    [personal.email, personal.emailEncoded]
-  );
+  const email = useMemo(() => {
+    if (!personal.emailEncoded) return personal.email;
+    try {
+      const decoded = atob(personal.email);
+      // メール形式バリデーション
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(decoded) ? decoded : '';
+    } catch {
+      return '';
+    }
+  }, [personal.email, personal.emailEncoded]);
   const { totalStars, totalRepos, loading } = useGitHubStats(
     extractGitHubUsername(personal.github)
   );
