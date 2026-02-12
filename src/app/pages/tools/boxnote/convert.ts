@@ -131,7 +131,12 @@ function renderBlock(node: BoxNode, indent = 0): string {
   }
 }
 
+const MAX_JSON_SIZE = 10 * 1024 * 1024; // 10MB
+
 export function convertBoxNoteToMarkdown(json: string): string {
+  if (json.length > MAX_JSON_SIZE) {
+    throw new Error('JSON data too large (max 10MB)');
+  }
   const parsed = JSON.parse(json) as { doc?: BoxNode } & BoxNode;
   const doc = parsed.doc ?? parsed;
   const raw = renderBlock(doc);

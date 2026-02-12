@@ -77,43 +77,65 @@ export default function IconGeneratorPage() {
     );
   }, [searchQuery]);
 
+  const [downloadError, setDownloadError] = useState('');
+
   const handleDownload = async () => {
-    const [canvas, ctx] = createCanvas();
-    drawBackground(ctx, config, CANVAS_SIZE);
+    try {
+      setDownloadError('');
+      const [canvas, ctx] = createCanvas();
+      drawBackground(ctx, config, CANVAS_SIZE);
 
-    const previewElement = document.getElementById('preview-icon-container');
-    if (!previewElement) return;
+      const previewElement = document.getElementById('preview-icon-container');
+      if (!previewElement) return;
 
-    if (config.type === 'icon') {
-      const svgNode = previewElement.querySelector('svg');
-      if (svgNode) {
-        await drawIcon(ctx, svgNode, config, CANVAS_SIZE);
+      if (config.type === 'icon') {
+        const svgNode = previewElement.querySelector('svg');
+        if (svgNode) {
+          await drawIcon(ctx, svgNode, config, CANVAS_SIZE);
+          downloadCanvas(canvas, 'icon.png');
+        }
+      } else if (config.type === 'text') {
+        drawText(ctx, config, CANVAS_SIZE);
+        downloadCanvas(canvas, 'icon.png');
+      } else if (config.type === 'image' && config.uploadedImage) {
+        await drawUploadedImage(ctx, config.uploadedImage, config, CANVAS_SIZE);
         downloadCanvas(canvas, 'icon.png');
       }
-    } else if (config.type === 'text') {
-      drawText(ctx, config, CANVAS_SIZE);
-      downloadCanvas(canvas, 'icon.png');
-    } else if (config.type === 'image' && config.uploadedImage) {
-      await drawUploadedImage(ctx, config.uploadedImage, config, CANVAS_SIZE);
-      downloadCanvas(canvas, 'icon.png');
+    } catch (err) {
+      setDownloadError(
+        `ダウンロードに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`
+      );
     }
   };
 
   const handleDownloadSVG = () => {
-    const previewElement = document.getElementById('preview-icon-container');
-    const svgNode = previewElement?.querySelector('svg');
-    if (config.type === 'icon' && svgNode) {
-      downloadSVG(config, svgNode, 'icon.svg');
+    try {
+      const previewElement = document.getElementById('preview-icon-container');
+      const svgNode = previewElement?.querySelector('svg');
+      if (config.type === 'icon' && svgNode) {
+        downloadSVG(config, svgNode, 'icon.svg');
+      }
+    } catch (err) {
+      setDownloadError(
+        `SVGダウンロードに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`
+      );
     }
   };
 
   const handleExportMultiple = async () => {
-    const previewElement = document.getElementById('preview-icon-container');
-    await exportMultipleSizes(
-      config,
-      previewElement,
-      [16, 32, 64, 128, 256, 512, 1024]
-    );
+    try {
+      setDownloadError('');
+      const previewElement = document.getElementById('preview-icon-container');
+      await exportMultipleSizes(
+        config,
+        previewElement,
+        [16, 32, 64, 128, 256, 512, 1024]
+      );
+    } catch (err) {
+      setDownloadError(
+        `一括エクスポートに失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`
+      );
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -223,6 +245,9 @@ export default function IconGeneratorPage() {
                 </div>
               )}
             </div>
+            {downloadError && (
+              <p className="text-xs text-red-500 mt-1">{downloadError}</p>
+            )}
           </div>
         </div>
       </header>

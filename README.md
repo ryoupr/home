@@ -91,12 +91,7 @@ npm run lint
 
 ## Deployment
 
-```bash
-npm run build
-./deploy.sh
-```
-
-詳細は [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) を参照。
+GitHub Actions による自動デプロイ。`main` ブランチへの push で自動的にデプロイされます。
 
 ## Documentation
 

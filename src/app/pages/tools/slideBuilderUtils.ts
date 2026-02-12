@@ -37,9 +37,12 @@ const PX_TO_PT = 0.75;
 const MIN_CONTAINER_W = 800;
 const MIN_CONTAINER_H = 400;
 const MAX_ELEMENTS = 2000;
+// Max CSS value length to prevent regex performance issues
+const MAX_CSS_LEN = 500;
 
 // --- Color helpers ---
 function rgbToHex(rgb: string): string | null {
+  if (rgb.length > MAX_CSS_LEN) return null;
   const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
   if (!m) return null;
   if (m[4] !== undefined && parseFloat(m[4]) < 0.05) return null;
@@ -61,6 +64,7 @@ function isTransparent(color: string): boolean {
 function parseGradient(
   bg: string
 ): { angle: number; color1: string; color2: string } | null {
+  if (bg.length > MAX_CSS_LEN) return null;
   const m = bg.match(
     /linear-gradient\(\s*([\d.]+)deg\s*,\s*([^,]+),\s*([^)]+)\)/
   );
@@ -434,8 +438,10 @@ function extractFromContainer(container: HTMLElement): SlideElement[] {
     };
   }
 
+  const MAX_DEPTH = 50;
+
   function walk(el: HTMLElement, depth: number) {
-    if (elements.length >= MAX_ELEMENTS) return;
+    if (elements.length >= MAX_ELEMENTS || depth > MAX_DEPTH) return;
     const rect = el.getBoundingClientRect();
     const style = getComputedStyle(el);
     if (rect.width < 1 || rect.height < 1) return;

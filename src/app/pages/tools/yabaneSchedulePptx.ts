@@ -36,6 +36,16 @@ export interface PptxExportParams {
 }
 
 const PPTX_SHAPE_OFFSET_X = -0.02;
+const TITLE_X = 0.5;
+const TITLE_Y = 0.2;
+const TITLE_H = 0.5;
+const CATEGORY_COL_WIDTH_INCH = 1.5;
+const HEADER_HEIGHT = 0.6;
+const MIN_ROW_HEIGHT = 0.7;
+const TASK_V_STEP = 0.35;
+const TASK_SHAPE_H = 0.25;
+const ROW_PADDING = 0.3;
+const TASK_Y_OFFSET = 0.15;
 
 export async function generateYabanePptx(
   pptx: any,
@@ -62,20 +72,19 @@ export async function generateYabanePptx(
   pptx.layout = 'LAYOUT_WIDE';
   const slide = pptx.addSlide();
   slide.addText('矢羽スケジュール', {
-    x: 0.5,
-    y: 0.2,
+    x: TITLE_X,
+    y: TITLE_Y,
     w: 9,
-    h: 0.5,
+    h: TITLE_H,
     fontSize: 24,
     bold: true,
     color: '333333',
   });
 
-  const START_X = 0.5,
+  const START_X = TITLE_X,
     START_Y = 1.0,
     SLIDE_WIDTH = 13.33;
-  const CATEGORY_COL_WIDTH = 1.5;
-  const TIMELINE_WIDTH = SLIDE_WIDTH - CATEGORY_COL_WIDTH - START_X * 2;
+  const TIMELINE_WIDTH = SLIDE_WIDTH - CATEGORY_COL_WIDTH_INCH - START_X * 2;
   if (totalTimelineWidth === 0) throw new Error('タイムライン幅が0です');
   const pxToInch = TIMELINE_WIDTH / totalTimelineWidth;
   const SPECIAL_COL_WIDTH = 80;
@@ -97,20 +106,16 @@ export async function generateYabanePptx(
   }
 
   const colWidths = [
-    CATEGORY_COL_WIDTH,
+    CATEGORY_COL_WIDTH_INCH,
     ...Array(leftCols.length).fill(leftColWidthInch),
     ...Array(timelineUnits.length).fill(unitWidthInch),
     ...Array(rightCols.length).fill(rightColWidthInch),
   ];
 
-  const HEADER_HEIGHT = 0.6,
-    MIN_ROW_HEIGHT = 0.7,
-    TASK_V_STEP = 0.35,
-    TASK_SHAPE_H = 0.25;
   const categoryHeights = activeCategories.map((category) => {
     const laneTasks = laneTasksByCategory[category] || [];
     const maxLane = Math.max(-1, ...laneTasks.map((t) => t.laneIndex));
-    return Math.max(MIN_ROW_HEIGHT, (maxLane + 1) * TASK_V_STEP + 0.3);
+    return Math.max(MIN_ROW_HEIGHT, (maxLane + 1) * TASK_V_STEP + ROW_PADDING);
   });
   const tableRowHeights = [HEADER_HEIGHT, ...categoryHeights];
 
@@ -209,11 +214,11 @@ export async function generateYabanePptx(
         shapeW_px = totalTimelineWidth - shapeX_px;
       const shapeX =
         START_X +
-        CATEGORY_COL_WIDTH +
+        CATEGORY_COL_WIDTH_INCH +
         shapeX_px * pxToInch +
         PPTX_SHAPE_OFFSET_X;
       const shapeW = shapeW_px * pxToInch;
-      const shapeY = currentCatY + 0.15 + task.laneIndex * TASK_V_STEP;
+      const shapeY = currentCatY + TASK_Y_OFFSET + task.laneIndex * TASK_V_STEP;
       if (shapeW > 0) {
         const colorObj = colors.find((c) => c.bg === task.color) || colors[0];
         slide.addShape(pptx.ShapeType.chevron, {

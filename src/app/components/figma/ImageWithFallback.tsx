@@ -8,8 +8,13 @@ const ALLOWED_PROTOCOLS = ['https:', 'data:', 'blob:'];
 
 function isSafeUrl(url: string | undefined): boolean {
   if (!url) return false;
+  // Reject protocol-relative URLs (//evil.com/...)
+  if (url.startsWith('//')) return false;
+  // Allow same-origin relative paths
+  if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../'))
+    return true;
   try {
-    const parsed = new URL(url, window.location.origin);
+    const parsed = new URL(url);
     return ALLOWED_PROTOCOLS.includes(parsed.protocol);
   } catch {
     return false;

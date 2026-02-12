@@ -14,6 +14,12 @@ export interface ParseResult {
   error?: string;
 }
 
+/** Sanitize cell value to prevent CSV formula injection */
+function sanitizeCell(val: string): string {
+  if (/^[=+\-@\t\r]/.test(val)) return `'${val}`;
+  return val;
+}
+
 export const parseCSV = (text: string): ParseResult => {
   if (!text || !text.trim())
     return { headers: [], data: [], error: 'ファイルが空です。' };
@@ -53,9 +59,9 @@ export const parseCSV = (text: string): ParseResult => {
     const values = parseLine(line);
     const obj: ParsedData = { _id: index };
     headers.forEach((header, i) => {
-      const val = values[i];
-      const num = parseFloat(val);
-      obj[header] = isNaN(num) ? val : num;
+      const raw = sanitizeCell(values[i] ?? '');
+      const num = parseFloat(raw);
+      obj[header] = isNaN(num) ? raw : num;
     });
     return obj;
   });

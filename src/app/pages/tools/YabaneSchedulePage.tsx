@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
-  Edit2,
   FileJson,
   GripVertical,
   Loader2,
@@ -28,6 +27,24 @@ import React, {
 import { Link } from 'react-router-dom';
 import { CDN_LIBS } from '../../cdnConfig';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { YabaneSettingsDialog } from './YabaneSettingsDialog';
+import { YabaneTaskEditor } from './YabaneTaskEditor';
+import {
+  COLORS,
+  formatDate,
+  getFiscalInfo,
+  getISOWeek,
+  getJapaneseHolidays,
+  type LaneTask,
+  MODE_SHIFT,
+  normalizeDate,
+  parseDateLocal,
+  SPECIAL_COL_WIDTH,
+  TASK_GAP,
+  TASK_HEIGHT,
+  type Task,
+  VIEW_MODES,
+} from './yabaneScheduleHelpers';
 import { generateYabanePptx } from './yabaneSchedulePptx';
 
 // PptxGenJS CDN type declaration
@@ -38,152 +55,8 @@ declare global {
   }
 }
 
-// --- Constants & Helpers ---
-
 const PPTX_CDN_URL = CDN_LIBS.pptxgenjs.url;
 const PPTX_SCRIPT_ID = 'pptxgenjs-cdn';
-
-const COLORS = [
-  { name: 'Blue', bg: 'bg-blue-500', hex: '3B82F6' },
-  { name: 'Green', bg: 'bg-emerald-500', hex: '10B981' },
-  { name: 'Red', bg: 'bg-rose-500', hex: 'F43F5E' },
-  { name: 'Amber', bg: 'bg-amber-500', hex: 'F59E0B' },
-  { name: 'Purple', bg: 'bg-purple-500', hex: 'A855F7' },
-  { name: 'Indigo', bg: 'bg-indigo-500', hex: '6366F1' },
-  { name: 'Cyan', bg: 'bg-cyan-500', hex: '06B6D4' },
-  { name: 'Gray', bg: 'bg-slate-500', hex: '64748B' },
-];
-
-const VIEW_MODES = [
-  { id: 'day', label: '日次' },
-  { id: 'week', label: '週次' },
-  { id: 'month', label: '月次' },
-  { id: 'year', label: '年次' },
-  { id: 'fy', label: '年度' },
-];
-
-const MODE_SHIFT: Record<string, number> = {
-  day: 7,
-  week: 28,
-  month: 90,
-  year: 365,
-  fy: 365,
-};
-
-const SPECIAL_COL_WIDTH = 80;
-const TASK_HEIGHT = 32;
-const TASK_GAP = 8;
-
-interface Task {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  color: string;
-  category: string;
-  startType: 'date' | 'special';
-  endType: 'date' | 'special';
-}
-
-interface LaneTask extends Task {
-  laneIndex: number;
-  xStart: number;
-  width: number;
-}
-
-const normalizeDate = (date: string | Date): Date => {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-const parseDateLocal = (dateInput?: string | null): Date => {
-  if (!dateInput) return new Date();
-  const d = new Date(dateInput);
-  if (isNaN(d.getTime())) return new Date();
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-};
-
-const formatDate = (date: Date | string): string => {
-  const d = new Date(date);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-};
-
-const getFiscalInfo = (date: Date) => {
-  const month = date.getMonth();
-  const fy = month < 3 ? date.getFullYear() - 1 : date.getFullYear();
-  return { fy, label: `${fy}年度` };
-};
-
-const getISOWeek = (date: Date): number => {
-  const d = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  );
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-};
-
-// --- Japanese Holiday Logic ---
-
-const getJapaneseHolidays = (year: number): Record<string, string> => {
-  const holidays: Record<string, string> = {};
-  const add = (date: Date, name: string) => {
-    holidays[formatDate(date)] = name;
-  };
-  add(new Date(year, 0, 1), '元日');
-  add(new Date(year, 1, 11), '建国記念の日');
-  add(new Date(year, 1, 23), '天皇誕生日');
-  add(new Date(year, 3, 29), '昭和の日');
-  add(new Date(year, 4, 3), '憲法記念日');
-  add(new Date(year, 4, 4), 'みどりの日');
-  add(new Date(year, 4, 5), 'こどもの日');
-  add(new Date(year, 7, 11), '山の日');
-  add(new Date(year, 10, 3), '文化の日');
-  add(new Date(year, 10, 23), '勤労感謝の日');
-  const getHappyMonday = (month: number, week: number) => {
-    const first = new Date(year, month, 1);
-    const day = first.getDay();
-    const offset = (1 - day + 7) % 7;
-    return new Date(year, month, 1 + offset + (week - 1) * 7);
-  };
-  add(getHappyMonday(0, 2), '成人の日');
-  add(getHappyMonday(6, 3), '海の日');
-  add(getHappyMonday(8, 3), '敬老の日');
-  add(getHappyMonday(9, 2), 'スポーツの日');
-  const shunbun = Math.floor(
-    20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4)
-  );
-  add(new Date(year, 2, shunbun), '春分の日');
-  const shubun = Math.floor(
-    23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4)
-  );
-  add(new Date(year, 8, shubun), '秋分の日');
-  Object.keys(holidays).forEach((dateStr) => {
-    const d = new Date(dateStr);
-    if (d.getDay() === 0) {
-      const next = new Date(d);
-      next.setDate(next.getDate() + 1);
-      while (holidays[formatDate(next)]) next.setDate(next.getDate() + 1);
-      add(next, '振替休日');
-    }
-  });
-  const sortedDates = Object.keys(holidays).sort();
-  for (let i = 0; i < sortedDates.length - 1; i++) {
-    const d1 = new Date(sortedDates[i]);
-    const d2 = new Date(sortedDates[i + 1]);
-    const diff = (d2.getTime() - d1.getTime()) / (24 * 60 * 60 * 1000);
-    if (diff === 2) {
-      const mid = new Date(d1);
-      mid.setDate(mid.getDate() + 1);
-      if (mid.getDay() !== 0) add(mid, '国民の休日');
-    }
-  }
-  return holidays;
-};
 
 // --- Main Component ---
 
@@ -434,7 +307,9 @@ export function YabaneSchedulePage() {
   };
 
   const draggedRef = useRef(false);
+  const dragEndTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    clearTimeout(dragEndTimerRef.current);
     setDragTaskId(taskId);
     draggedRef.current = true;
     e.dataTransfer.effectAllowed = 'move';
@@ -457,9 +332,9 @@ export function YabaneSchedulePage() {
   };
   const handleDragEnd = () => {
     setDragTaskId(null);
-    setTimeout(() => {
+    dragEndTimerRef.current = setTimeout(() => {
       draggedRef.current = false;
-    }, 0);
+    }, 50);
   };
   const handleTaskClick = (task: Task) => {
     if (!draggedRef.current) setEditingTask(task);
@@ -540,6 +415,10 @@ export function YabaneSchedulePage() {
       } catch {
         setMessage({ type: 'error', text: '読込失敗: 不正なファイル形式です' });
       }
+      e.target.value = '';
+    };
+    reader.onerror = () => {
+      setMessage({ type: 'error', text: 'ファイルの読み込みに失敗しました' });
       e.target.value = '';
     };
     reader.readAsText(file);
@@ -997,198 +876,16 @@ export function YabaneSchedulePage() {
         </div>
 
         {editingTask && (
-          <div className="w-72 bg-white border-l border-slate-200 shadow-xl z-30 flex flex-col">
-            <div className="p-4 border-b flex items-center justify-between bg-slate-50 text-slate-700 font-bold text-sm">
-              <div className="flex items-center space-x-2">
-                <Edit2 size={14} />
-                <span>タスク詳細</span>
-              </div>
-              <button onClick={() => setEditingTask(null)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-4 space-y-5 overflow-y-auto">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  タスク名
-                </label>
-                <input
-                  type="text"
-                  value={editingTask.title}
-                  onChange={(e) =>
-                    updateTask(editingTask.id, { title: e.target.value })
-                  }
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  開始地点
-                </label>
-                <div className="flex rounded-md border border-slate-200 overflow-hidden">
-                  <button
-                    onClick={() =>
-                      updateTask(editingTask.id, {
-                        startType: 'special',
-                        start: 'left-0',
-                      })
-                    }
-                    className={`flex-1 py-1 text-[10px] font-bold ${editingTask.startType === 'special' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
-                  >
-                    固定列
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateTask(editingTask.id, {
-                        startType: 'date',
-                        start: formatDate(new Date(viewStart)),
-                      })
-                    }
-                    className={`flex-1 py-1 text-[10px] font-bold ${editingTask.startType === 'date' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
-                  >
-                    カレンダー
-                  </button>
-                </div>
-                {editingTask.startType === 'special' ? (
-                  <select
-                    value={editingTask.start}
-                    onChange={(e) =>
-                      updateTask(editingTask.id, { start: e.target.value })
-                    }
-                    className="w-full p-1.5 border rounded text-xs"
-                  >
-                    {leftCols.map((c, i) => (
-                      <option key={`sl-${i}`} value={`left-${i}`}>
-                        {c}
-                      </option>
-                    ))}
-                    {rightCols.map((c, i) => (
-                      <option key={`sr-${i}`} value={`right-${i}`}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="date"
-                    value={editingTask.start}
-                    onChange={(e) =>
-                      updateTask(editingTask.id, { start: e.target.value })
-                    }
-                    className="w-full p-1.5 border rounded text-xs"
-                  />
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  終了地点
-                </label>
-                <div className="flex rounded-md border border-slate-200 overflow-hidden">
-                  <button
-                    onClick={() =>
-                      updateTask(editingTask.id, {
-                        endType: 'special',
-                        end: 'right-0',
-                      })
-                    }
-                    className={`flex-1 py-1 text-[10px] font-bold ${editingTask.endType === 'special' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
-                  >
-                    固定列
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateTask(editingTask.id, {
-                        endType: 'date',
-                        end: formatDate(new Date(viewStart)),
-                      })
-                    }
-                    className={`flex-1 py-1 text-[10px] font-bold ${editingTask.endType === 'date' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
-                  >
-                    カレンダー
-                  </button>
-                </div>
-                {editingTask.endType === 'special' ? (
-                  <select
-                    value={editingTask.end}
-                    onChange={(e) =>
-                      updateTask(editingTask.id, { end: e.target.value })
-                    }
-                    className="w-full p-1.5 border rounded text-xs"
-                  >
-                    {leftCols.map((c, i) => (
-                      <option key={`el-${i}`} value={`left-${i}`}>
-                        {c}
-                      </option>
-                    ))}
-                    {rightCols.map((c, i) => (
-                      <option key={`er-${i}`} value={`right-${i}`}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="date"
-                    value={editingTask.end}
-                    onChange={(e) =>
-                      updateTask(editingTask.id, { end: e.target.value })
-                    }
-                    className="w-full p-1.5 border rounded text-xs"
-                  />
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-400">
-                  カラー
-                </label>
-                <div
-                  className="grid grid-cols-4 gap-2"
-                  role="radiogroup"
-                  aria-label="タスクカラー"
-                >
-                  {COLORS.map((c) => (
-                    <button
-                      key={c.bg}
-                      onClick={() =>
-                        updateTask(editingTask.id, { color: c.bg })
-                      }
-                      className={`h-8 rounded ${c.bg} ${editingTask.color === c.bg ? 'ring-2 ring-slate-400' : ''}`}
-                      role="radio"
-                      aria-checked={editingTask.color === c.bg}
-                      aria-label={c.name}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400">
-                  工程カテゴリ
-                </label>
-                <select
-                  value={editingTask.category}
-                  onChange={(e) =>
-                    updateTask(editingTask.id, { category: e.target.value })
-                  }
-                  className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm bg-white"
-                >
-                  {categories.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="pt-4 border-t">
-                <button
-                  onClick={() => deleteTask(editingTask.id)}
-                  className="w-full py-2 text-rose-500 text-xs font-bold border border-rose-100 rounded hover:bg-rose-50 flex items-center justify-center space-x-1"
-                >
-                  <Trash2 size={14} />
-                  <span>タスク削除</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          <YabaneTaskEditor
+            task={editingTask}
+            categories={categories}
+            leftCols={leftCols}
+            rightCols={rightCols}
+            viewStart={viewStart}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+            onClose={() => setEditingTask(null)}
+          />
         )}
       </main>
 
@@ -1270,120 +967,17 @@ export function YabaneSchedulePage() {
       )}
 
       {showSettings && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]"
-          role="dialog"
-          aria-modal="true"
-          aria-label="設定"
-        >
-          <div className="bg-white rounded-xl shadow-2xl w-96 overflow-hidden">
-            <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-bold text-sm">
-              設定
-              <button onClick={() => setShowSettings(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-4 space-y-6 overflow-y-auto max-h-[80vh]">
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase">
-                  固定列（左側）
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {leftCols.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center bg-slate-100 rounded px-2 py-1 text-xs font-bold text-slate-600"
-                    >
-                      <span>{c}</span>
-                      <button
-                        onClick={() =>
-                          setLeftCols(leftCols.filter((_, idx) => idx !== i))
-                        }
-                        className="ml-2 text-slate-400 hover:text-rose-500"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => {
-                      const n = window.prompt?.('列名')?.trim().slice(0, 50);
-                      if (n) setLeftCols([...leftCols, n]);
-                    }}
-                    className="text-indigo-600 p-1 border border-indigo-200 rounded hover:bg-indigo-50"
-                  >
-                    <Plus size={12} />
-                  </button>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase">
-                  固定列（右側）
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {rightCols.map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center bg-slate-100 rounded px-2 py-1 text-xs font-bold text-slate-600"
-                    >
-                      <span>{c}</span>
-                      <button
-                        onClick={() =>
-                          setRightCols(rightCols.filter((_, idx) => idx !== i))
-                        }
-                        className="ml-2 text-slate-400 hover:text-rose-500"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => {
-                      const n = window.prompt?.('列名')?.trim().slice(0, 50);
-                      if (n) setRightCols([...rightCols, n]);
-                    }}
-                    className="text-indigo-600 p-1 border border-indigo-200 rounded hover:bg-indigo-50"
-                  >
-                    <Plus size={12} />
-                  </button>
-                </div>
-              </div>
-              <div className="space-y-3 pt-4 border-t">
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useJapaneseHolidays}
-                    onChange={(e) => setUseJapaneseHolidays(e.target.checked)}
-                    className="rounded text-indigo-600"
-                  />
-                  <span className="text-sm font-medium">
-                    日本の祝日を考慮する
-                  </span>
-                </label>
-                <div className="flex justify-between text-xs font-bold text-slate-500">
-                  <span>1マスの幅</span>
-                  <span>{unitWidth}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="30"
-                  max="250"
-                  value={unitWidth}
-                  onChange={(e) => setUnitWidth(Number(e.target.value))}
-                  className="w-full accent-indigo-600"
-                />
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 border-t flex justify-end">
-              <button
-                onClick={() => setShowSettings(false)}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md"
-              >
-                閉じる
-              </button>
-            </div>
-          </div>
-        </div>
+        <YabaneSettingsDialog
+          leftCols={leftCols}
+          rightCols={rightCols}
+          unitWidth={unitWidth}
+          useJapaneseHolidays={useJapaneseHolidays}
+          onLeftColsChange={setLeftCols}
+          onRightColsChange={setRightCols}
+          onUnitWidthChange={setUnitWidth}
+          onHolidaysChange={setUseJapaneseHolidays}
+          onClose={() => setShowSettings(false)}
+        />
       )}
       <style>{`
         @media print { header, button, .sidebar, input[type="range"] { display: none !important; } body { background: white; } .scrollbar-thin { overflow: visible !important; } main { height: auto !important; overflow: visible !important; } }

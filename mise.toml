@@ -1,15 +1,18 @@
 [tools]
-node = "latest"
-python = "latest"
+node = "22"
 
 [tasks.dev]
-run = "python3 -m http.server 8000"
-description = "Start development server"
+run = "npm run dev"
+description = "Start Vite development server"
+
+[tasks.build]
+run = "npm run build"
+description = "Build for production"
 
 [tasks.format]
-run = "prettier --write ."
-description = "Format code"
+run = "npx biome format --write ."
+description = "Format code with Biome"
 
 [tasks.lint]
-run = "eslint js/"
-description = "Lint JavaScript"
+run = "npx biome lint src/"
+description = "Lint with Biome"

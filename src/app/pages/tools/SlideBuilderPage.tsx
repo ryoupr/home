@@ -369,6 +369,7 @@ export function SlideBuilderPage() {
                         transformOrigin: 'top left',
                         border: 'none',
                       }}
+                      // sandbox: allow-scripts for CSS rendering, no allow-same-origin to prevent DOM access
                       sandbox="allow-scripts"
                     />
                   </div>

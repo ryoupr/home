@@ -8,7 +8,6 @@ import {
   ScanLine,
   Settings,
   Table as TableIcon,
-  Trash2,
   TrendingUp,
   Type,
   Upload,
@@ -16,48 +15,20 @@ import {
 } from 'lucide-react';
 import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  LabelList,
-  Legend,
-  Line,
-  LineChart,
-  ReferenceArea,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import {
+  CsvChart,
+  type ReferenceAreaConfig,
+  type ReferenceLineConfig,
+} from './CsvChart';
 import { type ParsedData, parseCSV } from './csvParser';
-
-// 型定義
-interface ReferenceLineConfig {
-  id: number;
-  value: number;
-  label: string;
-  color: string;
-}
-
-interface ReferenceAreaConfig {
-  id: number;
-  y1: number;
-  y2: number;
-  label: string;
-  color: string;
-}
 
 // 色の輝度を判定してテキスト色（黒/白）を返す関数
 const getContrastTextColor = (hexColor: string): string => {
   if (!hexColor) return '#1e293b';
-  const r = parseInt(hexColor.substr(1, 2), 16);
-  const g = parseInt(hexColor.substr(3, 2), 16);
-  const b = parseInt(hexColor.substr(5, 2), 16);
+  const r = parseInt(hexColor.substring(1, 3), 16);
+  const g = parseInt(hexColor.substring(3, 5), 16);
+  const b = parseInt(hexColor.substring(5, 7), 16);
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
   return yiq >= 128 ? '#1e293b' : '#f8fafc';
 };
@@ -262,43 +233,6 @@ export function CsvGraphViewerPage() {
     image.src = url;
   };
 
-  const renderReferenceLines = () =>
-    referenceLines.map((line) => (
-      <ReferenceLine
-        key={line.id}
-        y={line.value}
-        label={{
-          position: 'right',
-          value: line.label,
-          fill: line.color,
-          fontSize: 12,
-          fontWeight: 'bold',
-        }}
-        stroke={line.color}
-        strokeDasharray="3 3"
-        strokeWidth={2}
-      />
-    ));
-
-  const renderReferenceAreas = () =>
-    referenceAreas.map((area) => (
-      <ReferenceArea
-        key={area.id}
-        y1={area.y1}
-        y2={area.y2}
-        label={{
-          position: 'insideTopRight',
-          value: area.label,
-          fill: '#92400e',
-          fontSize: 12,
-          fontWeight: 'bold',
-        }}
-        fill={area.color}
-        fillOpacity={0.2}
-        strokeOpacity={0}
-      />
-    ));
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -330,7 +264,7 @@ export function CsvGraphViewerPage() {
               }}
               className="text-sm text-slate-500 hover:text-red-500 flex items-center gap-2 transition-colors"
             >
-              <Trash2 className="w-4 h-4" />
+              <X className="w-4 h-4" />
               リセット
             </button>
           )}
@@ -726,201 +660,17 @@ export function CsvGraphViewerPage() {
                       </table>
                     </div>
                   ) : (
-                    <ResponsiveContainer
-                      width="100%"
-                      height="100%"
-                      minHeight={400}
-                    >
-                      {chartType === 'bar' && (
-                        <BarChart
-                          data={chartData}
-                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            vertical={false}
-                            stroke={textColor}
-                            strokeOpacity={0.2}
-                          />
-                          <XAxis
-                            dataKey={xAxisKey}
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => value.toLocaleString()}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#fff',
-                              borderRadius: '8px',
-                              border: 'none',
-                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                              color: '#1e293b',
-                            }}
-                            formatter={(value) =>
-                              (value as number).toLocaleString()
-                            }
-                          />
-                          <Legend wrapperStyle={{ color: textColor }} />
-                          {dataKeys.map((key, index) => (
-                            <Bar
-                              key={key}
-                              dataKey={key}
-                              fill={currentColors[index % currentColors.length]}
-                              radius={[4, 4, 0, 0]}
-                            >
-                              {showDataLabels && (
-                                <LabelList
-                                  dataKey={key}
-                                  position="top"
-                                  fill={textColor}
-                                  fontSize={10}
-                                />
-                              )}
-                            </Bar>
-                          ))}
-                          {renderReferenceAreas()}
-                          {renderReferenceLines()}
-                        </BarChart>
-                      )}
-
-                      {chartType === 'line' && (
-                        <LineChart
-                          data={chartData}
-                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            vertical={false}
-                            stroke={textColor}
-                            strokeOpacity={0.2}
-                          />
-                          <XAxis
-                            dataKey={xAxisKey}
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => value.toLocaleString()}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#fff',
-                              borderRadius: '8px',
-                              border: 'none',
-                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                              color: '#1e293b',
-                            }}
-                            formatter={(value) =>
-                              (value as number).toLocaleString()
-                            }
-                          />
-                          <Legend wrapperStyle={{ color: textColor }} />
-                          {dataKeys.map((key, index) => (
-                            <Line
-                              key={key}
-                              type="monotone"
-                              dataKey={key}
-                              stroke={
-                                currentColors[index % currentColors.length]
-                              }
-                              strokeWidth={3}
-                              dot={{ r: 4 }}
-                              activeDot={{ r: 6 }}
-                            >
-                              {showDataLabels && (
-                                <LabelList
-                                  dataKey={key}
-                                  position="top"
-                                  fill={textColor}
-                                  fontSize={10}
-                                  offset={10}
-                                />
-                              )}
-                            </Line>
-                          ))}
-                          {renderReferenceAreas()}
-                          {renderReferenceLines()}
-                        </LineChart>
-                      )}
-
-                      {chartType === 'area' && (
-                        <AreaChart
-                          data={chartData}
-                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            vertical={false}
-                            stroke={textColor}
-                            strokeOpacity={0.2}
-                          />
-                          <XAxis
-                            dataKey={xAxisKey}
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                          />
-                          <YAxis
-                            stroke={textColor}
-                            fontSize={12}
-                            tickLine={false}
-                            axisLine={false}
-                            tickFormatter={(value) => value.toLocaleString()}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#fff',
-                              borderRadius: '8px',
-                              border: 'none',
-                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                              color: '#1e293b',
-                            }}
-                            formatter={(value) =>
-                              (value as number).toLocaleString()
-                            }
-                          />
-                          <Legend wrapperStyle={{ color: textColor }} />
-                          {dataKeys.map((key, index) => (
-                            <Area
-                              key={key}
-                              type="monotone"
-                              dataKey={key}
-                              fill={currentColors[index % currentColors.length]}
-                              stroke={
-                                currentColors[index % currentColors.length]
-                              }
-                              fillOpacity={0.2}
-                            >
-                              {showDataLabels && (
-                                <LabelList
-                                  dataKey={key}
-                                  position="top"
-                                  fill={textColor}
-                                  fontSize={10}
-                                />
-                              )}
-                            </Area>
-                          ))}
-                          {renderReferenceAreas()}
-                          {renderReferenceLines()}
-                        </AreaChart>
-                      )}
-                    </ResponsiveContainer>
+                    <CsvChart
+                      chartType={chartType}
+                      data={chartData}
+                      xAxisKey={xAxisKey}
+                      dataKeys={dataKeys}
+                      colors={currentColors}
+                      textColor={textColor}
+                      showDataLabels={showDataLabels}
+                      referenceLines={referenceLines}
+                      referenceAreas={referenceAreas}
+                    />
                   )}
                 </div>
 

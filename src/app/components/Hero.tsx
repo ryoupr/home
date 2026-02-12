@@ -2,18 +2,14 @@ import { Github, Linkedin, Mail, Terminal } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useMemo } from 'react';
 import config from '../../data/config.json';
+import { decodeEmail } from '../utils/decodeEmail';
 
 export function Hero() {
   const { personal } = config;
-  const email = useMemo(() => {
-    if (!personal.emailEncoded) return personal.email;
-    try {
-      const decoded = atob(personal.email);
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(decoded) ? decoded : '';
-    } catch {
-      return '';
-    }
-  }, [personal.email, personal.emailEncoded]);
+  const email = useMemo(
+    () => decodeEmail(personal.email, !!personal.emailEncoded),
+    [personal.email, personal.emailEncoded]
+  );
 
   return (
     <section

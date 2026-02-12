@@ -14,20 +14,15 @@ import config from '../../data/config.json';
 import { Card, CardContent } from '../components/ui/card';
 import { extractGitHubUsername, useGitHubStats } from '../hooks/useGitHubStats';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { decodeEmail } from '../utils/decodeEmail';
 
 export function ProfilePage() {
   usePageTitle('Portfolio');
   const { personal } = config;
-  const email = useMemo(() => {
-    if (!personal.emailEncoded) return personal.email;
-    try {
-      const decoded = atob(personal.email);
-      // メール形式バリデーション
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(decoded) ? decoded : '';
-    } catch {
-      return '';
-    }
-  }, [personal.email, personal.emailEncoded]);
+  const email = useMemo(
+    () => decodeEmail(personal.email, !!personal.emailEncoded),
+    [personal.email, personal.emailEncoded]
+  );
   const { totalStars, totalRepos, loading } = useGitHubStats(
     extractGitHubUsername(personal.github)
   );

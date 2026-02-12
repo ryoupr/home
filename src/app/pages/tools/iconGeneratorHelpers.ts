@@ -131,7 +131,7 @@ export const drawIcon = async (
       URL.revokeObjectURL(url);
       resolve();
     };
-    img.onerror = reject;
+    img.onerror = () => reject(new Error('Failed to load SVG image'));
     img.src = url;
   });
 };
@@ -172,7 +172,7 @@ export const drawUploadedImage = async (
       ctx.restore();
       resolve();
     };
-    img.onerror = reject;
+    img.onerror = () => reject(new Error('Failed to load uploaded image'));
     img.src = imageUrl;
   });
 };

@@ -29,7 +29,14 @@ function getCached(
     const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const { data, ts } = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) {
+    if (typeof ts !== 'number' || Date.now() - ts > CACHE_TTL) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    if (
+      typeof data?.totalStars !== 'number' ||
+      typeof data?.totalRepos !== 'number'
+    ) {
       sessionStorage.removeItem(key);
       return null;
     }

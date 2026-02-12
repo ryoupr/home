@@ -11,9 +11,15 @@ export function BoxNoteConverterPage() {
 
   usePageTitle('BoxNote → Markdown');
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   const handleFile = useCallback((file: File) => {
     setError('');
     setMarkdown('');
+    if (file.size > MAX_FILE_SIZE) {
+      setError('ファイルサイズが大きすぎます（上限: 10MB）');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
