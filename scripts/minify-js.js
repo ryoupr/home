@@ -14,19 +14,21 @@ const path = require('path');
  * @returns {string} Minified JavaScript code
  */
 function minifyJS(code) {
-  return code
-    // Remove single-line comments
-    .replace(/\/\/.*$/gm, '')
-    // Remove multi-line comments
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    // Remove leading/trailing whitespace from lines
-    .replace(/^\s+|\s+$/gm, '')
-    // Replace multiple spaces with single space
-    .replace(/\s+/g, ' ')
-    // Remove spaces around operators and punctuation
-    .replace(/\s*([{}();,:])\s*/g, '$1')
-    // Remove line breaks
-    .replace(/\n/g, '');
+  return (
+    code
+      // Remove single-line comments
+      .replace(/\/\/.*$/gm, '')
+      // Remove multi-line comments
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      // Remove leading/trailing whitespace from lines
+      .replace(/^\s+|\s+$/gm, '')
+      // Replace multiple spaces with single space
+      .replace(/\s+/g, ' ')
+      // Remove spaces around operators and punctuation
+      .replace(/\s*([{}();,:])\s*/g, '$1')
+      // Remove line breaks
+      .replace(/\n/g, '')
+  );
 }
 
 /**
@@ -38,7 +40,7 @@ function minifyJS(code) {
 function findJSFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
 
-  files.forEach(file => {
+  files.forEach((file) => {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
 
@@ -57,32 +59,34 @@ function findJSFiles(dir, fileList = []) {
  */
 function minifyAllJS() {
   const jsDir = path.join(__dirname, '..', 'js');
-  
+
   if (!fs.existsSync(jsDir)) {
     console.error('Error: js/ directory not found');
     process.exit(1);
   }
 
   const jsFiles = findJSFiles(jsDir);
-  
+
   console.log(`Found ${jsFiles.length} JavaScript files to minify`);
 
   let successCount = 0;
   let errorCount = 0;
 
-  jsFiles.forEach(filePath => {
+  jsFiles.forEach((filePath) => {
     try {
       const code = fs.readFileSync(filePath, 'utf8');
       const minified = minifyJS(code);
-      
+
       const minFilePath = filePath.replace(/\.js$/, '.min.js');
       fs.writeFileSync(minFilePath, minified, 'utf8');
-      
+
       const originalSize = Buffer.byteLength(code, 'utf8');
       const minifiedSize = Buffer.byteLength(minified, 'utf8');
       const savings = ((1 - minifiedSize / originalSize) * 100).toFixed(1);
-      
-      console.log(`✓ ${path.relative(process.cwd(), filePath)} → ${path.basename(minFilePath)} (${savings}% smaller)`);
+
+      console.log(
+        `✓ ${path.relative(process.cwd(), filePath)} → ${path.basename(minFilePath)} (${savings}% smaller)`
+      );
       successCount++;
     } catch (error) {
       console.error(`✗ Error minifying ${filePath}:`, error.message);
@@ -90,8 +94,10 @@ function minifyAllJS() {
     }
   });
 
-  console.log(`\nMinification complete: ${successCount} succeeded, ${errorCount} failed`);
-  
+  console.log(
+    `\nMinification complete: ${successCount} succeeded, ${errorCount} failed`
+  );
+
   if (errorCount > 0) {
     process.exit(1);
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface GitHubStats {
   totalStars: number;
@@ -23,7 +23,7 @@ interface GitHubRepository {
 // GitHub URL からユーザー名を抽出するヘルパー関数
 export function extractGitHubUsername(urlOrUsername: string): string {
   if (!urlOrUsername) return '';
-  
+
   // URL の場合はパースしてユーザー名を抽出
   try {
     const url = new URL(urlOrUsername);
@@ -34,7 +34,7 @@ export function extractGitHubUsername(urlOrUsername: string): string {
   } catch {
     // URL でない場合はそのままユーザー名として扱う
   }
-  
+
   return urlOrUsername;
 }
 
@@ -48,9 +48,9 @@ export function useGitHubStats(username: string): GitHubStats {
 
   useEffect(() => {
     const extractedUsername = extractGitHubUsername(username);
-    
+
     if (!extractedUsername) {
-      setStats(prev => ({ ...prev, loading: false }));
+      setStats((prev) => ({ ...prev, loading: false }));
       return;
     }
 
@@ -62,9 +62,13 @@ export function useGitHubStats(username: string): GitHubStats {
 
         // レート制限のチェック
         if (response.status === 403) {
-          const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+          const rateLimitRemaining = response.headers.get(
+            'X-RateLimit-Remaining'
+          );
           if (rateLimitRemaining === '0') {
-            throw new Error('GitHub API rate limit exceeded. Please try again later.');
+            throw new Error(
+              'GitHub API rate limit exceeded. Please try again later.'
+            );
           }
         }
 
@@ -90,7 +94,7 @@ export function useGitHubStats(username: string): GitHubStats {
           error: null,
         });
       } catch (error) {
-        setStats(prev => ({
+        setStats((prev) => ({
           ...prev,
           loading: false,
           error: error instanceof Error ? error.message : 'Unknown error',

@@ -1,7 +1,38 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import {
+  Activity,
+  BarChart2,
+  Download,
+  FileText,
+  Palette,
+  Plus,
+  ScanLine,
+  Settings,
+  Table as TableIcon,
+  Trash2,
+  TrendingUp,
+  Type,
+  Upload,
+  X,
+} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceArea, LabelList } from 'recharts';
-import { Upload, FileText, BarChart2, TrendingUp, Activity, Trash2, Settings, Table as TableIcon, Download, Plus, X, ScanLine, Palette, Type } from 'lucide-react';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Legend,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 // 型定義
 interface ParsedData {
@@ -9,14 +40,14 @@ interface ParsedData {
   [key: string]: string | number;
 }
 
-interface ReferenceLine {
+interface ReferenceLineConfig {
   id: number;
   value: number;
   label: string;
   color: string;
 }
 
-interface ReferenceArea {
+interface ReferenceAreaConfig {
   id: number;
   y1: number;
   y2: number;
@@ -26,7 +57,7 @@ interface ReferenceArea {
 
 // CSVパーサー関数（引用符付きCSVに対応）
 const parseCSV = (text: string): { headers: string[]; data: ParsedData[] } => {
-  const lines = text.split('\n').filter(line => line.trim() !== '');
+  const lines = text.split('\n').filter((line) => line.trim() !== '');
   if (lines.length === 0) return { headers: [], data: [] };
 
   const parseLine = (line: string): string[] => {
@@ -76,21 +107,30 @@ const getContrastTextColor = (hexColor: string): string => {
   const r = parseInt(hexColor.substr(1, 2), 16);
   const g = parseInt(hexColor.substr(3, 2), 16);
   const b = parseInt(hexColor.substr(5, 2), 16);
-  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
   return yiq >= 128 ? '#1e293b' : '#f8fafc';
 };
 
 // プリセットパレット定義
 const COLOR_PALETTES: Record<string, string[]> = {
-  default: ["#4F46E5", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"],
-  cool: ["#2563EB", "#0EA5E9", "#06B6D4", "#14B8A6", "#6366F1", "#8B5CF6"],
-  warm: ["#DC2626", "#EA580C", "#D97706", "#CA8A04", "#BE123C", "#9F1239"],
-  pastel: ["#FDA4AF", "#FDBA74", "#FDE047", "#86EFAC", "#67E8F9", "#C4B5FD"],
-  monochrome: ["#334155", "#475569", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"],
+  default: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'],
+  cool: ['#2563EB', '#0EA5E9', '#06B6D4', '#14B8A6', '#6366F1', '#8B5CF6'],
+  warm: ['#DC2626', '#EA580C', '#D97706', '#CA8A04', '#BE123C', '#9F1239'],
+  pastel: ['#FDA4AF', '#FDBA74', '#FDE047', '#86EFAC', '#67E8F9', '#C4B5FD'],
+  monochrome: [
+    '#334155',
+    '#475569',
+    '#64748b',
+    '#94a3b8',
+    '#cbd5e1',
+    '#e2e8f0',
+  ],
 };
 
 export function CsvGraphViewerPage() {
-  useEffect(() => { document.title = 'CSV Graph Viewer | ryoupr'; }, []);
+  useEffect(() => {
+    document.title = 'CSV Graph Viewer | ryoupr';
+  }, []);
   const [rawData, setRawData] = useState<ParsedData[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [fileName, setFileName] = useState('');
@@ -105,10 +145,14 @@ export function CsvGraphViewerPage() {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [colorTheme, setColorTheme] = useState('default');
   const [customPrimaryColor, setCustomPrimaryColor] = useState('#4F46E5');
-  const [referenceLines, setReferenceLines] = useState<ReferenceLine[]>([]);
+  const [referenceLines, setReferenceLines] = useState<ReferenceLineConfig[]>(
+    []
+  );
   const [newLineValue, setNewLineValue] = useState('');
   const [newLineLabel, setNewLineLabel] = useState('');
-  const [referenceAreas, setReferenceAreas] = useState<ReferenceArea[]>([]);
+  const [referenceAreas, setReferenceAreas] = useState<ReferenceAreaConfig[]>(
+    []
+  );
   const [newAreaStart, setNewAreaStart] = useState('');
   const [newAreaEnd, setNewAreaEnd] = useState('');
   const [newAreaLabel, setNewAreaLabel] = useState('');
@@ -145,7 +189,9 @@ export function CsvGraphViewerPage() {
   };
 
   const toggleDataKey = (key: string) => {
-    setDataKeys(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+    setDataKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
   };
 
   const toggleRowExclusion = (id: number) => {
@@ -160,11 +206,11 @@ export function CsvGraphViewerPage() {
 
   const addReferenceLine = () => {
     if (!newLineValue) return;
-    const newLine: ReferenceLine = {
+    const newLine: ReferenceLineConfig = {
       id: Date.now(),
       value: parseFloat(newLineValue),
       label: newLineLabel || `Ref ${parseFloat(newLineValue)}`,
-      color: '#ef4444'
+      color: '#ef4444',
     };
     setReferenceLines([...referenceLines, newLine]);
     setNewLineValue('');
@@ -172,7 +218,7 @@ export function CsvGraphViewerPage() {
   };
 
   const removeReferenceLine = (id: number) => {
-    setReferenceLines(referenceLines.filter(line => line.id !== id));
+    setReferenceLines(referenceLines.filter((line) => line.id !== id));
   };
 
   const addReferenceArea = () => {
@@ -180,12 +226,12 @@ export function CsvGraphViewerPage() {
     const start = parseFloat(newAreaStart);
     const end = parseFloat(newAreaEnd);
     if (isNaN(start) || isNaN(end)) return;
-    const newArea: ReferenceArea = {
+    const newArea: ReferenceAreaConfig = {
       id: Date.now(),
       y1: Math.min(start, end),
       y2: Math.max(start, end),
       label: newAreaLabel || 'Zone',
-      color: '#fcd34d'
+      color: '#fcd34d',
     };
     setReferenceAreas([...referenceAreas, newArea]);
     setNewAreaStart('');
@@ -194,16 +240,16 @@ export function CsvGraphViewerPage() {
   };
 
   const removeReferenceArea = (id: number) => {
-    setReferenceAreas(referenceAreas.filter(area => area.id !== id));
+    setReferenceAreas(referenceAreas.filter((area) => area.id !== id));
   };
 
   const chartData = useMemo(() => {
-    return rawData.filter(row => !excludedRows.has(row._id));
+    return rawData.filter((row) => !excludedRows.has(row._id));
   }, [rawData, excludedRows]);
 
   const currentColors = useMemo(() => {
     if (colorTheme === 'custom') {
-      return [customPrimaryColor, "#94a3b8", "#cbd5e1", "#475569"];
+      return [customPrimaryColor, '#94a3b8', '#cbd5e1', '#475569'];
     }
     return COLOR_PALETTES[colorTheme] || COLOR_PALETTES.default;
   }, [colorTheme, customPrimaryColor]);
@@ -217,7 +263,9 @@ export function CsvGraphViewerPage() {
 
     const serializer = new XMLSerializer();
     const svgString = serializer.serializeToString(svgElement);
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const svgBlob = new Blob([svgString], {
+      type: 'image/svg+xml;charset=utf-8',
+    });
     const url = URL.createObjectURL(svgBlob);
 
     const image = new Image();
@@ -232,7 +280,13 @@ export function CsvGraphViewerPage() {
       ctx.scale(scale, scale);
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, svgElement.clientWidth, svgElement.clientHeight);
-      ctx.drawImage(image, 0, 0, svgElement.clientWidth, svgElement.clientHeight);
+      ctx.drawImage(
+        image,
+        0,
+        0,
+        svgElement.clientWidth,
+        svgElement.clientHeight
+      );
 
       const pngUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -246,28 +300,42 @@ export function CsvGraphViewerPage() {
     image.src = url;
   };
 
-  const renderReferenceLines = () => referenceLines.map(line => (
-    <ReferenceLine
-      key={line.id}
-      y={line.value}
-      label={{ position: 'right', value: line.label, fill: line.color, fontSize: 12, fontWeight: 'bold' }}
-      stroke={line.color}
-      strokeDasharray="3 3"
-      strokeWidth={2}
-    />
-  ));
+  const renderReferenceLines = () =>
+    referenceLines.map((line) => (
+      <ReferenceLine
+        key={line.id}
+        y={line.value}
+        label={{
+          position: 'right',
+          value: line.label,
+          fill: line.color,
+          fontSize: 12,
+          fontWeight: 'bold',
+        }}
+        stroke={line.color}
+        strokeDasharray="3 3"
+        strokeWidth={2}
+      />
+    ));
 
-  const renderReferenceAreas = () => referenceAreas.map(area => (
-    <ReferenceArea
-      key={area.id}
-      y1={area.y1}
-      y2={area.y2}
-      label={{ position: 'insideTopRight', value: area.label, fill: '#92400e', fontSize: 12, fontWeight: 'bold' }}
-      fill={area.color}
-      fillOpacity={0.2}
-      strokeOpacity={0}
-    />
-  ));
+  const renderReferenceAreas = () =>
+    referenceAreas.map((area) => (
+      <ReferenceArea
+        key={area.id}
+        y1={area.y1}
+        y2={area.y2}
+        label={{
+          position: 'insideTopRight',
+          value: area.label,
+          fill: '#92400e',
+          fontSize: 12,
+          fontWeight: 'bold',
+        }}
+        fill={area.color}
+        fillOpacity={0.2}
+        strokeOpacity={0}
+      />
+    ));
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
@@ -275,12 +343,19 @@ export function CsvGraphViewerPage() {
         {/* ヘッダー */}
         <header className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link to="/tools" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">← ツール一覧</Link>
+            <Link
+              to="/tools"
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              ← ツール一覧
+            </Link>
             <div className="flex items-center gap-3">
               <div className="bg-indigo-600 p-2 rounded-lg shadow-lg">
                 <BarChart2 className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">CSV Graph Viewer</h1>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                CSV Graph Viewer
+              </h1>
             </div>
           </div>
           {fileName && (
@@ -311,12 +386,19 @@ export function CsvGraphViewerPage() {
                 <Upload className="w-8 h-8 text-indigo-500" />
               </div>
               <div className="space-y-1">
-                <p className="text-lg font-medium text-slate-700">CSVファイルをドラッグ＆ドロップ</p>
+                <p className="text-lg font-medium text-slate-700">
+                  CSVファイルをドラッグ＆ドロップ
+                </p>
                 <p className="text-sm text-slate-400">または</p>
               </div>
               <label className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer font-medium shadow-md hover:shadow-lg">
                 ファイルを選択
-                <input type="file" accept=".csv" className="hidden" onChange={handleFileUpload} />
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
               </label>
             </div>
           </div>
@@ -334,13 +416,15 @@ export function CsvGraphViewerPage() {
                 </h3>
                 <div className="space-y-5">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">グラフの種類</label>
+                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                      グラフの種類
+                    </label>
                     <div className="flex bg-slate-100 p-1 rounded-lg">
                       {[
                         { id: 'bar' as const, icon: BarChart2, label: '棒' },
                         { id: 'line' as const, icon: TrendingUp, label: '線' },
-                        { id: 'area' as const, icon: Activity, label: '面' }
-                      ].map(type => (
+                        { id: 'area' as const, icon: Activity, label: '面' },
+                      ].map((type) => (
                         <button
                           key={type.id}
                           onClick={() => setChartType(type.id)}
@@ -358,28 +442,41 @@ export function CsvGraphViewerPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">X軸 (カテゴリ)</label>
+                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                      X軸 (カテゴリ)
+                    </label>
                     <select
                       value={xAxisKey}
                       onChange={(e) => setXAxisKey(e.target.value)}
                       className="w-full p-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     >
-                      {headers.map(h => <option key={h} value={h}>{h}</option>)}
+                      {headers.map((h) => (
+                        <option key={h} value={h}>
+                          {h}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-2 block">Y軸 (データ列)</label>
+                    <label className="text-xs font-medium text-slate-500 mb-2 block">
+                      Y軸 (データ列)
+                    </label>
                     <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                      {headers.map(h => (
-                        <label key={h} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-slate-100">
+                      {headers.map((h) => (
+                        <label
+                          key={h}
+                          className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-slate-100"
+                        >
                           <input
                             type="checkbox"
                             checked={dataKeys.includes(h)}
                             onChange={() => toggleDataKey(h)}
                             className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-slate-300"
                           />
-                          <span className="text-sm text-slate-700 truncate">{h}</span>
+                          <span className="text-sm text-slate-700 truncate">
+                            {h}
+                          </span>
                         </label>
                       ))}
                     </div>
@@ -394,7 +491,9 @@ export function CsvGraphViewerPage() {
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">カラーテーマ</label>
+                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                      カラーテーマ
+                    </label>
                     <select
                       value={colorTheme}
                       onChange={(e) => setColorTheme(e.target.value)}
@@ -412,16 +511,22 @@ export function CsvGraphViewerPage() {
                         <input
                           type="color"
                           value={customPrimaryColor}
-                          onChange={(e) => setCustomPrimaryColor(e.target.value)}
+                          onChange={(e) =>
+                            setCustomPrimaryColor(e.target.value)
+                          }
                           className="w-8 h-8 rounded cursor-pointer border-0"
                         />
-                        <span className="text-xs text-slate-600">メインカラーを選択</span>
+                        <span className="text-xs text-slate-600">
+                          メインカラーを選択
+                        </span>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">背景色</label>
+                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                      背景色
+                    </label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -435,14 +540,18 @@ export function CsvGraphViewerPage() {
 
                   <div className="pt-2 border-t border-slate-100">
                     <label className="flex items-center gap-2 cursor-pointer mt-2">
-                      <div className={`w-9 h-5 rounded-full relative transition-colors ${showDataLabels ? 'bg-indigo-600' : 'bg-slate-300'}`}>
+                      <div
+                        className={`w-9 h-5 rounded-full relative transition-colors ${showDataLabels ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                      >
                         <input
                           type="checkbox"
                           checked={showDataLabels}
                           onChange={() => setShowDataLabels(!showDataLabels)}
                           className="hidden"
                         />
-                        <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all shadow-sm ${showDataLabels ? 'left-5' : 'left-0.5'}`} />
+                        <div
+                          className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all shadow-sm ${showDataLabels ? 'left-5' : 'left-0.5'}`}
+                        />
                       </div>
                       <span className="text-xs text-slate-600 flex items-center gap-1">
                         <Type className="w-3 h-3" /> データラベルを表示
@@ -454,7 +563,9 @@ export function CsvGraphViewerPage() {
 
               {/* Reference Lines */}
               <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">目標ライン追加</h3>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                  目標ライン追加
+                </h3>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -479,10 +590,18 @@ export function CsvGraphViewerPage() {
                   >
                     <Plus className="w-3 h-3" /> 追加
                   </button>
-                  {referenceLines.map(line => (
-                    <div key={line.id} className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs">
-                      <span className="text-slate-600 truncate max-w-[120px]">{line.label}: {line.value}</span>
-                      <button onClick={() => removeReferenceLine(line.id)} className="text-slate-400 hover:text-red-500">
+                  {referenceLines.map((line) => (
+                    <div
+                      key={line.id}
+                      className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs"
+                    >
+                      <span className="text-slate-600 truncate max-w-[120px]">
+                        {line.label}: {line.value}
+                      </span>
+                      <button
+                        onClick={() => removeReferenceLine(line.id)}
+                        className="text-slate-400 hover:text-red-500"
+                      >
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -526,10 +645,18 @@ export function CsvGraphViewerPage() {
                   >
                     <Plus className="w-3 h-3" /> 追加
                   </button>
-                  {referenceAreas.map(area => (
-                    <div key={area.id} className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs">
-                      <span className="text-slate-600 truncate max-w-[120px]">{area.label}: {area.y1}-{area.y2}</span>
-                      <button onClick={() => removeReferenceArea(area.id)} className="text-slate-400 hover:text-red-500">
+                  {referenceAreas.map((area) => (
+                    <div
+                      key={area.id}
+                      className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs"
+                    >
+                      <span className="text-slate-600 truncate max-w-[120px]">
+                        {area.label}: {area.y1}-{area.y2}
+                      </span>
+                      <button
+                        onClick={() => removeReferenceArea(area.id)}
+                        className="text-slate-400 hover:text-red-500"
+                      >
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -542,7 +669,8 @@ export function CsvGraphViewerPage() {
                   onClick={() => setShowTable(!showTable)}
                   className="w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-medium bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm border border-slate-100 text-sm"
                 >
-                  <TableIcon className="w-4 h-4" /> {showTable ? 'グラフに戻る' : 'データ編集'}
+                  <TableIcon className="w-4 h-4" />{' '}
+                  {showTable ? 'グラフに戻る' : 'データ編集'}
                 </button>
                 <button
                   onClick={downloadGraphImage}
@@ -560,11 +688,23 @@ export function CsvGraphViewerPage() {
                 style={{ backgroundColor: bgColor }}
               >
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-lg font-bold flex items-center gap-2" style={{ color: textColor }}>
-                    <FileText className="w-5 h-5" style={{ color: currentColors[0] }} />
+                  <h2
+                    className="text-lg font-bold flex items-center gap-2"
+                    style={{ color: textColor }}
+                  >
+                    <FileText
+                      className="w-5 h-5"
+                      style={{ color: currentColors[0] }}
+                    />
                     {fileName}
                   </h2>
-                  <div className="text-xs px-3 py-1 rounded-full opacity-80" style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: textColor }}>
+                  <div
+                    className="text-xs px-3 py-1 rounded-full opacity-80"
+                    style={{
+                      backgroundColor: 'rgba(0,0,0,0.05)',
+                      color: textColor,
+                    }}
+                  >
                     {chartData.length} 行のデータ
                   </div>
                 </div>
@@ -577,7 +717,12 @@ export function CsvGraphViewerPage() {
                           <tr>
                             <th className="px-4 py-3 w-10">表示</th>
                             {headers.map((h, i) => (
-                              <th key={i} className="px-4 py-3 font-semibold whitespace-nowrap">{h}</th>
+                              <th
+                                key={i}
+                                className="px-4 py-3 font-semibold whitespace-nowrap"
+                              >
+                                {h}
+                              </th>
                             ))}
                           </tr>
                         </thead>
@@ -586,7 +731,9 @@ export function CsvGraphViewerPage() {
                             <tr
                               key={i}
                               className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                                excludedRows.has(row._id) ? 'bg-slate-50 opacity-50' : ''
+                                excludedRows.has(row._id)
+                                  ? 'bg-slate-50 opacity-50'
+                                  : ''
                               }`}
                             >
                               <td className="px-4 py-3 text-center">
@@ -598,7 +745,10 @@ export function CsvGraphViewerPage() {
                                 />
                               </td>
                               {headers.map((h, j) => (
-                                <td key={j} className="px-4 py-3 whitespace-nowrap font-mono text-xs">
+                                <td
+                                  key={j}
+                                  className="px-4 py-3 whitespace-nowrap font-mono text-xs"
+                                >
                                   {row[h]}
                                 </td>
                               ))}
@@ -608,20 +758,64 @@ export function CsvGraphViewerPage() {
                       </table>
                     </div>
                   ) : (
-                    <ResponsiveContainer width="100%" height="100%" minHeight={400}>
+                    <ResponsiveContainer
+                      width="100%"
+                      height="100%"
+                      minHeight={400}
+                    >
                       {chartType === 'bar' && (
-                        <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={textColor} strokeOpacity={0.2} />
-                          <XAxis dataKey={xAxisKey} stroke={textColor} fontSize={12} tickLine={false} axisLine={false} />
-                          <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => value.toLocaleString()} />
+                        <BarChart
+                          data={chartData}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke={textColor}
+                            strokeOpacity={0.2}
+                          />
+                          <XAxis
+                            dataKey={xAxisKey}
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => value.toLocaleString()}
+                          />
                           <Tooltip
-                            contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', color: '#1e293b' }}
-                            formatter={(value) => (value as number).toLocaleString()}
+                            contentStyle={{
+                              backgroundColor: '#fff',
+                              borderRadius: '8px',
+                              border: 'none',
+                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                              color: '#1e293b',
+                            }}
+                            formatter={(value) =>
+                              (value as number).toLocaleString()
+                            }
                           />
                           <Legend wrapperStyle={{ color: textColor }} />
                           {dataKeys.map((key, index) => (
-                            <Bar key={key} dataKey={key} fill={currentColors[index % currentColors.length]} radius={[4, 4, 0, 0]}>
-                              {showDataLabels && <LabelList dataKey={key} position="top" fill={textColor} fontSize={10} />}
+                            <Bar
+                              key={key}
+                              dataKey={key}
+                              fill={currentColors[index % currentColors.length]}
+                              radius={[4, 4, 0, 0]}
+                            >
+                              {showDataLabels && (
+                                <LabelList
+                                  dataKey={key}
+                                  position="top"
+                                  fill={textColor}
+                                  fontSize={10}
+                                />
+                              )}
                             </Bar>
                           ))}
                           {renderReferenceAreas()}
@@ -630,18 +824,64 @@ export function CsvGraphViewerPage() {
                       )}
 
                       {chartType === 'line' && (
-                        <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={textColor} strokeOpacity={0.2} />
-                          <XAxis dataKey={xAxisKey} stroke={textColor} fontSize={12} tickLine={false} axisLine={false} />
-                          <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => value.toLocaleString()} />
+                        <LineChart
+                          data={chartData}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke={textColor}
+                            strokeOpacity={0.2}
+                          />
+                          <XAxis
+                            dataKey={xAxisKey}
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => value.toLocaleString()}
+                          />
                           <Tooltip
-                            contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', color: '#1e293b' }}
-                            formatter={(value) => (value as number).toLocaleString()}
+                            contentStyle={{
+                              backgroundColor: '#fff',
+                              borderRadius: '8px',
+                              border: 'none',
+                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                              color: '#1e293b',
+                            }}
+                            formatter={(value) =>
+                              (value as number).toLocaleString()
+                            }
                           />
                           <Legend wrapperStyle={{ color: textColor }} />
                           {dataKeys.map((key, index) => (
-                            <Line key={key} type="monotone" dataKey={key} stroke={currentColors[index % currentColors.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }}>
-                              {showDataLabels && <LabelList dataKey={key} position="top" fill={textColor} fontSize={10} offset={10} />}
+                            <Line
+                              key={key}
+                              type="monotone"
+                              dataKey={key}
+                              stroke={
+                                currentColors[index % currentColors.length]
+                              }
+                              strokeWidth={3}
+                              dot={{ r: 4 }}
+                              activeDot={{ r: 6 }}
+                            >
+                              {showDataLabels && (
+                                <LabelList
+                                  dataKey={key}
+                                  position="top"
+                                  fill={textColor}
+                                  fontSize={10}
+                                  offset={10}
+                                />
+                              )}
                             </Line>
                           ))}
                           {renderReferenceAreas()}
@@ -650,18 +890,62 @@ export function CsvGraphViewerPage() {
                       )}
 
                       {chartType === 'area' && (
-                        <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={textColor} strokeOpacity={0.2} />
-                          <XAxis dataKey={xAxisKey} stroke={textColor} fontSize={12} tickLine={false} axisLine={false} />
-                          <YAxis stroke={textColor} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => value.toLocaleString()} />
+                        <AreaChart
+                          data={chartData}
+                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke={textColor}
+                            strokeOpacity={0.2}
+                          />
+                          <XAxis
+                            dataKey={xAxisKey}
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <YAxis
+                            stroke={textColor}
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            tickFormatter={(value) => value.toLocaleString()}
+                          />
                           <Tooltip
-                            contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', color: '#1e293b' }}
-                            formatter={(value) => (value as number).toLocaleString()}
+                            contentStyle={{
+                              backgroundColor: '#fff',
+                              borderRadius: '8px',
+                              border: 'none',
+                              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                              color: '#1e293b',
+                            }}
+                            formatter={(value) =>
+                              (value as number).toLocaleString()
+                            }
                           />
                           <Legend wrapperStyle={{ color: textColor }} />
                           {dataKeys.map((key, index) => (
-                            <Area key={key} type="monotone" dataKey={key} fill={currentColors[index % currentColors.length]} stroke={currentColors[index % currentColors.length]} fillOpacity={0.2}>
-                              {showDataLabels && <LabelList dataKey={key} position="top" fill={textColor} fontSize={10} />}
+                            <Area
+                              key={key}
+                              type="monotone"
+                              dataKey={key}
+                              fill={currentColors[index % currentColors.length]}
+                              stroke={
+                                currentColors[index % currentColors.length]
+                              }
+                              fillOpacity={0.2}
+                            >
+                              {showDataLabels && (
+                                <LabelList
+                                  dataKey={key}
+                                  position="top"
+                                  fill={textColor}
+                                  fontSize={10}
+                                />
+                              )}
                             </Area>
                           ))}
                           {renderReferenceAreas()}
@@ -674,7 +958,8 @@ export function CsvGraphViewerPage() {
 
                 {!showTable && dataKeys.length === 0 && (
                   <div className="text-center text-slate-400 mt-4 text-sm">
-                    ← 左側のメニューから表示したいデータ（Y軸）を選択してください
+                    ←
+                    左側のメニューから表示したいデータ（Y軸）を選択してください
                   </div>
                 )}
               </div>

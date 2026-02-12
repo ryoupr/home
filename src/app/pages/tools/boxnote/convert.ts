@@ -82,10 +82,7 @@ function renderBlock(node: BoxNode, indent = 0): string {
       for (const child of node.content ?? []) {
         if (child.type === 'paragraph')
           parts.push(`${pfx}- ${renderInline(child.content).trim()}`);
-        else if (
-          child.type === 'bullet_list' ||
-          child.type === 'ordered_list'
-        )
+        else if (child.type === 'bullet_list' || child.type === 'ordered_list')
           parts.push(renderBlock(child, indent + 1));
         else parts.push(renderBlock(child, indent + 1));
       }

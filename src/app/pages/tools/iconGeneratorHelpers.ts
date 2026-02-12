@@ -1,4 +1,9 @@
-import { CANVAS_SIZE, SHADOW_BLUR_RATIO, SHADOW_OFFSET_RATIO, TEXT_BASELINE_OFFSET } from './iconGeneratorConstants';
+import {
+  CANVAS_SIZE,
+  SHADOW_BLUR_RATIO,
+  SHADOW_OFFSET_RATIO,
+  TEXT_BASELINE_OFFSET,
+} from './iconGeneratorConstants';
 
 export interface IconConfig {
   type: 'icon' | 'text' | 'image';
@@ -29,7 +34,9 @@ export const defaultConfig: IconConfig = {
   shadow: false,
 };
 
-export const createCanvas = (size: number = CANVAS_SIZE): [HTMLCanvasElement, CanvasRenderingContext2D] => {
+export const createCanvas = (
+  size: number = CANVAS_SIZE
+): [HTMLCanvasElement, CanvasRenderingContext2D] => {
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
@@ -38,7 +45,11 @@ export const createCanvas = (size: number = CANVAS_SIZE): [HTMLCanvasElement, Ca
   return [canvas, ctx];
 };
 
-export const drawRoundedRect = (ctx: CanvasRenderingContext2D, size: number, radius: number) => {
+export const drawRoundedRect = (
+  ctx: CanvasRenderingContext2D,
+  size: number,
+  radius: number
+) => {
   const r = (radius / 100) * size;
   ctx.beginPath();
   ctx.moveTo(r, 0);
@@ -53,12 +64,17 @@ export const drawRoundedRect = (ctx: CanvasRenderingContext2D, size: number, rad
   ctx.closePath();
 };
 
-export const applyGradient = (ctx: CanvasRenderingContext2D, gradient: string, bgColor: string, size: number) => {
+export const applyGradient = (
+  ctx: CanvasRenderingContext2D,
+  gradient: string,
+  bgColor: string,
+  size: number
+) => {
   if (gradient === 'none') {
     ctx.fillStyle = bgColor;
     return;
   }
-  
+
   const colorMatches = gradient.match(/#[0-9a-fA-F]{6}/g);
   if (colorMatches && colorMatches.length >= 2) {
     const [start, end] = colorMatches;
@@ -77,7 +93,11 @@ export const applyShadow = (ctx: CanvasRenderingContext2D, size: number) => {
   ctx.shadowOffsetY = size * SHADOW_OFFSET_RATIO;
 };
 
-export const drawBackground = (ctx: CanvasRenderingContext2D, config: IconConfig, size: number) => {
+export const drawBackground = (
+  ctx: CanvasRenderingContext2D,
+  config: IconConfig,
+  size: number
+) => {
   ctx.save();
   drawRoundedRect(ctx, size, config.radius);
   ctx.clip();
@@ -95,12 +115,14 @@ export const drawIcon = async (
   return new Promise((resolve, reject) => {
     const svgData = new XMLSerializer().serializeToString(svgNode);
     const img = new Image();
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgBlob = new Blob([svgData], {
+      type: 'image/svg+xml;charset=utf-8',
+    });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
       ctx.save();
-      ctx.translate(size / 2, size / 2 + (config.offsetY * size / 200));
+      ctx.translate(size / 2, size / 2 + (config.offsetY * size) / 200);
       ctx.rotate((config.rotation * Math.PI) / 180);
       if (config.shadow) applyShadow(ctx, size);
       const s = (config.size / 100) * size;
@@ -114,9 +136,13 @@ export const drawIcon = async (
   });
 };
 
-export const drawText = (ctx: CanvasRenderingContext2D, config: IconConfig, size: number) => {
+export const drawText = (
+  ctx: CanvasRenderingContext2D,
+  config: IconConfig,
+  size: number
+) => {
   ctx.save();
-  ctx.translate(size / 2, size / 2 + (config.offsetY * size / 200));
+  ctx.translate(size / 2, size / 2 + (config.offsetY * size) / 200);
   ctx.rotate((config.rotation * Math.PI) / 180);
   if (config.shadow) applyShadow(ctx, size);
   const contentSize = (config.size / 100) * size;
@@ -138,7 +164,7 @@ export const drawUploadedImage = async (
     const img = new Image();
     img.onload = () => {
       ctx.save();
-      ctx.translate(size / 2, size / 2 + (config.offsetY * size / 200));
+      ctx.translate(size / 2, size / 2 + (config.offsetY * size) / 200);
       ctx.rotate((config.rotation * Math.PI) / 180);
       if (config.shadow) applyShadow(ctx, size);
       const s = (config.size / 100) * size;
@@ -158,33 +184,49 @@ export const downloadCanvas = (canvas: HTMLCanvasElement, filename: string) => {
   link.click();
 };
 
-export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, filename: string) => {
+export const downloadSVG = (
+  config: IconConfig,
+  svgNode: SVGSVGElement | null,
+  filename: string
+) => {
   if (!svgNode) return;
-  
-  const svgWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  const svgWrapper = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'svg'
+  );
   svgWrapper.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   svgWrapper.setAttribute('width', CANVAS_SIZE.toString());
   svgWrapper.setAttribute('height', CANVAS_SIZE.toString());
   svgWrapper.setAttribute('viewBox', `0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`);
-  
+
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
   let bgFill = config.bgColor;
-  
+
   if (config.gradient !== 'none') {
     // グラデーション文字列から色を抽出
     const colorMatches = config.gradient.match(/#[0-9a-fA-F]{6}/g);
     if (colorMatches && colorMatches.length >= 2) {
       const [start, end] = colorMatches;
-      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      const gradient = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'linearGradient'
+      );
       gradient.setAttribute('id', 'bg-gradient');
       gradient.setAttribute('x1', '0%');
       gradient.setAttribute('y1', '0%');
       gradient.setAttribute('x2', '100%');
       gradient.setAttribute('y2', '100%');
-      const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      const stop1 = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'stop'
+      );
       stop1.setAttribute('offset', '0%');
       stop1.setAttribute('stop-color', start);
-      const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      const stop2 = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'stop'
+      );
       stop2.setAttribute('offset', '100%');
       stop2.setAttribute('stop-color', end);
       gradient.appendChild(stop1);
@@ -193,43 +235,63 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
       bgFill = 'url(#bg-gradient)';
     }
   }
-  
+
   if (config.shadow) {
-    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    const filter = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'filter'
+    );
     filter.setAttribute('id', 'shadow');
-    const feDropShadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+    const feDropShadow = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'feDropShadow'
+    );
     feDropShadow.setAttribute('dx', '0');
-    feDropShadow.setAttribute('dy', (CANVAS_SIZE * SHADOW_OFFSET_RATIO).toString());
-    feDropShadow.setAttribute('stdDeviation', (CANVAS_SIZE * SHADOW_BLUR_RATIO / 2).toString());
+    feDropShadow.setAttribute(
+      'dy',
+      (CANVAS_SIZE * SHADOW_OFFSET_RATIO).toString()
+    );
+    feDropShadow.setAttribute(
+      'stdDeviation',
+      ((CANVAS_SIZE * SHADOW_BLUR_RATIO) / 2).toString()
+    );
     feDropShadow.setAttribute('flood-opacity', '0.3');
     filter.appendChild(feDropShadow);
     defs.appendChild(filter);
   }
-  
+
   svgWrapper.appendChild(defs);
-  
+
   const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bgRect.setAttribute('width', CANVAS_SIZE.toString());
   bgRect.setAttribute('height', CANVAS_SIZE.toString());
   bgRect.setAttribute('rx', ((config.radius / 100) * CANVAS_SIZE).toString());
   bgRect.setAttribute('fill', bgFill);
   svgWrapper.appendChild(bgRect);
-  
+
   const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   const translateX = CANVAS_SIZE / 2;
-  const translateY = CANVAS_SIZE / 2 + (config.offsetY * CANVAS_SIZE / 200);
-  g.setAttribute('transform', `translate(${translateX}, ${translateY}) rotate(${config.rotation})`);
-  
+  const translateY = CANVAS_SIZE / 2 + (config.offsetY * CANVAS_SIZE) / 200;
+  g.setAttribute(
+    'transform',
+    `translate(${translateX}, ${translateY}) rotate(${config.rotation})`
+  );
+
   if (config.shadow) {
     g.setAttribute('filter', 'url(#shadow)');
   }
-  
+
   const iconSize = (config.size / 100) * CANVAS_SIZE;
   const iconGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  iconGroup.setAttribute('transform', `translate(${-iconSize / 2}, ${-iconSize / 2}) scale(${iconSize / 24})`);
-  
-  const paths = svgNode.querySelectorAll('path, circle, rect, line, polyline, polygon');
-  paths.forEach(path => {
+  iconGroup.setAttribute(
+    'transform',
+    `translate(${-iconSize / 2}, ${-iconSize / 2}) scale(${iconSize / 24})`
+  );
+
+  const paths = svgNode.querySelectorAll(
+    'path, circle, rect, line, polyline, polygon'
+  );
+  paths.forEach((path) => {
     const clonedPath = path.cloneNode(true) as SVGElement;
     clonedPath.setAttribute('stroke', config.fgColor);
     clonedPath.setAttribute('fill', 'none');
@@ -238,10 +300,10 @@ export const downloadSVG = (config: IconConfig, svgNode: SVGSVGElement | null, f
     clonedPath.setAttribute('stroke-linejoin', 'round');
     iconGroup.appendChild(clonedPath);
   });
-  
+
   g.appendChild(iconGroup);
   svgWrapper.appendChild(g);
-  
+
   const svgData = new XMLSerializer().serializeToString(svgWrapper);
   const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -258,11 +320,11 @@ export const exportMultipleSizes = async (
   sizes: number[]
 ) => {
   if (!previewElement) return;
-  
+
   for (const size of sizes) {
     const [canvas, ctx] = createCanvas(size);
     drawBackground(ctx, config, size);
-    
+
     if (config.type === 'icon') {
       const svgNode = previewElement.querySelector('svg');
       if (svgNode) {

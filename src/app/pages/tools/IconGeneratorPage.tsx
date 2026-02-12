@@ -1,15 +1,55 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import {
+  Box,
+  ChevronDown,
+  Download,
+  FolderOpen,
+  Image as ImageIconLucide,
+  Palette,
+  Redo2,
+  RotateCcw,
+  Save as SaveIcon,
+  Smile,
+  Type,
+  Undo2,
+} from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, RotateCcw, Type, Smile, Palette, Box, Undo2, Redo2, Save as SaveIcon, FolderOpen, Image as ImageIconLucide, ChevronDown } from 'lucide-react';
-import { iconMap, iconKeys } from './iconMap';
-import { GRADIENTS, CANVAS_SIZE, GRADIENT_COLORS } from './iconGeneratorConstants';
-import { IconConfig, defaultConfig, createCanvas, drawBackground, drawIcon, drawText, drawUploadedImage, downloadCanvas, downloadSVG, exportMultipleSizes } from './iconGeneratorHelpers';
-import { useUndoRedo, useLocalStorage } from './iconGeneratorHooks';
+import {
+  CANVAS_SIZE,
+  GRADIENT_COLORS,
+  GRADIENTS,
+} from './iconGeneratorConstants';
+import {
+  createCanvas,
+  defaultConfig,
+  downloadCanvas,
+  downloadSVG,
+  drawBackground,
+  drawIcon,
+  drawText,
+  drawUploadedImage,
+  exportMultipleSizes,
+  IconConfig,
+} from './iconGeneratorHelpers';
+import { useLocalStorage, useUndoRedo } from './iconGeneratorHooks';
+import { iconKeys, iconMap } from './iconMap';
 
 export default function IconGeneratorPage() {
-  useEffect(() => { document.title = 'Icon Generator | ryoupr'; }, []);
-  const { currentState: config, setState: setConfig, undo, redo, canUndo, canRedo } = useUndoRedo<IconConfig>(defaultConfig);
-  const [presets, setPresets] = useLocalStorage<IconConfig[]>('icon-presets', []);
+  useEffect(() => {
+    document.title = 'Icon Generator | ryoupr';
+  }, []);
+  const {
+    currentState: config,
+    setState: setConfig,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useUndoRedo<IconConfig>(defaultConfig);
+  const [presets, setPresets] = useLocalStorage<IconConfig[]>(
+    'icon-presets',
+    []
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [zoom, setZoom] = useState(1);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
@@ -18,7 +58,10 @@ export default function IconGeneratorPage() {
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+      if (
+        downloadMenuRef.current &&
+        !downloadMenuRef.current.contains(event.target as Node)
+      ) {
         setShowDownloadMenu(false);
       }
     };
@@ -28,13 +71,15 @@ export default function IconGeneratorPage() {
 
   const filteredIcons = useMemo(() => {
     if (!searchQuery) return iconKeys;
-    return iconKeys.filter(key => key.toLowerCase().includes(searchQuery.toLowerCase()));
+    return iconKeys.filter((key) =>
+      key.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   }, [searchQuery]);
 
   const handleDownload = async () => {
     const [canvas, ctx] = createCanvas();
     drawBackground(ctx, config, CANVAS_SIZE);
-    
+
     const previewElement = document.getElementById('preview-icon-container');
     if (!previewElement) return;
 
@@ -63,7 +108,11 @@ export default function IconGeneratorPage() {
 
   const handleExportMultiple = async () => {
     const previewElement = document.getElementById('preview-icon-container');
-    await exportMultipleSizes(config, previewElement, [16, 32, 64, 128, 256, 512, 1024]);
+    await exportMultipleSizes(
+      config,
+      previewElement,
+      [16, 32, 64, 128, 256, 512, 1024]
+    );
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +142,12 @@ export default function IconGeneratorPage() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/tools" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">← ツール一覧</Link>
+            <Link
+              to="/tools"
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              ← ツール一覧
+            </Link>
             <div className="flex items-center gap-2">
               <div className="bg-blue-600 text-white p-1.5 rounded-lg">
                 <Box size={20} />
@@ -249,7 +303,9 @@ export default function IconGeneratorPage() {
               </>
             ) : (
               <div className="text-center text-slate-500 py-8">
-                {config.uploadedImage ? 'Image uploaded' : 'Click Image button to upload'}
+                {config.uploadedImage
+                  ? 'Image uploaded'
+                  : 'Click Image button to upload'}
               </div>
             )}
           </div>
@@ -260,14 +316,25 @@ export default function IconGeneratorPage() {
             </h3>
 
             <div className="mb-6">
-              <label className="text-xs font-semibold text-slate-500 mb-2 block" htmlFor="bg-color">Background</label>
+              <label
+                className="text-xs font-semibold text-slate-500 mb-2 block"
+                htmlFor="bg-color"
+              >
+                Background
+              </label>
               <div className="flex gap-3 mb-3">
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border border-slate-200 shadow-sm flex-shrink-0">
                   <input
                     id="bg-color"
                     type="color"
                     value={config.bgColor}
-                    onChange={(e) => setConfig({ ...config, bgColor: e.target.value, gradient: 'none' })}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        bgColor: e.target.value,
+                        gradient: 'none',
+                      })
+                    }
                     className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"
                     aria-label="Select background color"
                   />
@@ -280,13 +347,25 @@ export default function IconGeneratorPage() {
                         if (g.value === 'none') {
                           setConfig({ ...config, gradient: 'none' });
                         } else {
-                          const gradientName = g.value.match(/Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/)?.[0];
-                          const newBgColor = gradientName && GRADIENT_COLORS[gradientName] ? GRADIENT_COLORS[gradientName][0] : config.bgColor;
-                          setConfig({ ...config, gradient: g.value, bgColor: newBgColor });
+                          const gradientName = g.value.match(
+                            /Sunset|Ocean|Purple|Midnight|Cherry|Nature|Slick/
+                          )?.[0];
+                          const newBgColor =
+                            gradientName && GRADIENT_COLORS[gradientName]
+                              ? GRADIENT_COLORS[gradientName][0]
+                              : config.bgColor;
+                          setConfig({
+                            ...config,
+                            gradient: g.value,
+                            bgColor: newBgColor,
+                          });
                         }
                       }}
                       className={`w-10 h-10 rounded-full flex-shrink-0 border-2 transition-all ${config.gradient === g.value ? 'border-blue-500 scale-110' : 'border-transparent hover:scale-105'}`}
-                      style={{ background: g.value === 'none' ? config.bgColor : g.value }}
+                      style={{
+                        background:
+                          g.value === 'none' ? config.bgColor : g.value,
+                      }}
                       title={g.name}
                       aria-label={`Select ${g.name} gradient`}
                     />
@@ -296,14 +375,21 @@ export default function IconGeneratorPage() {
             </div>
 
             <div className="mb-6">
-              <label className="text-xs font-semibold text-slate-500 mb-2 block" htmlFor="fg-color">Icon / Text Color</label>
+              <label
+                className="text-xs font-semibold text-slate-500 mb-2 block"
+                htmlFor="fg-color"
+              >
+                Icon / Text Color
+              </label>
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 rounded-full overflow-hidden border border-slate-200 shadow-sm flex-shrink-0">
                   <input
                     id="fg-color"
                     type="color"
                     value={config.fgColor}
-                    onChange={(e) => setConfig({ ...config, fgColor: e.target.value })}
+                    onChange={(e) =>
+                      setConfig({ ...config, fgColor: e.target.value })
+                    }
                     className="absolute -top-2 -left-2 w-16 h-16 cursor-pointer"
                     aria-label="Select foreground color"
                   />
@@ -311,7 +397,9 @@ export default function IconGeneratorPage() {
                 <input
                   type="text"
                   value={config.fgColor}
-                  onChange={(e) => setConfig({ ...config, fgColor: e.target.value })}
+                  onChange={(e) =>
+                    setConfig({ ...config, fgColor: e.target.value })
+                  }
                   className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg uppercase"
                   aria-label="Foreground color hex value"
                 />
@@ -321,7 +409,12 @@ export default function IconGeneratorPage() {
             <div className="space-y-5">
               <div>
                 <div className="flex justify-between mb-2">
-                  <label htmlFor="size-slider" className="text-xs font-semibold text-slate-500">Size</label>
+                  <label
+                    htmlFor="size-slider"
+                    className="text-xs font-semibold text-slate-500"
+                  >
+                    Size
+                  </label>
                   <span className="text-xs text-slate-400">{config.size}%</span>
                 </div>
                 <input
@@ -330,7 +423,9 @@ export default function IconGeneratorPage() {
                   min="20"
                   max="90"
                   value={config.size}
-                  onChange={(e) => setConfig({ ...config, size: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setConfig({ ...config, size: parseInt(e.target.value) })
+                  }
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   aria-label="Adjust icon size"
                 />
@@ -338,8 +433,15 @@ export default function IconGeneratorPage() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label htmlFor="radius-slider" className="text-xs font-semibold text-slate-500">Corner Radius</label>
-                  <span className="text-xs text-slate-400">{config.radius}%</span>
+                  <label
+                    htmlFor="radius-slider"
+                    className="text-xs font-semibold text-slate-500"
+                  >
+                    Corner Radius
+                  </label>
+                  <span className="text-xs text-slate-400">
+                    {config.radius}%
+                  </span>
                 </div>
                 <input
                   id="radius-slider"
@@ -347,7 +449,9 @@ export default function IconGeneratorPage() {
                   min="0"
                   max="50"
                   value={config.radius}
-                  onChange={(e) => setConfig({ ...config, radius: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setConfig({ ...config, radius: parseInt(e.target.value) })
+                  }
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   aria-label="Adjust corner radius"
                 />
@@ -355,8 +459,15 @@ export default function IconGeneratorPage() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label htmlFor="rotation-slider" className="text-xs font-semibold text-slate-500">Rotation</label>
-                  <span className="text-xs text-slate-400">{config.rotation}°</span>
+                  <label
+                    htmlFor="rotation-slider"
+                    className="text-xs font-semibold text-slate-500"
+                  >
+                    Rotation
+                  </label>
+                  <span className="text-xs text-slate-400">
+                    {config.rotation}°
+                  </span>
                 </div>
                 <input
                   id="rotation-slider"
@@ -364,7 +475,9 @@ export default function IconGeneratorPage() {
                   min="-180"
                   max="180"
                   value={config.rotation}
-                  onChange={(e) => setConfig({ ...config, rotation: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setConfig({ ...config, rotation: parseInt(e.target.value) })
+                  }
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   aria-label="Adjust rotation angle"
                 />
@@ -372,8 +485,15 @@ export default function IconGeneratorPage() {
 
               <div>
                 <div className="flex justify-between mb-2">
-                  <label htmlFor="offset-slider" className="text-xs font-semibold text-slate-500">Vertical Offset</label>
-                  <span className="text-xs text-slate-400">{config.offsetY}</span>
+                  <label
+                    htmlFor="offset-slider"
+                    className="text-xs font-semibold text-slate-500"
+                  >
+                    Vertical Offset
+                  </label>
+                  <span className="text-xs text-slate-400">
+                    {config.offsetY}
+                  </span>
                 </div>
                 <input
                   id="offset-slider"
@@ -381,30 +501,43 @@ export default function IconGeneratorPage() {
                   min="-50"
                   max="50"
                   value={config.offsetY}
-                  onChange={(e) => setConfig({ ...config, offsetY: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setConfig({ ...config, offsetY: parseInt(e.target.value) })
+                  }
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                   aria-label="Adjust vertical offset"
                 />
               </div>
 
               <div className="flex items-center justify-between pt-2">
-                <label htmlFor="shadow-toggle" className="text-sm font-medium text-slate-700">Drop Shadow</label>
+                <label
+                  htmlFor="shadow-toggle"
+                  className="text-sm font-medium text-slate-700"
+                >
+                  Drop Shadow
+                </label>
                 <button
                   id="shadow-toggle"
-                  onClick={() => setConfig({ ...config, shadow: !config.shadow })}
+                  onClick={() =>
+                    setConfig({ ...config, shadow: !config.shadow })
+                  }
                   className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${config.shadow ? 'bg-blue-600' : 'bg-slate-300'}`}
                   role="switch"
                   aria-checked={config.shadow}
                   aria-label="Toggle drop shadow"
                 >
-                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${config.shadow ? 'translate-x-5' : ''}`} />
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${config.shadow ? 'translate-x-5' : ''}`}
+                  />
                 </button>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Export Options</h3>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
+              Export Options
+            </h3>
             <div className="space-y-2">
               <button
                 onClick={handleDownloadSVG}
@@ -425,7 +558,9 @@ export default function IconGeneratorPage() {
           </div>
 
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Presets</h3>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
+              Presets
+            </h3>
             <button
               onClick={savePreset}
               className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg mb-3 transition-all"
@@ -451,11 +586,16 @@ export default function IconGeneratorPage() {
         <div className="lg:col-span-8 flex flex-col items-center justify-center bg-slate-100 rounded-2xl border border-slate-200 min-h-[500px] relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-10 pointer-events-none"
-            style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+            style={{
+              backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
+            }}
           />
 
           <div className="relative z-10 flex flex-col items-center gap-8">
-            <div className="text-slate-400 text-sm font-medium uppercase tracking-widest">Preview</div>
+            <div className="text-slate-400 text-sm font-medium uppercase tracking-widest">
+              Preview
+            </div>
 
             <div
               className="relative shadow-2xl transition-all duration-300 ease-out"
@@ -463,7 +603,8 @@ export default function IconGeneratorPage() {
                 width: `${320 * zoom}px`,
                 height: `${320 * zoom}px`,
                 borderRadius: `${config.radius}%`,
-                background: config.gradient === 'none' ? config.bgColor : config.gradient,
+                background:
+                  config.gradient === 'none' ? config.bgColor : config.gradient,
               }}
             >
               <div
@@ -472,13 +613,18 @@ export default function IconGeneratorPage() {
                 style={{
                   color: config.fgColor,
                   transform: `rotate(${config.rotation}deg) translateY(${config.offsetY * zoom}px)`,
-                  filter: config.shadow ? 'drop-shadow(0px 10px 10px rgba(0,0,0,0.3))' : 'none'
+                  filter: config.shadow
+                    ? 'drop-shadow(0px 10px 10px rgba(0,0,0,0.3))'
+                    : 'none',
                 }}
               >
                 {config.type === 'text' ? (
                   <span
                     className="preview-text font-bold select-none"
-                    style={{ fontSize: `${320 * zoom * (config.size / 100)}px`, lineHeight: 1 }}
+                    style={{
+                      fontSize: `${320 * zoom * (config.size / 100)}px`,
+                      lineHeight: 1,
+                    }}
                   >
                     {config.text}
                   </span>
@@ -486,7 +632,11 @@ export default function IconGeneratorPage() {
                   <img
                     src={config.uploadedImage}
                     alt="Uploaded"
-                    style={{ width: `${320 * zoom * (config.size / 100)}px`, height: `${320 * zoom * (config.size / 100)}px`, objectFit: 'contain' }}
+                    style={{
+                      width: `${320 * zoom * (config.size / 100)}px`,
+                      height: `${320 * zoom * (config.size / 100)}px`,
+                      objectFit: 'contain',
+                    }}
                   />
                 ) : (
                   <SelectedIcon
@@ -506,7 +656,9 @@ export default function IconGeneratorPage() {
               >
                 -
               </button>
-              <span className="text-slate-400 text-xs">{Math.round(zoom * 100)}%</span>
+              <span className="text-slate-400 text-xs">
+                {Math.round(zoom * 100)}%
+              </span>
               <button
                 onClick={() => setZoom(Math.min(2, zoom + 0.25))}
                 className="p-2 bg-white rounded-lg shadow-sm hover:bg-slate-50 transition-all"
@@ -516,7 +668,9 @@ export default function IconGeneratorPage() {
               </button>
             </div>
 
-            <div className="text-slate-400 text-xs">Output: 1024 x 1024 PNG</div>
+            <div className="text-slate-400 text-xs">
+              Output: 1024 x 1024 PNG
+            </div>
           </div>
 
           <div className="absolute bottom-6 right-6 flex gap-2">

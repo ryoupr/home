@@ -21,7 +21,9 @@ export function BoxNoteConverterPage() {
         const result = convertBoxNoteToMarkdown(e.target?.result as string);
         setMarkdown(result);
       } catch {
-        setError('変換に失敗しました。有効な .boxnote ファイルか確認してください。');
+        setError(
+          '変換に失敗しました。有効な .boxnote ファイルか確認してください。'
+        );
       }
     };
     reader.readAsText(file);
@@ -68,7 +70,8 @@ export function BoxNoteConverterPage() {
             BoxNote → Markdown 変換
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
-            .boxnote ファイルをドラッグ＆ドロップまたは選択して、Markdownに変換します
+            .boxnote
+            ファイルをドラッグ＆ドロップまたは選択して、Markdownに変換します
           </p>
 
           <Card className="mb-6">

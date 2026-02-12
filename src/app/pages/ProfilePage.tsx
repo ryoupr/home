@@ -1,14 +1,27 @@
+import {
+  BookOpen,
+  Briefcase,
+  Code2,
+  Github,
+  Linkedin,
+  Mail,
+  User,
+  Wrench,
+} from 'lucide-react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Linkedin, Mail, Briefcase, Code2, User, BookOpen, Wrench } from 'lucide-react';
-import { Card, CardContent } from '../components/ui/card';
-import { useGitHubStats, extractGitHubUsername } from '../hooks/useGitHubStats';
 import config from '../../data/config.json';
+import { Card, CardContent } from '../components/ui/card';
+import { extractGitHubUsername, useGitHubStats } from '../hooks/useGitHubStats';
 
 export function ProfilePage() {
-  useEffect(() => { document.title = 'Portfolio | ryoupr'; }, []);
+  useEffect(() => {
+    document.title = 'Portfolio | ryoupr';
+  }, []);
   const { personal } = config;
-  const { totalStars, totalRepos, loading } = useGitHubStats(extractGitHubUsername(personal.github));
+  const { totalStars, totalRepos, loading } = useGitHubStats(
+    extractGitHubUsername(personal.github)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -39,7 +52,10 @@ export function ProfilePage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 {personal.skills.map((skill) => (
-                  <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                  <span
+                    key={skill}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  >
                     {skill}
                   </span>
                 ))}
@@ -68,7 +84,11 @@ export function ProfilePage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {loading ? '...' : totalStars >= 1000 ? `${Math.floor(totalStars / 1000)}k+` : `${totalStars}`}
+                  {loading
+                    ? '...'
+                    : totalStars >= 1000
+                      ? `${Math.floor(totalStars / 1000)}k+`
+                      : `${totalStars}`}
                 </div>
                 <div className="text-sm text-gray-600">GitHub Stars</div>
               </CardContent>
@@ -88,7 +108,9 @@ export function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="text-lg mb-1">プロジェクト一覧</h3>
-                    <p className="text-sm text-gray-600">制作物をご覧いただけます</p>
+                    <p className="text-sm text-gray-600">
+                      制作物をご覧いただけます
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -102,7 +124,9 @@ export function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="text-lg mb-1">WEBツール</h3>
-                    <p className="text-sm text-gray-600">便利なツールを公開しています</p>
+                    <p className="text-sm text-gray-600">
+                      便利なツールを公開しています
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -116,14 +140,20 @@ export function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="text-lg mb-1">GitHub</h3>
-                    <p className="text-sm text-gray-600">コードを公開しています</p>
+                    <p className="text-sm text-gray-600">
+                      コードを公開しています
+                    </p>
                   </div>
                 </CardContent>
               </Card>
             </a>
 
             {personal.qiita && (
-              <a href={personal.qiita} target="_blank" rel="noopener noreferrer">
+              <a
+                href={personal.qiita}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardContent className="pt-6 flex items-start gap-4">
                     <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
@@ -131,7 +161,9 @@ export function ProfilePage() {
                     </div>
                     <div>
                       <h3 className="text-lg mb-1">ブログ / Qiita</h3>
-                      <p className="text-sm text-gray-600">技術記事を投稿しています</p>
+                      <p className="text-sm text-gray-600">
+                        技術記事を投稿しています
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

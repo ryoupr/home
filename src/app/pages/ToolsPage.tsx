@@ -1,9 +1,11 @@
+import { BarChart2, Box, Calendar, FileText, Presentation } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart2, Box, Calendar, FileText, Presentation } from 'lucide-react';
 
 export function ToolsPage() {
-  useEffect(() => { document.title = 'Tools | ryoupr'; }, []);
+  useEffect(() => {
+    document.title = 'Tools | ryoupr';
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-16">
@@ -149,7 +151,8 @@ export function ToolsPage() {
                   </h2>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Box Notesの.boxnoteファイルをMarkdownに変換。見出し、リスト、テーブル、リンク等の書式を保持したまま変換できます。
+                  Box
+                  Notesの.boxnoteファイルをMarkdownに変換。見出し、リスト、テーブル、リンク等の書式を保持したまま変換できます。
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full">
