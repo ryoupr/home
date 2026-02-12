@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart2, Box, Calendar, Presentation } from 'lucide-react';
+import { BarChart2, Box, Calendar, FileText, Presentation } from 'lucide-react';
 
 export function ToolsPage() {
   useEffect(() => { document.title = 'Tools | ryoupr'; }, []);
@@ -132,6 +132,34 @@ export function ToolsPage() {
                   </span>
                   <span className="px-2 py-1 bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs rounded-full">
                     個別編集可能
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* BoxNote Converter */}
+            <Link to="/tools/boxnote-converter">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
+                    <FileText className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    BoxNote → Markdown
+                  </h2>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Box Notesの.boxnoteファイルをMarkdownに変換。見出し、リスト、テーブル、リンク等の書式を保持したまま変換できます。
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full">
+                    BoxNote
+                  </span>
+                  <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full">
+                    Markdown
+                  </span>
+                  <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-full">
+                    フォーマット変換
                   </span>
                 </div>
               </div>

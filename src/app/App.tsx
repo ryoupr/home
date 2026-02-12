@@ -7,6 +7,7 @@ import { CsvGraphViewerPage } from './pages/tools/CsvGraphViewerPage';
 import IconGeneratorPage from './pages/tools/IconGeneratorPage';
 import { YabaneSchedulePage } from './pages/tools/YabaneSchedulePage';
 import { SlideBuilderPage } from './pages/tools/SlideBuilderPage';
+import { BoxNoteConverterPage } from './pages/tools/BoxNoteConverterPage';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/tools/icon-generator" element={<IconGeneratorPage />} />
         <Route path="/tools/yabane-schedule" element={<YabaneSchedulePage />} />
         <Route path="/tools/slide-builder" element={<SlideBuilderPage />} />
+        <Route path="/tools/boxnote-converter" element={<BoxNoteConverterPage />} />
       </Routes>
     </BrowserRouter>
   );
