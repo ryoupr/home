@@ -1,5 +1,6 @@
+import DOMPurify from 'dompurify';
 import { Code, Download, Eye, Loader2, X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 declare global {
@@ -1058,6 +1059,15 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
 // --- Component ---
 export function SlideBuilderPage() {
   const [html, setHtml] = useState(SAMPLE_HTML);
+  const sanitizedHtml = useMemo(
+    () =>
+      DOMPurify.sanitize(html, {
+        WHOLE_DOCUMENT: true,
+        ADD_TAGS: ['style', 'link'],
+        ADD_ATTR: ['target', 'rel'],
+      }),
+    [html]
+  );
   const [showPreview, setShowPreview] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [stats, setStats] = useState({ slides: 0, elements: 0 });
@@ -1273,7 +1283,7 @@ export function SlideBuilderPage() {
                   >
                     <iframe
                       ref={iframeRef}
-                      srcDoc={html}
+                      srcDoc={sanitizedHtml}
                       onLoad={onIframeLoad}
                       title="スライドプレビュー"
                       className="bg-white shadow-lg"

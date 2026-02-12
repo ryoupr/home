@@ -1,9 +1,14 @@
 import { Github, Linkedin, Mail, Terminal } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useMemo } from 'react';
 import config from '../../data/config.json';
 
 export function Hero() {
   const { personal } = config;
+  const email = useMemo(
+    () => (personal.emailEncoded ? atob(personal.email) : personal.email),
+    [personal.email, personal.emailEncoded]
+  );
 
   return (
     <section
@@ -69,7 +74,7 @@ export function Hero() {
             <Linkedin className="size-6 text-blue-400 group-hover:text-blue-300" />
           </a>
           <a
-            href={`mailto:${personal.email}`}
+            href={`mailto:${email}`}
             className="p-3 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all duration-300 group"
             aria-label="Email"
           >

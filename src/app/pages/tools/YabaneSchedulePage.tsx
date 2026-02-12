@@ -1469,7 +1469,7 @@ export function YabaneSchedulePage() {
                   ))}
                   <button
                     onClick={() => {
-                      const n = window.prompt?.('列名');
+                      const n = window.prompt?.('列名')?.trim().slice(0, 50);
                       if (n) setLeftCols([...leftCols, n]);
                     }}
                     className="text-indigo-600 p-1 border border-indigo-200 rounded hover:bg-indigo-50"
@@ -1501,7 +1501,7 @@ export function YabaneSchedulePage() {
                   ))}
                   <button
                     onClick={() => {
-                      const n = window.prompt?.('列名');
+                      const n = window.prompt?.('列名')?.trim().slice(0, 50);
                       if (n) setRightCols([...rightCols, n]);
                     }}
                     className="text-indigo-600 p-1 border border-indigo-200 rounded hover:bg-indigo-50"

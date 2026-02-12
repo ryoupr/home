@@ -8,7 +8,7 @@ import {
   User,
   Wrench,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import config from '../../data/config.json';
 import { Card, CardContent } from '../components/ui/card';
@@ -19,6 +19,10 @@ export function ProfilePage() {
     document.title = 'Portfolio | ryoupr';
   }, []);
   const { personal } = config;
+  const email = useMemo(
+    () => (personal.emailEncoded ? atob(personal.email) : personal.email),
+    [personal.email, personal.emailEncoded]
+  );
   const { totalStars, totalRepos, loading } = useGitHubStats(
     extractGitHubUsername(personal.github)
   );
@@ -182,11 +186,11 @@ export function ProfilePage() {
               </p>
               <div className="space-y-4">
                 <a
-                  href={`mailto:${personal.email}`}
+                  href={`mailto:${email}`}
                   className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   <Mail className="size-5" />
-                  <span>{personal.email}</span>
+                  <span>{email}</span>
                 </a>
                 <a
                   href={personal.github}

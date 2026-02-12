@@ -20,6 +20,36 @@ interface GitHubRepository {
   private: boolean;
 }
 
+const CACHE_TTL = 10 * 60 * 1000; // 10分
+
+function getCached(
+  key: string
+): { totalStars: number; totalRepos: number } | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setCache(
+  key: string,
+  data: { totalStars: number; totalRepos: number }
+) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+  } catch {
+    // sessionStorage full or unavailable
+  }
+}
+
 // GitHub URL からユーザー名を抽出するヘルパー関数
 export function extractGitHubUsername(urlOrUsername: string): string {
   if (!urlOrUsername) return '';
@@ -51,6 +81,13 @@ export function useGitHubStats(username: string): GitHubStats {
 
     if (!extractedUsername) {
       setStats((prev) => ({ ...prev, loading: false }));
+      return;
+    }
+
+    const cacheKey = `gh_stats_${extractedUsername}`;
+    const cached = getCached(cacheKey);
+    if (cached) {
+      setStats({ ...cached, loading: false, error: null });
       return;
     }
 
@@ -87,9 +124,11 @@ export function useGitHubStats(username: string): GitHubStats {
           0
         );
 
+        const data = { totalStars, totalRepos: repos.length };
+        setCache(cacheKey, data);
+
         setStats({
-          totalStars,
-          totalRepos: repos.length,
+          ...data,
           loading: false,
           error: null,
         });
