@@ -14,7 +14,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Area,
@@ -33,6 +33,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 // 型定義
 interface ParsedData {
@@ -56,9 +57,15 @@ interface ReferenceAreaConfig {
 }
 
 // CSVパーサー関数（引用符付きCSVに対応）
-const parseCSV = (text: string): { headers: string[]; data: ParsedData[] } => {
+const parseCSV = (
+  text: string
+): { headers: string[]; data: ParsedData[]; error?: string } => {
+  if (!text || !text.trim())
+    return { headers: [], data: [], error: 'ファイルが空です。' };
+
   const lines = text.split('\n').filter((line) => line.trim() !== '');
-  if (lines.length === 0) return { headers: [], data: [] };
+  if (lines.length === 0)
+    return { headers: [], data: [], error: 'データ行がありません。' };
 
   const parseLine = (line: string): string[] => {
     const result: string[] = [];
@@ -128,12 +135,11 @@ const COLOR_PALETTES: Record<string, string[]> = {
 };
 
 export function CsvGraphViewerPage() {
-  useEffect(() => {
-    document.title = 'CSV Graph Viewer | ryoupr';
-  }, []);
+  usePageTitle('CSV Graph Viewer');
   const [rawData, setRawData] = useState<ParsedData[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [fileName, setFileName] = useState('');
+  const [parseError, setParseError] = useState('');
   const [xAxisKey, setXAxisKey] = useState('');
   const [dataKeys, setDataKeys] = useState<string[]>([]);
   const [chartType, setChartType] = useState<'bar' | 'line' | 'area'>('bar');
@@ -176,7 +182,16 @@ export function CsvGraphViewerPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const { headers: parsedHeaders, data: parsedData } = parseCSV(text);
+      const {
+        headers: parsedHeaders,
+        data: parsedData,
+        error,
+      } = parseCSV(text);
+      if (error) {
+        setParseError(error);
+        return;
+      }
+      setParseError('');
       setHeaders(parsedHeaders);
       setRawData(parsedData);
       setExcludedRows(new Set());
@@ -401,6 +416,12 @@ export function CsvGraphViewerPage() {
                 />
               </label>
             </div>
+          </div>
+        )}
+
+        {parseError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {parseError}
           </div>
         )}
 

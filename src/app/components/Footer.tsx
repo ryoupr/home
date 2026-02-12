@@ -1,4 +1,6 @@
 export function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer
       id="contact"
@@ -10,7 +12,7 @@ export function Footer() {
           お仕事のご依頼やお問い合わせは、メールまたはSNSからお気軽にご連絡ください。
         </p>
         <p className="text-sm text-slate-600 font-mono">
-          © 2026 Your Name. All rights reserved.
+          © {year} Ryoichiro Teshima. All rights reserved.
         </p>
       </div>
     </footer>

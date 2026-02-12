@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import config from '../../data/config.json';
 import { ProjectCard } from './ProjectCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -16,22 +15,11 @@ interface Project {
 
 // Load projects from config.json
 const projects: Project[] = config.projects as Project[];
+const webapps = projects.filter((p) => p.category === 'webapp');
+const programs = projects.filter((p) => p.category === 'program');
+const extensions = projects.filter((p) => p.category === 'extension');
 
 export function ProjectsSection() {
-  // useMemo でフィルタリング結果をメモ化
-  const webapps = useMemo(
-    () => projects.filter((p) => p.category === 'webapp'),
-    []
-  );
-  const programs = useMemo(
-    () => projects.filter((p) => p.category === 'program'),
-    []
-  );
-  const extensions = useMemo(
-    () => projects.filter((p) => p.category === 'extension'),
-    []
-  );
-
   return (
     <section
       id="projects"

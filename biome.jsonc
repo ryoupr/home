@@ -18,6 +18,8 @@
   "linter": {
     "enabled": true,
     "rules": {
+      // recommended: false にして ESLint から移行したルールのみ明示的に有効化。
+      // `biome migrate eslint` で生成されたルールセットをベースにしている。
       "recommended": false,
       "complexity": {
         "noAdjacentSpacesInRegex": "error",

@@ -1,24 +1,25 @@
 #!/bin/bash
+# ⚠️ 非推奨: GitHub Actions (.github/workflows/deploy.yml) で自動デプロイされます。
+# main ブランチへの push で自動的にビルド・デプロイが実行されます。
+# このスクリプトは緊急時の手動デプロイ用として残しています。
 
-# Build the project
+set -euo pipefail
+
+echo "⚠️  GitHub Actions による自動デプロイが推奨です。手動デプロイを続行しますか？ (y/N)"
+read -r confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+  echo "中止しました。git push origin main で自動デプロイされます。"
+  exit 0
+fi
+
 echo "Building project..."
 npm run build
 
-# Clean old assets before copying new ones
-echo "Cleaning old assets..."
-rm -rf assets/
-
-# Copy dist contents to root for GitHub Pages
-echo "Copying build files..."
-cp -r dist/* .
-
-# Add and commit
 echo "Committing changes..."
-git add .
-git commit -m "Deploy React app to GitHub Pages"
+git add dist/
+git commit -m "Manual deploy: $(date +%Y-%m-%d_%H:%M)"
 
-# Push to GitHub
 echo "Pushing to GitHub..."
 git push origin main
 
-echo "✅ Deployment complete!"
+echo "✅ Push complete. GitHub Actions がデプロイを実行します。"

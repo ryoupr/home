@@ -1,13 +1,11 @@
 import { ArrowLeft } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Footer } from '../components/Footer';
 import { ProjectsSection } from '../components/ProjectsSection';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function ProjectsPage() {
-  useEffect(() => {
-    document.title = 'Projects | ryoupr';
-  }, []);
+  usePageTitle('Projects');
   return (
     <div className="size-full bg-slate-950">
       {/* Header */}

@@ -26,6 +26,7 @@ import React, {
   useState,
 } from 'react';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 // --- PptxGenJS type declaration ---
 declare global {
@@ -187,9 +188,7 @@ const getJapaneseHolidays = (year: number): Record<string, string> => {
 // --- Main Component ---
 
 export function YabaneSchedulePage() {
-  useEffect(() => {
-    document.title = 'Yabane Schedule | ryoupr';
-  }, []);
+  usePageTitle('Yabane Schedule');
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: '1',
@@ -1088,6 +1087,8 @@ export function YabaneSchedulePage() {
                             }}
                             className="absolute transition-all hover:z-10 flex items-center justify-center cursor-move"
                             draggable="true"
+                            role="listitem"
+                            aria-label={`タスク: ${task.label}。ドラッグで並び替え可能。クリックで編集。`}
                             onDragStart={(e) => handleDragStart(e, task.id)}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, task.id)}

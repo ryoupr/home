@@ -1,5 +1,11 @@
 import { Code2 } from 'lucide-react';
 
+const NAV_LINKS = [
+  { href: '#about', label: 'About' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#contact', label: 'Contact' },
+] as const;
+
 export function Header() {
   return (
     <header className="border-b border-slate-800 sticky top-0 bg-slate-950/80 backdrop-blur-md z-10 shadow-lg shadow-cyan-500/5">
@@ -11,30 +17,18 @@ export function Header() {
           </h1>
         </div>
         <nav className="flex gap-6 items-center font-mono text-sm">
-          <a
-            href="#about"
-            className="text-slate-300 hover:text-cyan-400 transition-colors relative group"
-          >
-            <span className="text-cyan-400">&lt;</span>About
-            <span className="text-cyan-400">/&gt;</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all group-hover:w-full" />
-          </a>
-          <a
-            href="#projects"
-            className="text-slate-300 hover:text-cyan-400 transition-colors relative group"
-          >
-            <span className="text-cyan-400">&lt;</span>Projects
-            <span className="text-cyan-400">/&gt;</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all group-hover:w-full" />
-          </a>
-          <a
-            href="#contact"
-            className="text-slate-300 hover:text-cyan-400 transition-colors relative group"
-          >
-            <span className="text-cyan-400">&lt;</span>Contact
-            <span className="text-cyan-400">/&gt;</span>
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all group-hover:w-full" />
-          </a>
+          {NAV_LINKS.map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              className="text-slate-300 hover:text-cyan-400 transition-colors relative group"
+            >
+              <span className="text-cyan-400">&lt;</span>
+              {label}
+              <span className="text-cyan-400">/&gt;</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transition-all group-hover:w-full" />
+            </a>
+          ))}
         </nav>
       </div>
     </header>

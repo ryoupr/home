@@ -18,6 +18,21 @@ interface ProjectCardProps {
   category: 'webapp' | 'program' | 'extension';
 }
 
+const CATEGORY_LABELS = {
+  webapp: 'Web App',
+  program: 'Program',
+  extension: 'Extension',
+} as const;
+
+const CATEGORY_COLORS = {
+  webapp:
+    'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/50',
+  program:
+    'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/50',
+  extension:
+    'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/50',
+} as const;
+
 export function ProjectCard({
   title,
   description,
@@ -26,21 +41,6 @@ export function ProjectCard({
   githubUrl,
   category,
 }: ProjectCardProps) {
-  const categoryLabels = {
-    webapp: 'Web App',
-    program: 'Program',
-    extension: 'Extension',
-  };
-
-  const categoryColors = {
-    webapp:
-      'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/50',
-    program:
-      'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/50',
-    extension:
-      'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/50',
-  };
-
   // Chrome拡張機能かどうかで表示を変える
   const isExtension = category === 'extension';
 
@@ -61,9 +61,9 @@ export function ProjectCard({
               {title}
             </CardTitle>
             <span
-              className={`px-3 py-1 rounded-md text-xs font-mono ${categoryColors[category]}`}
+              className={`px-3 py-1 rounded-md text-xs font-mono ${CATEGORY_COLORS[category]}`}
             >
-              {categoryLabels[category]}
+              {CATEGORY_LABELS[category]}
             </span>
           </div>
           <CardDescription className="text-base text-slate-400">

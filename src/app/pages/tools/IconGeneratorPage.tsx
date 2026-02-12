@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import {
   CANVAS_SIZE,
   GRADIENT_COLORS,
@@ -35,9 +36,7 @@ import { useLocalStorage, useUndoRedo } from './iconGeneratorHooks';
 import { iconKeys, iconMap } from './iconMap';
 
 export default function IconGeneratorPage() {
-  useEffect(() => {
-    document.title = 'Icon Generator | ryoupr';
-  }, []);
+  usePageTitle('Icon Generator');
   const {
     currentState: config,
     setState: setConfig,

@@ -2,11 +2,29 @@ import DOMPurify from 'dompurify';
 import { Code, Download, Eye, Loader2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 declare global {
   interface Window {
-    PptxGenJS?: new () => any;
+    PptxGenJS?: new () => PptxPresentation;
   }
+}
+
+interface PptxSlide {
+  addShape(type: string, opts: Record<string, unknown>): void;
+  addText(
+    text: string | Array<Record<string, unknown>>,
+    opts: Record<string, unknown>
+  ): void;
+  addImage(opts: Record<string, unknown>): void;
+  background: Record<string, unknown>;
+}
+
+interface PptxPresentation {
+  defineLayout(opts: { name: string; width: number; height: number }): void;
+  layout: string;
+  addSlide(): PptxSlide;
+  writeFile(opts: { fileName: string }): Promise<void>;
 }
 
 const PPTX_CDN =
@@ -835,7 +853,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
         : {};
 
       if (el.type === 'shape') {
-        const fill: any = el.gradient
+        const fill: Record<string, unknown> = el.gradient
           ? {
               type: 'gradient',
               color1: el.gradient.color1,
@@ -844,7 +862,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
           : el.fill
             ? { color: el.fill, transparency }
             : { type: 'none' };
-        const lineOpt: any = el.borderColor
+        const lineOpt: Record<string, unknown> | undefined = el.borderColor
           ? {
               color: el.borderColor,
               width: Math.max(0.5, (el.borderWidth || 1) * PX_TO_PT),
@@ -852,7 +870,12 @@ function generatePptx(slides: SlideElement[][], filename: string) {
           : el.borders
             ? undefined // handled below
             : { type: 'none' };
-        const opts: any = { ...p, ...rotOpt, ...shadowOpt, fill };
+        const opts: Record<string, unknown> = {
+          ...p,
+          ...rotOpt,
+          ...shadowOpt,
+          fill,
+        };
         if (lineOpt) opts.line = lineOpt;
         if (el.borderRadius && el.borderRadius > 0) {
           opts.rectRadius = Math.min(el.borderRadius, Math.min(el.w, el.h) / 2);
@@ -902,7 +925,7 @@ function generatePptx(slides: SlideElement[][], filename: string) {
               el.padding.l * 72,
             ]
           : undefined;
-        const baseOpts: any = {
+        const baseOpts: Record<string, unknown> = {
           ...p,
           ...rotOpt,
           ...shadowOpt,
@@ -986,7 +1009,11 @@ function generatePptx(slides: SlideElement[][], filename: string) {
 
       if (el.type === 'image' && el.imgSrc) {
         try {
-          const imgBase: any = { ...p, ...rotOpt, transparency };
+          const imgBase: Record<string, unknown> = {
+            ...p,
+            ...rotOpt,
+            transparency,
+          };
           if (el.imgSrc.startsWith('data:')) {
             imgBase.data = el.imgSrc;
           } else {
@@ -1076,9 +1103,7 @@ export function SlideBuilderPage() {
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(0.5);
 
-  useEffect(() => {
-    document.title = 'Slide Builder | ryoupr';
-  }, []);
+  usePageTitle('Slide Builder');
 
   // ResizeObserver with debounce
   useEffect(() => {
@@ -1131,7 +1156,7 @@ export function SlideBuilderPage() {
         }
         tmp.onload = () => {
           try {
-            const doc = tmp!.contentDocument;
+            const doc = tmp?.contentDocument;
             resolve(doc ? extractSlides(doc) : [[]]);
           } catch (e) {
             console.warn('Extraction failed:', e);

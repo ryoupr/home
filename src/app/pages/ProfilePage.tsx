@@ -13,11 +13,10 @@ import { Link } from 'react-router-dom';
 import config from '../../data/config.json';
 import { Card, CardContent } from '../components/ui/card';
 import { extractGitHubUsername, useGitHubStats } from '../hooks/useGitHubStats';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function ProfilePage() {
-  useEffect(() => {
-    document.title = 'Portfolio | ryoupr';
-  }, []);
+  usePageTitle('Portfolio');
   const { personal } = config;
   const email = useMemo(
     () => (personal.emailEncoded ? atob(personal.email) : personal.email),

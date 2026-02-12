@@ -1,11 +1,9 @@
 import { BarChart2, Box, Calendar, FileText, Presentation } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function ToolsPage() {
-  useEffect(() => {
-    document.title = 'Tools | ryoupr';
-  }, []);
+  usePageTitle('Tools');
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-16">

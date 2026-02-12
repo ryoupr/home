@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { convertBoxNoteToMarkdown } from './boxnote/convert';
 
 export function BoxNoteConverterPage() {
@@ -8,9 +9,7 @@ export function BoxNoteConverterPage() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    document.title = 'BoxNote → Markdown | ryoupr';
-  }, []);
+  usePageTitle('BoxNote → Markdown');
 
   const handleFile = useCallback((file: File) => {
     setError('');
@@ -20,9 +19,15 @@ export function BoxNoteConverterPage() {
       try {
         const result = convertBoxNoteToMarkdown(e.target?.result as string);
         setMarkdown(result);
-      } catch {
+      } catch (err) {
+        const detail =
+          err instanceof SyntaxError
+            ? 'JSONの解析に失敗しました。'
+            : err instanceof Error
+              ? err.message
+              : '';
         setError(
-          '変換に失敗しました。有効な .boxnote ファイルか確認してください。'
+          `変換に失敗しました。有効な .boxnote ファイルか確認してください。${detail ? `\n詳細: ${detail}` : ''}`
         );
       }
     };

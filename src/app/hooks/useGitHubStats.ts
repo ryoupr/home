@@ -51,21 +51,26 @@ function setCache(
 }
 
 // GitHub URL からユーザー名を抽出するヘルパー関数
+const GITHUB_USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+
 export function extractGitHubUsername(urlOrUsername: string): string {
   if (!urlOrUsername) return '';
+
+  let candidate = urlOrUsername;
 
   // URL の場合はパースしてユーザー名を抽出
   try {
     const url = new URL(urlOrUsername);
     if (url.hostname === 'github.com') {
-      const pathParts = url.pathname.split('/').filter(Boolean);
-      return pathParts[0] || '';
+      candidate = url.pathname.split('/').filter(Boolean)[0] || '';
+    } else {
+      return '';
     }
   } catch {
     // URL でない場合はそのままユーザー名として扱う
   }
 
-  return urlOrUsername;
+  return GITHUB_USERNAME_RE.test(candidate) ? candidate : '';
 }
 
 export function useGitHubStats(username: string): GitHubStats {
