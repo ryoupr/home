@@ -1,5 +1,6 @@
-import { Chrome, ExternalLink, Github } from 'lucide-react';
+import { ArrowRight, Chrome, ExternalLink, Github } from 'lucide-react';
 import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import {
   Card,
@@ -15,13 +16,15 @@ interface ProjectCardProps {
   tags: string[];
   demoUrl?: string;
   githubUrl?: string;
-  category: 'webapp' | 'program' | 'extension';
+  detailUrl?: string;
+  category: 'webapp' | 'program' | 'extension' | 'app';
 }
 
 const CATEGORY_LABELS = {
   webapp: 'Web App',
   program: 'Program',
   extension: 'Extension',
+  app: 'App',
 } as const;
 
 const CATEGORY_COLORS = {
@@ -31,6 +34,7 @@ const CATEGORY_COLORS = {
     'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/50',
   extension:
     'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/50',
+  app: 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/50',
 } as const;
 
 export function ProjectCard({
@@ -39,6 +43,7 @@ export function ProjectCard({
   tags,
   demoUrl,
   githubUrl,
+  detailUrl,
   category,
 }: ProjectCardProps) {
   // Chrome拡張機能かどうかで表示を変える
@@ -82,6 +87,19 @@ export function ProjectCard({
             ))}
           </div>
           <div className="flex gap-2">
+            {detailUrl && (
+              <Button
+                variant="default"
+                size="sm"
+                asChild
+                className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white border-0 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] font-mono"
+              >
+                <Link to={detailUrl}>
+                  <ArrowRight className="size-4 mr-2" />
+                  詳細を見る
+                </Link>
+              </Button>
+            )}
             {demoUrl && (
               <Button
                 variant="default"

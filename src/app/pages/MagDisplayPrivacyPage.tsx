@@ -69,7 +69,7 @@ export function MagDisplayPrivacyPage() {
       <header className="sticky top-0 z-10 border-b border-black/10 bg-[#fbb07b]/90 backdrop-blur-md">
         <div className="container mx-auto flex items-center gap-4 px-4 py-4">
           <Link
-            to="/magdisplay"
+            to="/projects/magdisplay"
             className="rounded-lg p-2 text-[#199026] transition-colors hover:bg-black/10"
             aria-label="MagDisplay 紹介ページに戻る"
           >
@@ -288,7 +288,7 @@ export function MagDisplayPrivacyPage() {
       <footer className="border-t border-black/10 bg-[#199026] px-4 py-8">
         <div className="container mx-auto max-w-5xl text-center text-white/90">
           <nav className="mb-4 flex justify-center gap-6 text-sm">
-            <Link to="/magdisplay" className="hover:underline">
+            <Link to="/projects/magdisplay" className="hover:underline">
               MagDisplay について
             </Link>
             <Link to="/projects" className="hover:underline">
