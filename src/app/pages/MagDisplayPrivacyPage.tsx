@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 
@@ -270,17 +270,15 @@ export function MagDisplayPrivacyPage() {
               9. お問い合わせ
             </h2>
             <p className="text-slate-700">
-              本ポリシーに関するご質問やデータの削除依頼は、GitHub Issues
+              本ポリシーに関するご質問やデータの削除依頼は、下記のメールアドレス
               よりお問い合わせください。
             </p>
             <a
-              href="https://github.com/ryoupr/MagDisplay/issues"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:tr120710@gmail.com"
               className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#199026] px-5 py-2.5 font-medium text-white transition-colors hover:bg-[#147a20]"
             >
-              <ExternalLink className="size-4" />
-              GitHub Issues を開く
+              <Mail className="size-4" />
+              メールで問い合わせる
             </a>
           </section>
         </article>

@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   BatteryCharging,
   CloudSun,
-  Github,
   Languages,
   LayoutGrid,
   Shield,
@@ -114,18 +113,9 @@ export function MagDisplayPage() {
                 スクリーンセーバーアプリです。時計・天気・壁紙をカスタマイズして、あなただけのディスプレイを作りましょう。
               </p>
               <div className="flex flex-wrap justify-center gap-3 md:justify-start">
-                <a
-                  href="https://github.com/ryoupr/MagDisplay"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#199026] px-6 py-3 font-medium text-white shadow-md transition-colors hover:bg-[#147a20]"
-                >
-                  <Github className="size-5" />
-                  GitHub で見る
-                </a>
                 <Link
                   to="/magdisplay/privacy"
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#199026] bg-white/70 px-6 py-3 font-medium text-[#199026] transition-colors hover:bg-white"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#199026] px-6 py-3 font-medium text-white shadow-md transition-colors hover:bg-[#147a20]"
                 >
                   <Shield className="size-5" />
                   プライバシーポリシー
@@ -207,17 +197,15 @@ export function MagDisplayPage() {
               MagDisplay をチェック
             </h3>
             <p className="mb-8 text-white/90">
-              ソースコードや開発状況は GitHub で公開しています。
+              アプリの詳細やプライバシーポリシーはこちらからご確認いただけます。
             </p>
-            <a
-              href="https://github.com/ryoupr/MagDisplay"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/magdisplay/privacy"
               className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-[#199026] shadow-md transition-transform hover:scale-105"
             >
-              <Github className="size-5" />
-              GitHub リポジトリ
-            </a>
+              <Shield className="size-5" />
+              プライバシーポリシー
+            </Link>
           </div>
         </div>
       </section>
