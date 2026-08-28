@@ -30,6 +30,7 @@ const projects: Project[] = Array.isArray(config.projects)
 const webapps = projects.filter((p) => p.category === 'webapp');
 const programs = projects.filter((p) => p.category === 'program');
 const extensions = projects.filter((p) => p.category === 'extension');
+const apps = projects.filter((p) => p.category === 'app');
 
 export function ProjectsSection() {
   return (
@@ -51,7 +52,7 @@ export function ProjectsSection() {
         </h2>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8 bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-1">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 mb-8 bg-slate-900/50 backdrop-blur-sm border border-slate-800 p-1">
             <TabsTrigger
               value="all"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 data-[state=active]:text-white font-mono text-sm data-[state=active]:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
@@ -63,6 +64,12 @@ export function ProjectsSection() {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 data-[state=active]:text-white font-mono text-sm data-[state=active]:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
             >
               Web Apps
+            </TabsTrigger>
+            <TabsTrigger
+              value="app"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-500 data-[state=active]:text-white font-mono text-sm data-[state=active]:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+            >
+              Apps
             </TabsTrigger>
             <TabsTrigger
               value="program"
@@ -89,6 +96,14 @@ export function ProjectsSection() {
           <TabsContent value="webapp">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {webapps.map((project) => (
+                <ProjectCard key={project.id} {...project} />
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="app">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {apps.map((project) => (
                 <ProjectCard key={project.id} {...project} />
               ))}
             </div>

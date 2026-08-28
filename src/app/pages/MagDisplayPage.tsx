@@ -114,7 +114,7 @@ export function MagDisplayPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-3 md:justify-start">
                 <Link
-                  to="/magdisplay/privacy"
+                  to="/projects/magdisplay/privacy"
                   className="inline-flex items-center gap-2 rounded-lg bg-[#199026] px-6 py-3 font-medium text-white shadow-md transition-colors hover:bg-[#147a20]"
                 >
                   <Shield className="size-5" />
@@ -200,7 +200,7 @@ export function MagDisplayPage() {
               アプリの詳細やプライバシーポリシーはこちらからご確認いただけます。
             </p>
             <Link
-              to="/magdisplay/privacy"
+              to="/projects/magdisplay/privacy"
               className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-[#199026] shadow-md transition-transform hover:scale-105"
             >
               <Shield className="size-5" />
@@ -217,7 +217,7 @@ export function MagDisplayPage() {
             <Link to="/projects" className="hover:underline">
               プロジェクト一覧
             </Link>
-            <Link to="/magdisplay/privacy" className="hover:underline">
+            <Link to="/projects/magdisplay/privacy" className="hover:underline">
               プライバシーポリシー
             </Link>
           </nav>

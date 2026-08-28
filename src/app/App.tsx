@@ -21,8 +21,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<ProfilePage />} />
         <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/magdisplay" element={<MagDisplayPage />} />
-        <Route path="/magdisplay/privacy" element={<MagDisplayPrivacyPage />} />
+        <Route path="/projects/magdisplay" element={<MagDisplayPage />} />
+        <Route
+          path="/projects/magdisplay/privacy"
+          element={<MagDisplayPrivacyPage />}
+        />
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tools/sample" element={<SampleToolPage />} />
         <Route

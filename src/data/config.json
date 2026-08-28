@@ -13,6 +13,14 @@
   },
   "projects": [
     {
+      "id": 6,
+      "title": "MagDisplay",
+      "description": "充電中のスマートフォンをおしゃれなスマートディスプレイに変える Android スクリーンセーバーアプリ。時計・天気・壁紙をカスタマイズできます。専用ページで詳しく紹介しています。",
+      "tags": ["Android", "Kotlin", "Screensaver"],
+      "detailUrl": "/projects/magdisplay",
+      "category": "app"
+    },
+    {
       "id": 1,
       "title": "Slack Markdown Renderer",
       "description": "SlackでMarkdown記法をリアルタイムでレンダリングするChrome拡張機能。コードブロック、リスト、テーブルなどを見やすく表示します。",
