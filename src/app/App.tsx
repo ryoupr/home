@@ -1,5 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { MagDisplayPage } from './pages/MagDisplayPage';
+import { MagDisplayPrivacyPage } from './pages/MagDisplayPrivacyPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ToolsPage } from './pages/ToolsPage';
@@ -19,6 +21,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<ProfilePage />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/magdisplay" element={<MagDisplayPage />} />
+        <Route path="/magdisplay/privacy" element={<MagDisplayPrivacyPage />} />
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tools/sample" element={<SampleToolPage />} />
         <Route
