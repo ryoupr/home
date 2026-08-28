@@ -6,7 +6,6 @@ import {
   LayoutGrid,
   Shield,
   Sparkles,
-  Users,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -36,12 +35,6 @@ const FEATURES = [
     title: 'レイアウトエディタ',
     description:
       '時計・天気ウィジェットの位置やサイズをドラッグ＆ドロップで自由にカスタマイズできます。',
-  },
-  {
-    icon: Users,
-    title: 'コミュニティ壁紙',
-    description:
-      '壁紙の閲覧・お気に入り登録・投稿ができるコミュニティ機能を搭載しています。',
   },
   {
     icon: Languages,
@@ -127,12 +120,6 @@ export function MagDisplayPage() {
                 src={`${BASE}magdisplay/01_dream_mode.png`}
                 alt="MagDisplay のスクリーンセーバー表示画面"
                 className="w-40 rounded-2xl border-4 border-white shadow-2xl md:w-48"
-                loading="lazy"
-              />
-              <img
-                src={`${BASE}magdisplay/02_browser.png`}
-                alt="MagDisplay のコミュニティ壁紙ブラウザ画面"
-                className="mt-8 w-40 rounded-2xl border-4 border-white shadow-2xl md:w-48"
                 loading="lazy"
               />
             </div>
