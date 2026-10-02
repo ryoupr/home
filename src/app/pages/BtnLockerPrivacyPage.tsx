@@ -114,11 +114,14 @@ export function BtnLockerPrivacyPage() {
               <li>
                 ロックしたボタンを特定するための CSS
                 セレクタ（ページの要素構造に由来するタグ名・id・class
-                名・属性・要素の位置）
+                名・要素の位置と、ボタンの属性値。属性値には
+                aria-label・name・data-testid
+                などのラベルや識別子の文字列が含まれることがあります）
               </li>
               <li>
-                ロック一覧に表示するための、ロックしたボタンの表示名（ボタンのラベル文字列。最大
-                40 文字。バージョン 0.2.0 以降）
+                ロック一覧に表示するための、ロックしたボタンの表示名（aria-label・value・ボタンのテキスト・title
+                などから取得したラベル文字列。最大 40 文字。バージョン 0.2.0
+                以降）
               </li>
               <li>
                 一時停止の設定（全体の一時停止の有無と、一時停止中のサイトのオリジン）
@@ -128,7 +131,7 @@ export function BtnLockerPrivacyPage() {
               これらは利用者の端末のブラウザ内にのみ保存され、ロック機能の提供以外の目的には使用しません。
             </p>
             <p className="mt-3">
-              ロックしたボタンの表示名を除き、ページの本文や入力内容を保存しません。ロックしたサイト以外の閲覧履歴や個人情報も保存・収集しません。また、利用者のデータを開発者を含む第三者に送信・提供・販売することはありません。
+              上記のロックしたボタンの表示名と属性値を除き、ページの本文や入力内容を保存しません。ロックしたサイト以外の閲覧履歴や個人情報も保存・収集しません。また、利用者のデータを開発者を含む第三者に送信・提供・販売することはありません。
             </p>
           </Section>
 
@@ -227,11 +230,14 @@ export function BtnLockerPrivacyPage() {
               </li>
               <li>
                 A CSS selector that identifies each locked button (tag names,
-                ids, class names, attributes and element positions derived from
-                the page&apos;s element structure)
+                ids, class names and element positions derived from the
+                page&apos;s element structure, plus attribute values of the
+                button, which may include label or identifier strings such as
+                aria-label, name or data-testid)
               </li>
               <li>
-                The display name of each locked button (its label text, up to 40
+                The display name of each locked button (label text taken from
+                its aria-label, value, text content, title or similar, up to 40
                 characters), shown in the lock list (version 0.2.0 and later)
               </li>
               <li>
@@ -244,11 +250,12 @@ export function BtnLockerPrivacyPage() {
               used solely to provide the locking feature.
             </p>
             <p className="mt-3">
-              Apart from the display names of locked buttons, the Extension does
-              not store page text or form input. It does not store or collect
-              browsing history beyond the sites where you lock buttons, or
-              personal information. It never transmits, shares or sells user
-              data to anyone, including the developer.
+              Apart from the display names and attribute values of locked
+              buttons described above, the Extension does not store page text or
+              form input. It does not store or collect browsing history beyond
+              the sites where you lock buttons, or personal information. It
+              never transmits, shares or sells user data to anyone, including
+              the developer.
             </p>
           </Section>
 
