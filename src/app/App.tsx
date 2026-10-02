@@ -1,5 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BtnLockerPage } from './pages/BtnLockerPage';
+import { BtnLockerPrivacyPage } from './pages/BtnLockerPrivacyPage';
 import { MagDisplayPage } from './pages/MagDisplayPage';
 import { MagDisplayPrivacyPage } from './pages/MagDisplayPrivacyPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -25,6 +27,11 @@ export default function App() {
         <Route
           path="/projects/magdisplay/privacy"
           element={<MagDisplayPrivacyPage />}
+        />
+        <Route path="/projects/btn-locker" element={<BtnLockerPage />} />
+        <Route
+          path="/projects/btn-locker/privacy"
+          element={<BtnLockerPrivacyPage />}
         />
         <Route path="/tools" element={<ToolsPage />} />
         <Route path="/tools/sample" element={<SampleToolPage />} />

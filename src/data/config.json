@@ -13,6 +13,15 @@
   },
   "projects": [
     {
+      "id": 7,
+      "title": "btn-locker",
+      "description": "うっかり押し・事故タップを防ぐボタン誤爆防止 Chrome 拡張機能。ロックしたボタンはシングルクリック無効、ダブルクリック＋確認モーダルでのみ実行できます。専用ページで詳しく紹介しています。",
+      "tags": ["Chrome Extension", "TypeScript", "Manifest V3"],
+      "detailUrl": "/projects/btn-locker",
+      "githubUrl": "https://github.com/ryoupr/btn-hunter",
+      "category": "extension"
+    },
+    {
       "id": 6,
       "title": "MagDisplay",
       "description": "充電中のスマートフォンをおしゃれなスマートディスプレイに変える Android スクリーンセーバーアプリ。時計・天気・壁紙をカスタマイズできます。専用ページで詳しく紹介しています。",
