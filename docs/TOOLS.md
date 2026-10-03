@@ -61,7 +61,10 @@ import { MyToolPage } from './pages/tools/MyToolPage';
 
 ### 3. ツール一覧への追加
 
-`src/app/pages/ToolsPage.tsx` のツールカードを追加します。
+トップページの「TOOLS（凡例）」には `src/data/tools.ts` の `TOOLS` 配列が表示されます。
+ツールを追加したら、ここにも `path`・`name`・`description`・`symbol`（凡例記号）を追加してください。
+
+ツール一覧ページには、`src/app/pages/ToolsPage.tsx` にツールカードを追加します。
 
 ```tsx
 <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">

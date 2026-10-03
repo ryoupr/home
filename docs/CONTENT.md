@@ -16,7 +16,8 @@
     "github": "https://github.com/yourusername",
     "linkedin": "https://linkedin.com/in/yourusername",
     "qiita": "https://qiita.com/yourusername",
-    "skills": ["React", "TypeScript", "AWS"]
+    "skills": ["React", "TypeScript", "AWS"],
+    "interests": ["Fishing", "Camping", "PC Games"]
   }
 }
 ```
