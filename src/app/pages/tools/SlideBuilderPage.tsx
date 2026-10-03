@@ -286,7 +286,7 @@ export function SlideBuilderPage() {
               <Code className="size-4 text-ink-muted" />
               <button
                 onClick={() => setShowPreview((p) => !p)}
-                className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${showPreview ? 'bg-ink' : 'bg-line'}`}
+                className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${showPreview ? 'bg-ink' : 'bg-ink-muted'}`}
                 role="switch"
                 aria-checked={showPreview}
                 aria-label="プレビュー表示の切り替え"

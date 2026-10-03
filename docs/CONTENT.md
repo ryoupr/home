@@ -25,6 +25,7 @@
 ## プロジェクトの編集
 
 `src/data/config.json` の `projects` 配列を編集：
+（トップページに並べる3件は `featuredProjectIds` で指定します。詳しくは HOW_TO_EDIT.md を参照）
 
 ```json
 {

@@ -46,17 +46,8 @@ interface Props {
   referenceAreas: ReferenceAreaConfig[];
 }
 
-/**
- * 軸・目盛り・グリッド線・凡例・ツールチップは「部品」なので Trail Gear の CSS 変数で色を決める。
- * 夜モードでは .theme-trail 内の --tg-* が入れ替わるので、そのまま夜でも読める。
- * var() は SVG の属性（stroke="..." や fill="..."）では解決されないため、
- * CSS 宣言になる style / wrapperStyle / contentStyle を使う。
- * 参考ラインとデータラベルだけはグラフ面（背景色 bgColor）の上に乗るため textColor のまま。
- */
-const TICK_STYLE = { fontSize: 12, style: { fill: 'var(--tg-muted)' } };
-const GRID_STYLE = { stroke: 'var(--tg-line)' };
-const LEGEND_STYLE = { color: 'var(--tg-ink)' };
 const TOOLTIP_STYLE = {
+  // ツールチップはグラフ面ではなくページの上に重なる HTML なので、サイトのトークンで色を決める
   backgroundColor: 'var(--tg-surface)',
   border: '1.5px solid var(--tg-ink)',
   color: 'var(--tg-ink)',
@@ -76,7 +67,8 @@ export function CsvChart({
   referenceAreas = [],
 }: Props) {
   const axisProps = {
-    tick: TICK_STYLE,
+    stroke: textColor,
+    fontSize: 12,
     tickLine: false,
     axisLine: false,
   };
@@ -125,14 +117,20 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            style={GRID_STYLE}
+            stroke={textColor}
+            strokeOpacity={0.2}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={LEGEND_STYLE} />
+          <Legend wrapperStyle={{ color: textColor }} />
           {dataKeys.map((key, i) => (
-            <Bar key={key} dataKey={key} fill={colors[i % colors.length]}>
+            <Bar
+              key={key}
+              dataKey={key}
+              fill={colors[i % colors.length]}
+              radius={[4, 4, 0, 0]}
+            >
               {showDataLabels && (
                 <LabelList
                   dataKey={key}
@@ -151,12 +149,13 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            style={GRID_STYLE}
+            stroke={textColor}
+            strokeOpacity={0.2}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={LEGEND_STYLE} />
+          <Legend wrapperStyle={{ color: textColor }} />
           {dataKeys.map((key, i) => (
             <Line
               key={key}
@@ -186,12 +185,13 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            style={GRID_STYLE}
+            stroke={textColor}
+            strokeOpacity={0.2}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={LEGEND_STYLE} />
+          <Legend wrapperStyle={{ color: textColor }} />
           {dataKeys.map((key, i) => (
             <Area
               key={key}

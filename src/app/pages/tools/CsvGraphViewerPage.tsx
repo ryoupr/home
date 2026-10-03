@@ -408,7 +408,7 @@ export function CsvGraphViewerPage() {
                   <div className="border-t border-line pt-2">
                     <label className="mt-2 flex cursor-pointer items-center gap-2">
                       <span
-                        className={`relative block h-5 w-9 border border-ink transition-colors ${showDataLabels ? 'bg-ink' : 'bg-line'}`}
+                        className={`relative block h-5 w-9 border border-ink transition-colors ${showDataLabels ? 'bg-ink' : 'bg-ink-muted'}`}
                       >
                         <input
                           type="checkbox"

@@ -73,7 +73,7 @@ import { MyToolPage } from './pages/tools/MyToolPage';
 
 ## 利用可能なUIコンポーネント
 
-- `Card`, `CardContent` - カードレイアウト
+- Trail Gear の共通部品（`src/app/components/trail/`）: `TrailLayout`・`PageHeading`。枠付きの面は `Card` ではなく `tg-panel` クラスを使う
 - `Button` - ボタン
 - `Input` - 入力フィールド
 - `Select` - セレクトボックス
