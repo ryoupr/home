@@ -105,7 +105,7 @@ function ColumnEditor({
             <span>{c}</span>
             <button
               onClick={() => onChange(cols.filter((_, idx) => idx !== i))}
-              className="ml-2 text-ink-muted hover:text-rose-500"
+              className="ml-2 text-ink-muted hover:text-destructive"
             >
               <X size={12} />
             </button>

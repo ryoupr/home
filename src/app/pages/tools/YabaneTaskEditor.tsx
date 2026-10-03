@@ -109,7 +109,7 @@ export function YabaneTaskEditor({
         <div className="border-t border-line pt-4">
           <button
             onClick={() => onDelete(task.id)}
-            className="flex w-full items-center justify-center space-x-1 border border-line py-2 text-xs font-bold text-rose-500 hover:bg-destructive/10"
+            className="flex w-full items-center justify-center space-x-1 border border-line py-2 text-xs font-bold text-destructive hover:bg-destructive/10"
           >
             <Trash2 size={14} />
             <span>タスク削除</span>

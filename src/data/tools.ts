@@ -26,7 +26,7 @@ export const TOOLS: readonly ToolEntry[] = [
     name: 'Icon Generator',
     description: 'アイコンや文字から、1024×1024 の PNG アイコンを作成します。',
     symbol: 'icon',
-    tags: ['アイコン作成', 'PNG 出力', 'カスタマイズ'],
+    tags: ['アイコン作成', 'PNG出力', 'カスタマイズ'],
   },
   {
     path: '/tools/yabane-schedule',
@@ -34,7 +34,7 @@ export const TOOLS: readonly ToolEntry[] = [
     description:
       '矢羽形のガントチャートを作成。祝日対応で、PowerPoint に書き出せます。',
     symbol: 'chevron',
-    tags: ['ガントチャート', 'PPTX 出力', '祝日対応'],
+    tags: ['ガントチャート', 'PPTX出力', '祝日対応'],
   },
   {
     path: '/tools/slide-builder',
@@ -42,7 +42,7 @@ export const TOOLS: readonly ToolEntry[] = [
     description:
       'HTML のスライドを、要素ごとに編集できる PowerPoint ファイルに変換します。',
     symbol: 'slide',
-    tags: ['HTML → PPTX', 'AI 連携', '要素ごとに編集'],
+    tags: ['HTML→PPTX', 'AI連携', '要素ごとに編集'],
   },
   {
     path: '/tools/boxnote-converter',

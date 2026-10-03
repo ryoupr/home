@@ -489,7 +489,7 @@ export function YabaneSchedulePage() {
 
   return (
     <TrailLayout variant="app">
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="yabane-root flex min-h-0 flex-1 flex-col overflow-hidden">
         {message && (
           <div
             className={`fixed top-16 left-1/2 z-[100] flex -translate-x-1/2 items-center space-x-2 border-[1.5px] border-ink px-4 py-2 ${message.type === 'error' ? 'bg-rose-600 text-white' : 'bg-ink text-ground'}`}
@@ -772,7 +772,7 @@ export function YabaneSchedulePage() {
                         </button>
                         <button
                           onClick={() => attemptDeleteCategory(category)}
-                          className="p-1 text-ink-muted hover:bg-ground hover:text-rose-500"
+                          className="p-1 text-ink-muted hover:bg-ground hover:text-destructive"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -961,7 +961,7 @@ export function YabaneSchedulePage() {
             aria-label="区分の削除確認"
           >
             <div className="tg-panel w-80 p-6">
-              <h3 className="tg-display mb-2 text-lg text-rose-600">
+              <h3 className="tg-display mb-2 text-lg text-destructive">
                 区分の削除
               </h3>
               <p className="mb-6 text-sm text-ink-muted">
@@ -999,7 +999,7 @@ export function YabaneSchedulePage() {
           />
         )}
         <style>{`
-          @media print { header, button, .sidebar, input[type="range"] { display: none !important; } [data-mode="night"] .theme-trail { --tg-ground: #ffffff; --tg-surface: #ffffff; --tg-ink: #1f2d44; --tg-muted: #5c6475; --tg-line: #c9c5b8; } body { background: white; } .scrollbar-thin { overflow: visible !important; } .yabane-main { height: auto !important; overflow: visible !important; } }
+          @media print { header, button, .sidebar, input[type="range"] { display: none !important; } [data-mode="night"] .theme-trail { --tg-ground: #ffffff; --tg-surface: #ffffff; --tg-ink: #1f2d44; --tg-muted: #5c6475; --tg-line: #c9c5b8; } body { background: white; } .scrollbar-thin { overflow: visible !important; } .theme-trail, .theme-trail main, .yabane-root, .yabane-main { height: auto !important; overflow: visible !important; } }
           .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; } .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--tg-line); }
         `}</style>
       </div>

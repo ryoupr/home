@@ -261,7 +261,7 @@ export default function IconGeneratorPage() {
               )}
             </div>
             {downloadError && (
-              <p className="mt-1 text-xs text-red-500">{downloadError}</p>
+              <p className="mt-1 text-xs text-destructive">{downloadError}</p>
             )}
           </div>
         </div>
@@ -553,7 +553,7 @@ export default function IconGeneratorPage() {
                     onClick={() =>
                       setConfig({ ...config, shadow: !config.shadow })
                     }
-                    className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${config.shadow ? 'bg-webbing' : 'bg-line'}`}
+                    className={`flex h-6 w-11 items-center rounded-full p-1 transition-colors ${config.shadow ? 'bg-webbing' : 'bg-ink-muted'}`}
                     role="switch"
                     aria-checked={config.shadow}
                     aria-label="Toggle drop shadow"
@@ -705,7 +705,7 @@ export default function IconGeneratorPage() {
             <div className="absolute bottom-6 right-6 flex gap-2">
               <button
                 onClick={() => setConfig(defaultConfig)}
-                className="border border-line bg-surface p-2 text-ink-muted transition-colors hover:text-red-500"
+                className="border border-line bg-surface p-2 text-ink-muted transition-colors hover:text-destructive"
                 title="Reset"
                 aria-label="Reset to default configuration"
               >
