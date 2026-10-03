@@ -44,7 +44,7 @@
       "description": "SlackでMarkdown記法をリアルタイムでレンダリングするChrome拡張機能。コードブロック、リスト、テーブルなどを見やすく表示します。",
       "tags": ["JavaScript", "Chrome Extension", "Markdown"],
       "demoUrl": "https://chromewebstore.google.com/detail/slack-markdown-renderer/eceplafflampaicjjbnecnmbljgkifbj",
-      "githubUrl": "https://github.com/yourusername/slack-markdown-renderer",
+      "githubUrl": "https://github.com/ryoupr/slack-raw-data-render",
       "category": "extension"
     },
     {
@@ -52,7 +52,7 @@
       "title": "ポートフォリオジェネレーター",
       "description": "CLIツールでポートフォリオサイトを自動生成するプログラム。設定ファイルから静的サイトを生成します。このサイトですね。",
       "tags": ["Node.js", "CLI", "HTML/CSS"],
-      "githubUrl": "https://github.com/yourusername/portfolio-generator",
+      "githubUrl": "https://github.com/ryoupr/home",
       "category": "program"
     },
     {
@@ -61,7 +61,7 @@
       "description": "コンソール画面を自動リフレッシュするChrome拡張機能。指定した間隔で画面を更新し、最新の情報を常に表示します。",
       "tags": ["JavaScript", "Chrome Extension", "Auto Refresh"],
       "demoUrl": "https://chromewebstore.google.com/detail/console-view-refresh-mast/gpkknjnhiakkgigfepmocdabcfmggcce",
-      "githubUrl": "https://github.com/yourusername/console-view-refresh-master",
+      "githubUrl": "https://github.com/ryoupr/Console-View-Refresh-Master",
       "category": "extension"
     },
     {
@@ -70,7 +70,7 @@
       "description": "カオナビ評価画面の入力内容をJSONファイルで保存・読込できるChrome拡張機能。データのバックアップと一括入力で評価作業を効率化します。",
       "tags": ["JavaScript", "Chrome Extension", "JSON"],
       "demoUrl": "https://chromewebstore.google.com/detail/kao-saver-kaonavi-json-to/gbaodfkohmehdfkoljglmjcjjliladhb",
-      "githubUrl": "https://github.com/yourusername/kao-saver",
+      "githubUrl": "https://github.com/ryoupr/Kao-Saver",
       "category": "extension"
     },
     {
@@ -79,7 +79,7 @@
       "description": "URLのスキーム（http/https）を自動切り替えするChrome拡張機能。リダイレクトルールを設定して、特定のサイトのプロトコルを自動変換します。個人的にはObsidianURIへの変換機能を利用して、JiraなどにObsidianノートをクリックできるリンクとして貼れるのが推しポイントです",
       "tags": ["JavaScript", "Chrome Extension", "URL Redirect"],
       "demoUrl": "https://chromewebstore.google.com/detail/redirect-scheme-switcher/cdkamfhpikiloeilfacdijogidlmgolc",
-      "githubUrl": "https://github.com/yourusername/redirect-scheme-switcher",
+      "githubUrl": "https://github.com/ryoupr/redirect_and_scheme_switcher",
       "category": "extension"
     }
   ]
