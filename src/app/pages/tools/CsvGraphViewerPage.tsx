@@ -14,7 +14,8 @@ import {
   X,
 } from 'lucide-react';
 import React, { useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { PageHeading } from '../../components/trail/PageHeading';
+import { TrailLayout } from '../../components/trail/TrailLayout';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import {
   CsvChart,
@@ -210,94 +211,87 @@ export function CsvGraphViewerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <TrailLayout>
+      <div className="flex flex-col gap-6">
         {/* ヘッダー */}
-        <header className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/tools"
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← ツール一覧
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="bg-indigo-600 p-2 rounded-lg shadow-lg">
-                <BarChart2 className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                CSV Graph Viewer
-              </h1>
-            </div>
-          </div>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <PageHeading
+            title="CSV Graph Viewer"
+            back={{ to: '/tools', label: 'Tools' }}
+          />
           {fileName && (
             <button
+              type="button"
               onClick={() => {
                 setRawData([]);
                 setFileName('');
                 setReferenceLines([]);
                 setReferenceAreas([]);
               }}
-              className="text-sm text-slate-500 hover:text-red-500 flex items-center gap-2 transition-colors"
+              className="tg-btn tg-btn-ghost"
             >
-              <X className="w-4 h-4" />
+              <X className="size-4" aria-hidden="true" />
               リセット
             </button>
           )}
-        </header>
+        </div>
 
         {/* ファイルアップロード */}
         {!rawData.length && (
-          <div
-            className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center bg-white hover:bg-slate-50 hover:border-indigo-400 transition-all cursor-pointer group shadow-sm"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-          >
-            <div className="flex flex-col items-center justify-center gap-4">
-              <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Upload className="w-8 h-8 text-indigo-500" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-lg font-medium text-slate-700">
-                  CSVファイルをドラッグ＆ドロップ
-                </p>
-                <p className="text-sm text-slate-400">または</p>
-              </div>
-              <label className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer font-medium shadow-md hover:shadow-lg">
-                ファイルを選択
-                <input
-                  type="file"
-                  accept=".csv"
-                  className="hidden"
-                  onChange={handleFileUpload}
+          <section className="tg-panel p-6">
+            <div
+              className="group cursor-pointer border-2 border-dashed border-line p-12 text-center transition-colors hover:border-webbing"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
+              <div className="flex flex-col items-center justify-center gap-4">
+                <Upload
+                  className="size-10 text-webbing transition-transform group-hover:scale-110"
+                  aria-hidden="true"
                 />
-              </label>
+                <div className="space-y-1">
+                  <p className="text-lg font-medium text-ink">
+                    CSVファイルをドラッグ＆ドロップ
+                  </p>
+                  <p className="text-sm text-ink-muted">または</p>
+                </div>
+                <label className="tg-btn cursor-pointer">
+                  ファイルを選択
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                </label>
+              </div>
             </div>
-          </div>
+          </section>
         )}
 
         {parseError && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <p className="border border-line bg-ground p-4 text-sm text-destructive">
             {parseError}
-          </div>
+          </p>
         )}
 
         {/* メインダッシュボード */}
         {rawData.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
             {/* サイドバー */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="space-y-6 lg:col-span-1">
               {/* 基本設定 */}
-              <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Settings className="w-3.5 h-3.5" /> グラフ設定
+              <section className="tg-panel p-5">
+                <h3 className="tg-label mb-4 flex items-center gap-2">
+                  <Settings className="size-3.5" aria-hidden="true" />{' '}
+                  グラフ設定
                 </h3>
                 <div className="space-y-5">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                    <label className="tg-label mb-1.5 block">
                       グラフの種類
                     </label>
-                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                    <div className="flex flex-wrap gap-2">
                       {[
                         { id: 'bar' as const, icon: BarChart2, label: '棒' },
                         { id: 'line' as const, icon: TrendingUp, label: '線' },
@@ -305,14 +299,12 @@ export function CsvGraphViewerPage() {
                       ].map((type) => (
                         <button
                           key={type.id}
+                          type="button"
+                          aria-pressed={chartType === type.id}
                           onClick={() => setChartType(type.id)}
-                          className={`flex-1 flex items-center justify-center gap-1 py-1.5 text-sm rounded-md transition-all ${
-                            chartType === type.id
-                              ? 'bg-white text-indigo-600 shadow-sm font-medium'
-                              : 'text-slate-500 hover:text-slate-700'
-                          }`}
+                          className="tg-chip flex flex-1 items-center justify-center gap-1"
                         >
-                          <type.icon className="w-3.5 h-3.5" />
+                          <type.icon className="size-3.5" aria-hidden="true" />
                           {type.label}
                         </button>
                       ))}
@@ -320,13 +312,13 @@ export function CsvGraphViewerPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                    <label className="tg-label mb-1.5 block">
                       X軸 (カテゴリ)
                     </label>
                     <select
                       value={xAxisKey}
                       onChange={(e) => setXAxisKey(e.target.value)}
-                      className="w-full p-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full border border-line bg-ground p-2 text-sm focus:outline-none focus:ring-2 focus:ring-webbing"
                     >
                       {headers.map((h) => (
                         <option key={h} value={h}>
@@ -337,45 +329,44 @@ export function CsvGraphViewerPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-2 block">
+                    <label className="tg-label mb-2 block">
                       Y軸 (データ列)
                     </label>
-                    <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                    <div className="max-h-32 space-y-2 overflow-y-auto pr-1">
                       {headers.map((h) => (
                         <label
                           key={h}
-                          className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-slate-100"
+                          className="flex cursor-pointer items-center gap-2 border border-transparent p-2 transition-colors hover:border-line hover:bg-ground"
                         >
                           <input
                             type="checkbox"
                             checked={dataKeys.includes(h)}
                             onChange={() => toggleDataKey(h)}
-                            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 border-slate-300"
+                            className="size-4 accent-[var(--tg-webbing)]"
                           />
-                          <span className="text-sm text-slate-700 truncate">
-                            {h}
-                          </span>
+                          <span className="truncate text-sm text-ink">{h}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* デザイン設定 */}
-              <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Palette className="w-3.5 h-3.5" /> デザイン設定
+              <section className="tg-panel p-5">
+                <h3 className="tg-label mb-4 flex items-center gap-2">
+                  <Palette className="size-3.5" aria-hidden="true" />{' '}
+                  デザイン設定
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+                    <label className="tg-label mb-1.5 block">
                       カラーテーマ
                     </label>
                     <select
                       value={colorTheme}
                       onChange={(e) => setColorTheme(e.target.value)}
-                      className="w-full p-2 text-xs bg-slate-50 border border-slate-200 rounded-lg mb-2"
+                      className="mb-2 w-full border border-line bg-ground p-2 text-xs"
                     >
                       <option value="default">デフォルト (インディゴ)</option>
                       <option value="cool">寒色系 (ブルー・シアン)</option>
@@ -392,9 +383,9 @@ export function CsvGraphViewerPage() {
                           onChange={(e) =>
                             setCustomPrimaryColor(e.target.value)
                           }
-                          className="w-8 h-8 rounded cursor-pointer border-0"
+                          className="size-8 cursor-pointer border-0 p-0"
                         />
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-ink-muted">
                           メインカラーを選択
                         </span>
                       </div>
@@ -402,24 +393,22 @@ export function CsvGraphViewerPage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-medium text-slate-500 mb-1.5 block">
-                      背景色
-                    </label>
+                    <label className="tg-label mb-1.5 block">背景色</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
                         value={bgColor}
                         onChange={(e) => setBgColor(e.target.value)}
-                        className="w-8 h-8 rounded cursor-pointer border-0 p-0 shadow-sm"
+                        className="size-8 cursor-pointer border-0 p-0"
                       />
-                      <span className="text-xs text-slate-600">背景を変更</span>
+                      <span className="text-xs text-ink-muted">背景を変更</span>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100">
-                    <label className="flex items-center gap-2 cursor-pointer mt-2">
-                      <div
-                        className={`w-9 h-5 rounded-full relative transition-colors ${showDataLabels ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                  <div className="border-t border-line pt-2">
+                    <label className="mt-2 flex cursor-pointer items-center gap-2">
+                      <span
+                        className={`relative block h-5 w-9 border border-ink transition-colors ${showDataLabels ? 'bg-ink' : 'bg-line'}`}
                       >
                         <input
                           type="checkbox"
@@ -427,23 +416,22 @@ export function CsvGraphViewerPage() {
                           onChange={() => setShowDataLabels(!showDataLabels)}
                           className="hidden"
                         />
-                        <div
-                          className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all shadow-sm ${showDataLabels ? 'left-5' : 'left-0.5'}`}
+                        <span
+                          className={`absolute top-0.5 size-3.5 transition-all ${showDataLabels ? 'left-5 bg-ground' : 'left-0.5 bg-surface'}`}
                         />
-                      </div>
-                      <span className="text-xs text-slate-600 flex items-center gap-1">
-                        <Type className="w-3 h-3" /> データラベルを表示
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-ink-muted">
+                        <Type className="size-3" aria-hidden="true" />{' '}
+                        データラベルを表示
                       </span>
                     </label>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Reference Lines */}
-              <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  目標ライン追加
-                </h3>
+              <section className="tg-panel p-5">
+                <h3 className="tg-label mb-3">目標ライン追加</h3>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -451,46 +439,49 @@ export function CsvGraphViewerPage() {
                       placeholder="値"
                       value={newLineValue}
                       onChange={(e) => setNewLineValue(e.target.value)}
-                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                      className="w-full border border-line bg-ground p-2 text-xs"
                     />
                     <input
                       type="text"
                       placeholder="ラベル"
                       value={newLineLabel}
                       onChange={(e) => setNewLineLabel(e.target.value)}
-                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                      className="w-full border border-line bg-ground p-2 text-xs"
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={addReferenceLine}
                     disabled={!newLineValue}
-                    className="w-full py-1.5 bg-indigo-50 text-indigo-600 text-xs font-medium rounded-lg hover:bg-indigo-100 flex items-center justify-center gap-1 disabled:opacity-50"
+                    className="tg-btn tg-btn-ghost w-full justify-center text-xs disabled:opacity-50"
                   >
-                    <Plus className="w-3 h-3" /> 追加
+                    <Plus className="size-3" aria-hidden="true" /> 追加
                   </button>
                   {referenceLines.map((line) => (
                     <div
                       key={line.id}
-                      className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs"
+                      className="flex items-center justify-between border border-line bg-ground px-2 py-1 text-xs"
                     >
-                      <span className="text-slate-600 truncate max-w-[120px]">
+                      <span className="max-w-[120px] truncate text-ink-muted">
                         {line.label}: {line.value}
                       </span>
                       <button
+                        type="button"
                         onClick={() => removeReferenceLine(line.id)}
-                        className="text-slate-400 hover:text-red-500"
+                        className="text-ink-muted transition-colors hover:text-destructive"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="size-3" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
                 </div>
-              </div>
+              </section>
 
               {/* Reference Areas */}
-              <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <ScanLine className="w-3 h-3" /> エリア(帯)追加
+              <section className="tg-panel p-5">
+                <h3 className="tg-label mb-3 flex items-center gap-2">
+                  <ScanLine className="size-3" aria-hidden="true" />{' '}
+                  エリア(帯)追加
                 </h3>
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
@@ -499,14 +490,14 @@ export function CsvGraphViewerPage() {
                       placeholder="開始"
                       value={newAreaStart}
                       onChange={(e) => setNewAreaStart(e.target.value)}
-                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                      className="w-full border border-line bg-ground p-2 text-xs"
                     />
                     <input
                       type="number"
                       placeholder="終了"
                       value={newAreaEnd}
                       onChange={(e) => setNewAreaEnd(e.target.value)}
-                      className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                      className="w-full border border-line bg-ground p-2 text-xs"
                     />
                   </div>
                   <input
@@ -514,47 +505,51 @@ export function CsvGraphViewerPage() {
                     placeholder="ラベル (任意)"
                     value={newAreaLabel}
                     onChange={(e) => setNewAreaLabel(e.target.value)}
-                    className="w-full p-2 text-xs border border-slate-200 rounded-lg"
+                    className="w-full border border-line bg-ground p-2 text-xs"
                   />
                   <button
+                    type="button"
                     onClick={addReferenceArea}
                     disabled={newAreaStart === '' || newAreaEnd === ''}
-                    className="w-full py-1.5 bg-amber-50 text-amber-600 text-xs font-medium rounded-lg hover:bg-amber-100 flex items-center justify-center gap-1 disabled:opacity-50"
+                    className="tg-btn tg-btn-ghost w-full justify-center text-xs disabled:opacity-50"
                   >
-                    <Plus className="w-3 h-3" /> 追加
+                    <Plus className="size-3" aria-hidden="true" /> 追加
                   </button>
                   {referenceAreas.map((area) => (
                     <div
                       key={area.id}
-                      className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded border border-slate-100 text-xs"
+                      className="flex items-center justify-between border border-line bg-ground px-2 py-1 text-xs"
                     >
-                      <span className="text-slate-600 truncate max-w-[120px]">
+                      <span className="max-w-[120px] truncate text-ink-muted">
                         {area.label}: {area.y1}-{area.y2}
                       </span>
                       <button
+                        type="button"
                         onClick={() => removeReferenceArea(area.id)}
-                        className="text-slate-400 hover:text-red-500"
+                        className="text-ink-muted transition-colors hover:text-destructive"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="size-3" aria-hidden="true" />
                       </button>
                     </div>
                   ))}
                 </div>
-              </div>
+              </section>
 
               <div className="grid grid-cols-1 gap-3">
                 <button
+                  type="button"
                   onClick={() => setShowTable(!showTable)}
-                  className="w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-medium bg-white text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm border border-slate-100 text-sm"
+                  className="tg-btn tg-btn-ghost w-full justify-center text-sm"
                 >
-                  <TableIcon className="w-4 h-4" />{' '}
+                  <TableIcon className="size-4" aria-hidden="true" />{' '}
                   {showTable ? 'グラフに戻る' : 'データ編集'}
                 </button>
                 <button
+                  type="button"
                   onClick={downloadGraphImage}
-                  className="w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-medium bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 shadow-sm border border-slate-100 text-sm"
+                  className="tg-btn tg-btn-ghost w-full justify-center text-sm"
                 >
-                  <Download className="w-4 h-4" /> 画像を保存
+                  <Download className="size-4" aria-hidden="true" /> 画像を保存
                 </button>
               </div>
             </div>
@@ -562,32 +557,33 @@ export function CsvGraphViewerPage() {
             {/* メインエリア */}
             <div className="lg:col-span-3">
               <div
-                className="p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[500px] flex flex-col transition-colors"
+                className="tg-panel flex min-h-[500px] flex-col p-6"
                 style={{ backgroundColor: bgColor }}
               >
-                <div className="flex justify-between items-center mb-6">
+                <div className="mb-6 flex items-center justify-between">
                   <h2
-                    className="text-lg font-bold flex items-center gap-2"
+                    className="flex items-center gap-2 text-lg font-bold"
                     style={{ color: textColor }}
                   >
                     <FileText
-                      className="w-5 h-5"
+                      className="size-5"
                       style={{ color: currentColors[0] }}
+                      aria-hidden="true"
                     />
                     {fileName}
                   </h2>
-                  <div
-                    className="text-xs px-3 py-1 rounded-full opacity-80"
+                  <span
+                    className="px-3 py-1 text-xs opacity-80"
                     style={{
                       backgroundColor: 'rgba(0,0,0,0.05)',
                       color: textColor,
                     }}
                   >
                     {chartData.length} 行のデータ
-                  </div>
+                  </span>
                 </div>
 
-                <div className="flex-1 w-full min-h-[400px]" ref={graphRef}>
+                <div className="min-h-[400px] w-full flex-1" ref={graphRef}>
                   {showTable ? (
                     <CsvDataTable
                       headers={headers}
@@ -611,16 +607,19 @@ export function CsvGraphViewerPage() {
                 </div>
 
                 {!showTable && dataKeys.length === 0 && (
-                  <div className="text-center text-slate-400 mt-4 text-sm">
+                  <p
+                    className="mt-4 text-center text-sm"
+                    style={{ color: textColor }}
+                  >
                     ←
                     左側のメニューから表示したいデータ（Y軸）を選択してください
-                  </div>
+                  </p>
                 )}
               </div>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </TrailLayout>
   );
 }

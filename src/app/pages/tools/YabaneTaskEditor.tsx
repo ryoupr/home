@@ -23,8 +23,8 @@ export function YabaneTaskEditor({
   onClose,
 }: Props) {
   return (
-    <div className="w-72 bg-white border-l border-slate-200 shadow-xl z-30 flex flex-col">
-      <div className="p-4 border-b flex items-center justify-between bg-slate-50 text-slate-700 font-bold text-sm">
+    <div className="z-30 flex w-72 flex-col border-l-[1.5px] border-ink bg-surface">
+      <div className="flex items-center justify-between border-b border-line bg-ground p-4 text-sm font-bold text-ink">
         <div className="flex items-center space-x-2">
           <Edit2 size={14} />
           <span>タスク詳細</span>
@@ -33,16 +33,16 @@ export function YabaneTaskEditor({
           <X size={18} />
         </button>
       </div>
-      <div className="p-4 space-y-5 overflow-y-auto">
+      <div className="space-y-5 overflow-y-auto p-4">
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <label className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">
             タスク名
           </label>
           <input
             type="text"
             value={task.title}
             onChange={(e) => onUpdate(task.id, { title: e.target.value })}
-            className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full border border-line bg-surface px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-webbing"
           />
         </div>
         <DatePointSelector
@@ -72,7 +72,7 @@ export function YabaneTaskEditor({
           optionPrefix="e"
         />
         <div className="space-y-2">
-          <label className="text-[10px] font-bold text-slate-400">カラー</label>
+          <label className="text-[10px] font-bold text-ink-muted">カラー</label>
           <div
             className="grid grid-cols-4 gap-2"
             role="radiogroup"
@@ -82,7 +82,7 @@ export function YabaneTaskEditor({
               <button
                 key={c.bg}
                 onClick={() => onUpdate(task.id, { color: c.bg })}
-                className={`h-8 rounded ${c.bg} ${task.color === c.bg ? 'ring-2 ring-slate-400' : ''}`}
+                className={`h-8 ${c.bg} ${task.color === c.bg ? 'ring-2 ring-webbing ring-offset-2 ring-offset-surface' : ''}`}
                 role="radio"
                 aria-checked={task.color === c.bg}
                 aria-label={c.name}
@@ -91,13 +91,13 @@ export function YabaneTaskEditor({
           </div>
         </div>
         <div className="space-y-1">
-          <label className="text-[10px] font-bold text-slate-400">
+          <label className="text-[10px] font-bold text-ink-muted">
             工程カテゴリ
           </label>
           <select
             value={task.category}
             onChange={(e) => onUpdate(task.id, { category: e.target.value })}
-            className="w-full px-2 py-1.5 border border-slate-200 rounded text-sm bg-white"
+            className="w-full border border-line bg-surface px-2 py-1.5 text-sm"
           >
             {categories.map((c) => (
               <option key={c} value={c}>
@@ -106,10 +106,10 @@ export function YabaneTaskEditor({
             ))}
           </select>
         </div>
-        <div className="pt-4 border-t">
+        <div className="border-t border-line pt-4">
           <button
             onClick={() => onDelete(task.id)}
-            className="w-full py-2 text-rose-500 text-xs font-bold border border-rose-100 rounded hover:bg-rose-50 flex items-center justify-center space-x-1"
+            className="flex w-full items-center justify-center space-x-1 border border-line py-2 text-xs font-bold text-rose-500 hover:bg-destructive/10"
           >
             <Trash2 size={14} />
             <span>タスク削除</span>
@@ -145,19 +145,19 @@ function DatePointSelector({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+      <label className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">
         {label}
       </label>
-      <div className="flex rounded-md border border-slate-200 overflow-hidden">
+      <div className="flex overflow-hidden border border-line">
         <button
           onClick={() => onTypeChange('special', defaultSpecial)}
-          className={`flex-1 py-1 text-[10px] font-bold ${type === 'special' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
+          className={`flex-1 py-1 text-[10px] font-bold ${type === 'special' ? 'bg-ink text-ground' : 'bg-surface text-ink-muted'}`}
         >
           固定列
         </button>
         <button
           onClick={() => onTypeChange('date', defaultDate)}
-          className={`flex-1 py-1 text-[10px] font-bold ${type === 'date' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500'}`}
+          className={`flex-1 py-1 text-[10px] font-bold ${type === 'date' ? 'bg-ink text-ground' : 'bg-surface text-ink-muted'}`}
         >
           カレンダー
         </button>
@@ -166,7 +166,7 @@ function DatePointSelector({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full p-1.5 border rounded text-xs"
+          className="w-full border border-line bg-surface p-1.5 text-xs"
         >
           {leftCols.map((c, i) => (
             <option key={`${optionPrefix}l-${i}`} value={`left-${i}`}>
@@ -184,7 +184,7 @@ function DatePointSelector({
           type="date"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full p-1.5 border rounded text-xs"
+          className="w-full border border-line bg-surface p-1.5 text-xs"
         />
       )}
     </div>

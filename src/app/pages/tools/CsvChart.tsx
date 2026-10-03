@@ -46,12 +46,20 @@ interface Props {
   referenceAreas: ReferenceAreaConfig[];
 }
 
+/**
+ * 軸・目盛り・グリッド線・凡例・ツールチップは「部品」なので Trail Gear の CSS 変数で色を決める。
+ * 夜モードでは .theme-trail 内の --tg-* が入れ替わるので、そのまま夜でも読める。
+ * var() は SVG の属性（stroke="..." や fill="..."）では解決されないため、
+ * CSS 宣言になる style / wrapperStyle / contentStyle を使う。
+ * 参考ラインとデータラベルだけはグラフ面（背景色 bgColor）の上に乗るため textColor のまま。
+ */
+const TICK_STYLE = { fontSize: 12, style: { fill: 'var(--tg-muted)' } };
+const GRID_STYLE = { stroke: 'var(--tg-line)' };
+const LEGEND_STYLE = { color: 'var(--tg-ink)' };
 const TOOLTIP_STYLE = {
-  backgroundColor: '#fff',
-  borderRadius: '8px',
-  border: 'none',
-  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-  color: '#1e293b',
+  backgroundColor: 'var(--tg-surface)',
+  border: '1.5px solid var(--tg-ink)',
+  color: 'var(--tg-ink)',
 };
 
 const formatValue = (value: unknown) => (value as number).toLocaleString();
@@ -68,8 +76,7 @@ export function CsvChart({
   referenceAreas = [],
 }: Props) {
   const axisProps = {
-    stroke: textColor,
-    fontSize: 12,
+    tick: TICK_STYLE,
     tickLine: false,
     axisLine: false,
   };
@@ -118,20 +125,14 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke={textColor}
-            strokeOpacity={0.2}
+            style={GRID_STYLE}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={{ color: textColor }} />
+          <Legend wrapperStyle={LEGEND_STYLE} />
           {dataKeys.map((key, i) => (
-            <Bar
-              key={key}
-              dataKey={key}
-              fill={colors[i % colors.length]}
-              radius={[4, 4, 0, 0]}
-            >
+            <Bar key={key} dataKey={key} fill={colors[i % colors.length]}>
               {showDataLabels && (
                 <LabelList
                   dataKey={key}
@@ -150,13 +151,12 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke={textColor}
-            strokeOpacity={0.2}
+            style={GRID_STYLE}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={{ color: textColor }} />
+          <Legend wrapperStyle={LEGEND_STYLE} />
           {dataKeys.map((key, i) => (
             <Line
               key={key}
@@ -186,13 +186,12 @@ export function CsvChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke={textColor}
-            strokeOpacity={0.2}
+            style={GRID_STYLE}
           />
           <XAxis dataKey={xAxisKey} {...axisProps} />
           <YAxis {...axisProps} tickFormatter={formatValue} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={formatValue} />
-          <Legend wrapperStyle={{ color: textColor }} />
+          <Legend wrapperStyle={LEGEND_STYLE} />
           {dataKeys.map((key, i) => (
             <Area
               key={key}
