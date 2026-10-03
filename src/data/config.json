@@ -48,14 +48,6 @@
       "category": "extension"
     },
     {
-      "id": 2,
-      "title": "ポートフォリオジェネレーター",
-      "description": "CLIツールでポートフォリオサイトを自動生成するプログラム。設定ファイルから静的サイトを生成します。このサイトですね。",
-      "tags": ["Node.js", "CLI", "HTML/CSS"],
-      "githubUrl": "https://github.com/ryoupr/home",
-      "category": "program"
-    },
-    {
       "id": 3,
       "title": "Console View Refresh Master",
       "description": "コンソール画面を自動リフレッシュするChrome拡張機能。指定した間隔で画面を更新し、最新の情報を常に表示します。",
