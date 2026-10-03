@@ -1,227 +1,215 @@
-import {
-  BookOpen,
-  Briefcase,
-  Code2,
-  Github,
-  Linkedin,
-  Mail,
-  User,
-  Wrench,
-} from 'lucide-react';
-import { useMemo } from 'react';
+import { ArrowRight, BookOpen, Github, Linkedin, Mail } from 'lucide-react';
+import { type ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import config from '../../data/config.json';
-import { Card, CardContent } from '../components/ui/card';
+import { TOOLS } from '../../data/tools';
+import { type GearProject, GearTag } from '../components/trail/GearTag';
+import { ToolsLegend } from '../components/trail/ToolsLegend';
+import { TrailLayout } from '../components/trail/TrailLayout';
 import { extractGitHubUsername, useGitHubStats } from '../hooks/useGitHubStats';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { decodeEmail } from '../utils/decodeEmail';
 
+/** トップページに吊るすプロジェクトの数（新しい順） */
+const FEATURED_COUNT = 3;
+
+function SectionHeading({
+  title,
+  note,
+  action,
+}: {
+  title: string;
+  note: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-3 flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
+      <h2 className="tg-display text-[1.625rem] tracking-[0.1em]">{title}</h2>
+      <span className="tg-label">{note}</span>
+      {action && <span className="ml-auto">{action}</span>}
+    </div>
+  );
+}
+
 export function ProfilePage() {
   usePageTitle('Portfolio');
-  const { personal } = config;
+  const { personal, projects } = config;
   const email = useMemo(
     () => decodeEmail(personal.email, !!personal.emailEncoded),
     [personal.email, personal.emailEncoded]
   );
-  const { totalStars, totalRepos, loading } = useGitHubStats(
+  const { totalStars, totalRepos, loading, error } = useGitHubStats(
     extractGitHubUsername(personal.github)
   );
+  const featured: GearProject[] = useMemo(
+    () => [...projects].sort((a, b) => b.id - a.id).slice(0, FEATURED_COUNT),
+    [projects]
+  );
+
+  const statValue = (n: number) => (loading ? '…' : error ? '—' : n);
+  const spec: { label: string; value: ReactNode; unit?: string }[] = [
+    { label: 'Repositories', value: statValue(totalRepos), unit: '+' },
+    { label: 'Experience', value: '3', unit: '+ yrs' },
+    { label: 'GitHub Stars', value: statValue(totalStars) },
+  ];
+
+  const contacts = [
+    { icon: Mail, label: 'Email', text: email, href: `mailto:${email}` },
+    {
+      icon: Github,
+      label: 'GitHub',
+      text: personal.github.replace(/^https:\/\//, ''),
+      href: personal.github,
+    },
+    {
+      icon: Linkedin,
+      label: 'LinkedIn',
+      text: 'LinkedIn Profile',
+      href: personal.linkedin,
+    },
+    ...(personal.qiita
+      ? [
+          {
+            icon: BookOpen,
+            label: 'Qiita',
+            text: '技術記事',
+            href: personal.qiita,
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="size-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white">
-              <User className="size-6" />
-            </div>
-            <div>
-              <h1 className="font-bold">{personal.name}</h1>
-              <p className="text-sm text-gray-600">{personal.role}</p>
-            </div>
+    <TrailLayout>
+      <div className="flex flex-col gap-14">
+        {/* Hero + SPEC */}
+        <section className="grid items-start gap-8 md:grid-cols-[1.4fr_1fr]">
+          <div className="min-w-0">
+            <h1 className="tg-display text-[clamp(2.25rem,6vw,3.5rem)] leading-none tracking-[0.02em] text-balance">
+              Build tools.
+              <br />
+              <span className="text-webbing">Go outside.</span>
+            </h1>
+            <p className="mt-4 max-w-[46ch] text-[0.9375rem] leading-[1.85]">
+              {personal.description}
+            </p>
+            <p className="tg-label mt-3">
+              Off the clock · {personal.interests.join(' / ')}
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-1.5">
+              {personal.skills.map((skill) => (
+                <li
+                  key={skill}
+                  className="border border-ink bg-surface px-2.5 py-0.5 font-mono text-[0.72rem] transition-colors duration-500"
+                >
+                  {skill}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
-        {/* About Section */}
-        <section className="mb-12">
-          <h2 className="mb-4 text-gray-900">About</h2>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-700 leading-relaxed mb-6">
-                {personal.description}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {personal.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+          <div className="tg-panel">
+            <div className="flex items-baseline justify-between bg-ink px-3.5 py-2 text-ground transition-colors duration-500">
+              <span className="font-display text-[0.95rem] font-semibold tracking-[0.14em]">
+                SPEC
+              </span>
+              <span className="font-mono text-[0.65rem] opacity-80">
+                GitHub · live
+              </span>
+            </div>
+            <dl className="grid grid-cols-[auto_1fr]">
+              {spec.map(({ label, value, unit }, i) => (
+                <div key={label} className="contents">
+                  <dt
+                    className={`tg-label flex items-center px-3.5 py-2 ${i ? 'border-t border-line' : ''}`}
                   >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Stats Section */}
-        <section className="mb-12">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {loading ? '...' : `${totalRepos}+`}
+                    {label}
+                  </dt>
+                  <dd
+                    className={`px-3.5 py-2 text-right font-display text-[1.375rem] font-semibold tabular-nums ${i ? 'border-t border-line' : ''}`}
+                  >
+                    {value}
+                    {unit && value !== '…' && value !== '—' && (
+                      <small className="ml-0.5 text-[0.8rem] font-medium text-ink-muted">
+                        {unit}
+                      </small>
+                    )}
+                  </dd>
                 </div>
-                <div className="text-sm text-gray-600">プロジェクト</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">3+</div>
-                <div className="text-sm text-gray-600">年の経験</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {loading
-                    ? '...'
-                    : totalStars >= 1000
-                      ? `${Math.floor(totalStars / 1000)}k+`
-                      : `${totalStars}`}
-                </div>
-                <div className="text-sm text-gray-600">GitHub Stars</div>
-              </CardContent>
-            </Card>
+              ))}
+            </dl>
           </div>
         </section>
 
-        {/* Quick Links */}
-        <section className="mb-12">
-          <h2 className="mb-4 text-gray-900">Links</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Link to="/projects">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardContent className="pt-6 flex items-start gap-4">
-                  <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Briefcase className="size-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg mb-1">プロジェクト一覧</h3>
-                    <p className="text-sm text-gray-600">
-                      制作物をご覧いただけます
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link to="/tools">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardContent className="pt-6 flex items-start gap-4">
-                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <Wrench className="size-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg mb-1">WEBツール</h3>
-                    <p className="text-sm text-gray-600">
-                      便利なツールを公開しています
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <a href={personal.github} target="_blank" rel="noopener noreferrer">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardContent className="pt-6 flex items-start gap-4">
-                  <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
-                    <Code2 className="size-6 text-gray-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg mb-1">GitHub</h3>
-                    <p className="text-sm text-gray-600">
-                      コードを公開しています
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
-
-            {personal.qiita && (
-              <a
-                href={personal.qiita}
-                target="_blank"
-                rel="noopener noreferrer"
+        {/* Projects（ギア棚） */}
+        <section>
+          <SectionHeading
+            title="Projects"
+            note={`Gear rack · ${featured.length} / ${projects.length}`}
+            action={
+              <Link
+                to="/projects"
+                className="tg-nav-link inline-flex items-center gap-1 font-mono text-xs"
               >
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                  <CardContent className="pt-6 flex items-start gap-4">
-                    <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                      <BookOpen className="size-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg mb-1">ブログ / Qiita</h3>
-                      <p className="text-sm text-gray-600">
-                        技術記事を投稿しています
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-            )}
+                All projects{' '}
+                <ArrowRight className="size-3" aria-hidden="true" />
+              </Link>
+            }
+          />
+          <div className="tg-rail" aria-hidden="true" />
+          <div className="grid gap-x-5 gap-y-2 md:grid-cols-3">
+            {featured.map((project) => (
+              <GearTag key={project.id} project={project} />
+            ))}
           </div>
+        </section>
+
+        {/* Tools（凡例） */}
+        <section>
+          <SectionHeading
+            title="Tools"
+            note={`Legend · 凡例 · ${TOOLS.length} tools`}
+          />
+          <ToolsLegend />
         </section>
 
         {/* Contact */}
         <section>
-          <h2 className="mb-4 text-gray-900">Contact</h2>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-700 mb-6">
-                お仕事のご依頼、共同開発のご相談など、お気軽にご連絡ください。
-              </p>
-              <div className="space-y-4">
-                <a
-                  href={`mailto:${email}`}
-                  className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <Mail className="size-5" />
-                  <span>{email}</span>
-                </a>
-                <a
-                  href={personal.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <Github className="size-5" />
-                  <span>GitHub Profile</span>
-                </a>
-                <a
-                  href={personal.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  <Linkedin className="size-5" />
-                  <span>LinkedIn Profile</span>
-                </a>
-              </div>
-            </CardContent>
-          </Card>
+          <SectionHeading title="Base camp" note="Contact · 連絡先" />
+          <div className="tg-panel grid gap-4 p-5 md:grid-cols-[1fr_1.4fr] md:items-start">
+            <p className="text-[0.9rem] leading-relaxed">
+              お仕事のご依頼、共同開発のご相談など、お気軽にご連絡ください。
+            </p>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {contacts.map(({ icon: Icon, label, text, href }) => {
+                const external = href.startsWith('http');
+                return (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      {...(external
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                      className="tg-legend-row flex min-w-0 items-center gap-3 border border-line px-3 py-2"
+                    >
+                      <Icon
+                        className="size-4 flex-none text-legend"
+                        aria-hidden="true"
+                      />
+                      <span className="min-w-0">
+                        <span className="tg-label block">{label}</span>
+                        <span className="block truncate text-[0.85rem]">
+                          {text}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t mt-12 py-6">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          © {new Date().getFullYear()} {personal.name}. All rights reserved.
-        </div>
-      </footer>
-    </div>
+      </div>
+    </TrailLayout>
   );
 }

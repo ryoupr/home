@@ -23,13 +23,15 @@
   "github": "https://github.com/yourusername",
   "linkedin": "https://linkedin.com/in/yourusername",
   "qiita": "https://qiita.com/yourusername",
-  "skills": ["React", "TypeScript", "Node.js", "Python"]
+  "skills": ["React", "TypeScript", "Node.js", "Python"],
+  "interests": ["Fishing", "Camping", "PC Games"]
 }
 ```
 
 **注意:**
 
 - `skills` は配列形式で、使用できる技術を列挙します
+- `interests` は配列形式で、趣味を列挙します（トップページの「Off the clock」行に表示）
 - `qiita` は任意項目です（不要な場合は削除可能）
 
 ### 2. プロジェクトを追加・編集
