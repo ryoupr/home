@@ -27,9 +27,13 @@ export function TopoBackground({ elevationRef }: TopoBackgroundProps) {
     if (!base || !spot) return;
 
     let timer: number | undefined;
+    // クリーンアップ後（昼夜切り替え後）に、古い mode の draw が走らないようにする
+    let cancelled = false;
     const draw = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      if (cancelled) return;
+      // スクロールバーを除いた表示領域の大きさ（キャンバスの CSS サイズと一致させる）
+      const w = document.documentElement.clientWidth;
+      const h = document.documentElement.clientHeight;
       const dpr = window.devicePixelRatio || 1;
       const color = getComputedStyle(base).getPropertyValue('--tg-topo').trim();
       const { minor, major, peak } = buildContours(w, h);
@@ -78,6 +82,7 @@ export function TopoBackground({ elevationRef }: TopoBackgroundProps) {
     // 三角点のラベルの書体を、読み込み完了後に反映する
     document.fonts?.ready.then(draw).catch(() => undefined);
     return () => {
+      cancelled = true;
       window.clearTimeout(timer);
       window.removeEventListener('resize', schedule);
     };
