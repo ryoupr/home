@@ -999,7 +999,7 @@ export function YabaneSchedulePage() {
           />
         )}
         <style>{`
-          @media print { header, button, .sidebar, input[type="range"] { display: none !important; } [data-mode="night"] .theme-trail { --tg-ground: #ffffff; --tg-surface: #ffffff; --tg-ink: #1f2d44; --tg-muted: #5c6475; --tg-line: #c9c5b8; } body { background: white; } .scrollbar-thin { overflow: visible !important; } .theme-trail, .theme-trail main, .yabane-root, .yabane-main { height: auto !important; overflow: visible !important; } }
+          @media print { header, button, .sidebar, input[type="range"] { display: none !important; } [data-mode="night"] .theme-trail { --tg-ground: #ffffff; --tg-surface: #ffffff; --tg-ink: #1f2d44; --tg-muted: #5c6475; --tg-line: #c9c5b8; --tg-webbing: #c2500f; --destructive: #b8152f; } .tg-topo { display: none !important; } body { background: white; } .scrollbar-thin { overflow: visible !important; } .theme-trail, .theme-trail main, .yabane-root, .yabane-main { height: auto !important; overflow: visible !important; } }
           .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; } .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--tg-line); }
         `}</style>
       </div>

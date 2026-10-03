@@ -1,6 +1,6 @@
 /**
  * 公開している WEB ツールの一覧。
- * トップページの「TOOLS（凡例）」で使う。ツールを追加したら、ここと App.tsx のルートを更新する。
+ * Tools 一覧ページ（/tools）とトップページの「TOOLS（凡例）」の両方で使う。ツールを追加したら、ここと App.tsx のルートを更新する。
  */
 export type ToolSymbol = 'chart' | 'icon' | 'chevron' | 'slide' | 'convert';
 

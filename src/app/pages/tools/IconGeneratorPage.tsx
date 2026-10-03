@@ -611,7 +611,7 @@ export default function IconGeneratorPage() {
             </div>
           </div>
 
-          <div className="tg-panel relative flex min-h-[500px] flex-col items-center justify-center overflow-hidden bg-ground lg:col-span-8 lg:min-h-0">
+          <div className="tg-panel relative flex min-h-[500px] flex-col items-center justify-center-safe overflow-auto bg-ground lg:col-span-8 lg:min-h-0">
             <div
               className="pointer-events-none absolute inset-0 opacity-10"
               style={{
