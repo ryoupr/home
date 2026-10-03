@@ -88,7 +88,6 @@ npm run lint
 ├── scripts/                # ビルドスクリプト
 ├── index.html             # HTMLエントリーポイント
 ├── vite.config.ts         # Vite設定
-├── tailwind.config.js     # 旧 Tailwind 設定（v4 では読み込まれない。整理予定）
 └── tsconfig.json          # TypeScript設定
 ```
 

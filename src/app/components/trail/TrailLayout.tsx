@@ -13,12 +13,37 @@ const NAV_ITEMS = [
   { to: '/tools', label: 'Tools' },
 ] as const;
 
+interface TrailLayoutProps {
+  children: ReactNode;
+  /**
+   * page: 読み物のページ（幅を絞り、フッターあり）。
+   * app: 画面いっぱいを使うツール（全幅・画面の高さに固定し、中身が自分でスクロールする。フッターなし）。
+   */
+  variant?: 'page' | 'app';
+}
+
 /**
  * Trail Gear デザインの共通レイアウト（等高線の背景・ヘッダー・フッター）。
- * 全ページ共通の外枠として使う。
+ * トップ・Projects・Tools とその配下のページの外枠として使う。
+ * 成果物の詳細ページ（MagDisplay・btn-locker など）は、成果物ごとのデザインで個別に組むため使わない。
  */
-export function TrailLayout({ children }: { children: ReactNode }) {
+export function TrailLayout({ children, variant = 'page' }: TrailLayoutProps) {
   const elevationRef = useRef<HTMLElement>(null);
+
+  if (variant === 'app') {
+    return (
+      <div className="theme-trail flex h-dvh min-h-0 flex-col overflow-hidden">
+        <TopoBackground elevationRef={elevationRef} />
+        <div className="tg-content px-4 sm:px-6">
+          <SiteHeader elevationRef={elevationRef} compact />
+        </div>
+        <main className="tg-content flex min-h-0 flex-1 flex-col">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="theme-trail">
       <TopoBackground elevationRef={elevationRef} />
@@ -33,8 +58,10 @@ export function TrailLayout({ children }: { children: ReactNode }) {
 
 function SiteHeader({
   elevationRef,
+  compact = false,
 }: {
   elevationRef: RefObject<HTMLElement>;
+  compact?: boolean;
 }) {
   const { personal } = config;
   const { pathname } = useLocation();
@@ -42,11 +69,15 @@ function SiteHeader({
   const isNight = mode === 'night';
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b-[1.5px] border-ink py-4">
+    <header
+      className={`flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b-[1.5px] border-ink ${compact ? 'py-2' : 'py-4'}`}
+    >
       <Link to="/" className="flex items-center gap-3">
-        <Compass className="size-11 flex-none" />
+        <Compass className={`flex-none ${compact ? 'size-8' : 'size-11'}`} />
         <span>
-          <span className="tg-display block text-[1.375rem] tracking-[0.05em]">
+          <span
+            className={`tg-display block tracking-[0.05em] ${compact ? 'text-lg' : 'text-[1.375rem]'}`}
+          >
             {personal.name}
           </span>
           <span className="tg-label block">{personal.role} · ryoupr</span>

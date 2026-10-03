@@ -12,7 +12,15 @@
     "skills": ["AWS", "TypeScript", "Python", "Rust"],
     "interests": ["Fishing", "Camping", "PC Games"]
   },
+  "featuredProjectIds": [7, 6, 8],
   "projects": [
+    {
+      "id": 8,
+      "title": "Recibo",
+      "description": "レシピの登録・検索から、献立づくり・買い物リスト・調理タイマーまでをまとめた Android のレシピ管理アプリ。レシピサイトの URL を AI で解析して取り込むこともできます。",
+      "tags": ["Android", "Kotlin", "Jetpack Compose"],
+      "category": "app"
+    },
     {
       "id": 7,
       "title": "btn-locker",

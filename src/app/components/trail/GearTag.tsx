@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Github } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export interface GearProject {
@@ -9,6 +9,7 @@ export interface GearProject {
   category: string;
   detailUrl?: string;
   demoUrl?: string;
+  githubUrl?: string;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -19,9 +20,17 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 /** レールに吊るした値札タグ風のプロジェクトカード。カーソルを乗せると揺れる */
-export function GearTag({ project }: { project: GearProject }) {
+export function GearTag({
+  project,
+  showGithub = false,
+}: {
+  project: GearProject;
+  /** GitHub へのリンクも出すか（トップページでは出さず、Projects ページで出す） */
+  showGithub?: boolean;
+}) {
   const { id, title, description, tags, category, detailUrl, demoUrl } =
     project;
+  const githubUrl = showGithub ? project.githubUrl : undefined;
   return (
     <div className="tg-hang">
       <article className="tg-tag flex flex-col gap-2.5">
@@ -42,13 +51,13 @@ export function GearTag({ project }: { project: GearProject }) {
             <li key={tag}>{tag}</li>
           ))}
         </ul>
-        {(detailUrl || demoUrl) && (
+        {(detailUrl || demoUrl || githubUrl) && (
           <div className="flex flex-wrap gap-2">
             {detailUrl ? (
               <Link to={detailUrl} className="tg-btn">
                 Details <ArrowRight className="size-3.5" aria-hidden="true" />
               </Link>
-            ) : (
+            ) : demoUrl ? (
               <a
                 href={demoUrl}
                 target="_blank"
@@ -57,6 +66,17 @@ export function GearTag({ project }: { project: GearProject }) {
               >
                 {category === 'extension' ? 'Web Store' : 'Demo'}
                 <ArrowRight className="size-3.5" aria-hidden="true" />
+              </a>
+            ) : null}
+            {githubUrl && (
+              <a
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tg-btn tg-btn-ghost"
+              >
+                <Github className="size-3.5" aria-hidden="true" />
+                GitHub
               </a>
             )}
           </div>

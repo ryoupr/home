@@ -1,35 +1,27 @@
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '../../components/ui/card';
+import { PageHeading } from '../../components/trail/PageHeading';
+import { TrailLayout } from '../../components/trail/TrailLayout';
 import { usePageTitle } from '../../hooks/usePageTitle';
 
+/**
+ * 新しいツールページのひな形。
+ * 外枠は TrailLayout（画面いっぱいを使うツールは variant="app"）、色は theme.css のトークン
+ * （bg-surface / text-ink / text-ink-muted / border-line / bg-webbing など）だけを使う。
+ */
 export function SampleToolPage() {
   usePageTitle('Sample Tool');
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Link
-              to="/tools"
-              className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
-            >
-              ← ツール一覧に戻る
-            </Link>
-          </div>
-
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            サンプルツール
-          </h1>
-
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-700 dark:text-gray-300">
-                ここにツールの実装を追加してください
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+    <TrailLayout>
+      <div className="flex flex-col gap-6">
+        <PageHeading
+          title="Sample Tool"
+          back={{ to: '/tools', label: 'Tools' }}
+        >
+          ツールの説明をここに書きます。
+        </PageHeading>
+        <section className="tg-panel p-6">
+          <p className="text-ink-muted">ここにツールの実装を追加してください</p>
+        </section>
       </div>
-    </div>
+    </TrailLayout>
   );
 }
