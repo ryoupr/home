@@ -1,31 +1,69 @@
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Footer } from '../components/Footer';
-import { ProjectsSection } from '../components/ProjectsSection';
+import { useMemo, useState } from 'react';
+import config from '../../data/config.json';
+import { GearRack } from '../components/trail/GearRack';
+import type { GearProject } from '../components/trail/GearTag';
+import { PageHeading } from '../components/trail/PageHeading';
+import { TrailLayout } from '../components/trail/TrailLayout';
 import { usePageTitle } from '../hooks/usePageTitle';
+
+const CATEGORIES = [
+  { id: 'extension', label: 'Extensions' },
+  { id: 'app', label: 'Apps' },
+  { id: 'webapp', label: 'Web Apps' },
+  { id: 'program', label: 'Programs' },
+] as const;
+
+type Filter = 'all' | (typeof CATEGORIES)[number]['id'];
+
+const allProjects: GearProject[] = [...config.projects].sort(
+  (a, b) => b.id - a.id
+);
 
 export function ProjectsPage() {
   usePageTitle('Projects');
-  return (
-    <div className="size-full bg-slate-950">
-      {/* Header */}
-      <header className="border-b border-slate-800 sticky top-0 bg-slate-950/80 backdrop-blur-md z-10 shadow-lg shadow-cyan-500/5">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Link
-            to="/"
-            className="p-2 rounded-lg hover:bg-slate-800 transition-colors text-cyan-400"
-          >
-            <ArrowLeft className="size-5" />
-          </Link>
-          <h1 className="font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-mono">
-            Projects
-          </h1>
-        </div>
-      </header>
+  const [filter, setFilter] = useState<Filter>('all');
 
-      {/* Projects Content */}
-      <ProjectsSection />
-      <Footer />
-    </div>
+  // 1件以上あるカテゴリだけ、絞り込みボタンを出す
+  const available = useMemo(
+    () =>
+      CATEGORIES.filter((c) => allProjects.some((p) => p.category === c.id)),
+    []
+  );
+  const shown = useMemo(
+    () =>
+      filter === 'all'
+        ? allProjects
+        : allProjects.filter((p) => p.category === filter),
+    [filter]
+  );
+
+  return (
+    <TrailLayout>
+      <div className="flex flex-col gap-8">
+        <PageHeading
+          title="Projects"
+          note={`Gear rack · ${shown.length} / ${allProjects.length}`}
+        >
+          これまでに作った Chrome 拡張・Android アプリ・プログラムです。
+        </PageHeading>
+
+        <fieldset className="flex flex-wrap gap-2">
+          <legend className="sr-only">カテゴリで絞り込む</legend>
+          {[{ id: 'all' as const, label: 'All' }, ...available].map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="tg-chip"
+              aria-pressed={filter === c.id}
+              onClick={() => setFilter(c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </fieldset>
+
+        <GearRack projects={shown} showGithub />
+      </div>
+    </TrailLayout>
   );
 }

@@ -40,7 +40,12 @@ function LegendSymbol({ symbol }: { symbol: ToolSymbol }) {
 }
 
 /** WEB ツールの一覧を、地図の凡例のように並べる */
-export function ToolsLegend() {
+export function ToolsLegend({
+  showTags = false,
+}: {
+  /** タグも表示するか（Tools 一覧ページで使う） */
+  showTags?: boolean;
+}) {
   return (
     <ul className="tg-panel">
       {TOOLS.map((tool) => (
@@ -57,6 +62,13 @@ export function ToolsLegend() {
               <span className="block text-[0.8rem] leading-relaxed text-ink-muted">
                 {tool.description}
               </span>
+              {showTags && (
+                <span className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[0.7rem] text-legend">
+                  {tool.tags.map((tag) => (
+                    <span key={tag}>#{tag}</span>
+                  ))}
+                </span>
+              )}
             </span>
             <span className="tg-go font-mono text-xs text-ink-muted">
               OPEN →

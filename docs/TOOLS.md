@@ -19,34 +19,27 @@ src/app/pages/tools/
 
 ```tsx
 // src/app/pages/tools/MyToolPage.tsx
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/app/components/ui/card';
+import { PageHeading } from '../../components/trail/PageHeading';
+import { TrailLayout } from '../../components/trail/TrailLayout';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function MyToolPage() {
+  usePageTitle('My Tool');
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Link
-              to="/tools"
-              className="text-primary-600 hover:text-primary-700 transition-colors"
-            >
-              ← ツール一覧に戻る
-            </Link>
-          </div>
-
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">マイツール</h1>
-
-          <Card>
-            <CardContent className="pt-6">{/* ツールの実装 */}</CardContent>
-          </Card>
-        </div>
+    <TrailLayout>
+      <div className="flex flex-col gap-6">
+        <PageHeading title="My Tool" back={{ to: '/tools', label: 'Tools' }}>
+          ツールの説明
+        </PageHeading>
+        <section className="tg-panel p-6">{/* ツールの実装 */}</section>
       </div>
-    </div>
+    </TrailLayout>
   );
 }
 ```
+
+`src/app/pages/tools/SampleToolPage.tsx` がそのまま使えるひな形です。
+画面いっぱいを使うツール（エディタなど）は `<TrailLayout variant="app">` にします。
 
 ### 2. ルーティングの追加
 
@@ -61,23 +54,8 @@ import { MyToolPage } from './pages/tools/MyToolPage';
 
 ### 3. ツール一覧への追加
 
-トップページの「TOOLS（凡例）」には `src/data/tools.ts` の `TOOLS` 配列が表示されます。
-ツールを追加したら、ここにも `path`・`name`・`description`・`symbol`（凡例記号）を追加してください。
-
-ツール一覧ページには、`src/app/pages/ToolsPage.tsx` にツールカードを追加します。
-
-```tsx
-<div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-  <h2 className="text-xl font-semibold text-gray-900 mb-2">マイツール</h2>
-  <p className="text-gray-600 mb-4">ツールの説明</p>
-  <Link
-    to="/tools/mytool"
-    className="inline-block px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
-  >
-    ツールを開く
-  </Link>
-</div>
-```
+ツール一覧ページ（`/tools`）とトップページの「TOOLS（凡例）」は、どちらも `src/data/tools.ts` の `TOOLS` 配列から表示されます。
+`path`・`name`・`description`・`symbol`（凡例記号）・`tags` を追加してください。
 
 ## アクセスURL
 
@@ -87,13 +65,15 @@ import { MyToolPage } from './pages/tools/MyToolPage';
 ## スタイリングガイドライン
 
 - Tailwind CSSユーティリティクラスを使用
+- 色は `src/styles/theme.css` の Trail Gear トークンだけを使う（`bg-ground` / `bg-surface` / `text-ink` / `text-ink-muted` / `border-line` / `bg-webbing` / `text-legend` など）。`bg-white` や `text-slate-900` のような固定色は、夜モードで読めなくなるため使わない（エラー表示の赤など意味のある色と、グラフ・アイコンの配色データは除く）
+- 部品は `src/styles/trail-gear.css` のクラス（`tg-panel` / `tg-btn` / `tg-btn-ghost` / `tg-chip` / `tg-display` / `tg-label`）を使う
 - レスポンシブデザイン対応（モバイルファースト）
-- ダークモード対応（`dark:` プレフィックス）
+- 昼/夜モードは `<html data-mode>` で切り替わり、トークンの値が変わる。`dark:` プレフィックスは使わない
 - アクセシビリティ準拠（WCAG 2.1 AA）
 
 ## 利用可能なUIコンポーネント
 
-- `Card`, `CardContent` - カードレイアウト
+- Trail Gear の共通部品（`src/app/components/trail/`）: `TrailLayout`・`PageHeading`。枠付きの面は `Card` ではなく `tg-panel` クラスを使う
 - `Button` - ボタン
 - `Input` - 入力フィールド
 - `Select` - セレクトボックス

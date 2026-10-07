@@ -47,11 +47,10 @@ interface Props {
 }
 
 const TOOLTIP_STYLE = {
-  backgroundColor: '#fff',
-  borderRadius: '8px',
-  border: 'none',
-  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-  color: '#1e293b',
+  // ツールチップはグラフ面ではなくページの上に重なる HTML なので、サイトのトークンで色を決める
+  backgroundColor: 'var(--tg-surface)',
+  border: '1.5px solid var(--tg-ink)',
+  color: 'var(--tg-ink)',
 };
 
 const formatValue = (value: unknown) => (value as number).toLocaleString();

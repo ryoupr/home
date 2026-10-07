@@ -16,13 +16,13 @@ export function CsvDataTable({
   onToggleRow,
 }: CsvDataTableProps) {
   return (
-    <div className="overflow-x-auto bg-white rounded-lg p-4">
-      <table className="w-full text-sm text-left text-slate-600">
-        <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+    <div className="overflow-x-auto border border-line bg-surface p-4">
+      <table className="w-full text-left text-sm text-ink-muted">
+        <thead className="border-b border-line bg-ground text-xs uppercase text-ink">
           <tr>
-            <th className="px-4 py-3 w-10">表示</th>
+            <th className="w-10 px-4 py-3">表示</th>
             {headers.map((h, i) => (
-              <th key={i} className="px-4 py-3 font-semibold whitespace-nowrap">
+              <th key={i} className="whitespace-nowrap px-4 py-3 font-semibold">
                 {h}
               </th>
             ))}
@@ -32,8 +32,8 @@ export function CsvDataTable({
           {rawData.map((row, i) => (
             <tr
               key={i}
-              className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                excludedRows.has(row._id) ? 'bg-slate-50 opacity-50' : ''
+              className={`border-b border-line transition-colors hover:bg-ground ${
+                excludedRows.has(row._id) ? 'bg-ground opacity-50' : ''
               }`}
             >
               <td className="px-4 py-3 text-center">
@@ -41,13 +41,13 @@ export function CsvDataTable({
                   type="checkbox"
                   checked={!excludedRows.has(row._id)}
                   onChange={() => onToggleRow(row._id)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                  className="size-4 cursor-pointer accent-[var(--tg-webbing)]"
                 />
               </td>
               {headers.map((h, j) => (
                 <td
                   key={j}
-                  className="px-4 py-3 whitespace-nowrap font-mono text-xs"
+                  className="whitespace-nowrap px-4 py-3 font-mono text-xs"
                 >
                   {row[h]}
                 </td>

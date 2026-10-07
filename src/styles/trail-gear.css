@@ -112,6 +112,33 @@
     border-color: var(--tg-webbing);
     color: var(--tg-on-webbing);
   }
+  .tg-btn-ghost {
+    background: transparent;
+    color: var(--tg-ink);
+  }
+
+  /* 絞り込みなどの切り替えボタン（選択中は濃紺で塗る） */
+  .tg-chip {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    border: 1.5px solid var(--tg-ink);
+    background: var(--tg-surface);
+    color: var(--tg-ink);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .tg-chip:hover {
+    background: color-mix(in srgb, var(--tg-webbing) 14%, var(--tg-surface));
+  }
+  .tg-chip[aria-pressed="true"] {
+    background: var(--tg-ink);
+    color: var(--tg-ground);
+  }
 
   /* ギア棚のレール */
   .tg-rail {

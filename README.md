@@ -81,14 +81,13 @@ npm run lint
 │   │   └── theme/         # 昼/夜モードの切り替え
 │   ├── data/              # データファイル
 │   │   ├── config.json    # サイト設定
-│   │   └── tools.ts       # WEB ツールの一覧（トップページの凡例）
+│   │   └── tools.ts       # WEB ツールの一覧（/tools 一覧とトップページの凡例の両方で使う）
 │   └── styles/            # スタイルシート（色・書体は theme.css、部品は trail-gear.css）
 ├── images/                 # 画像アセット
 ├── docs/                   # ドキュメント
 ├── scripts/                # ビルドスクリプト
 ├── index.html             # HTMLエントリーポイント
 ├── vite.config.ts         # Vite設定
-├── tailwind.config.js     # 旧 Tailwind 設定（v4 では読み込まれない。整理予定）
 └── tsconfig.json          # TypeScript設定
 ```
 

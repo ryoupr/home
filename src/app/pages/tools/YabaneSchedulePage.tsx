@@ -26,6 +26,7 @@ import React, {
 } from 'react';
 import { Link } from 'react-router-dom';
 import { CDN_LIBS } from '../../cdnConfig';
+import { TrailLayout } from '../../components/trail/TrailLayout';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { YabaneSettingsDialog } from './YabaneSettingsDialog';
 import { YabaneTaskEditor } from './YabaneTaskEditor';
@@ -487,515 +488,521 @@ export function YabaneSchedulePage() {
   ]);
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-800 overflow-hidden">
-      {message && (
-        <div
-          className={`fixed top-16 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2 ${message.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'} text-white`}
-        >
-          {message.type === 'error' ? (
-            <AlertCircle size={18} />
-          ) : (
-            <Check size={18} />
-          )}
-          <span className="text-sm font-bold">{message.text}</span>
-        </div>
-      )}
-
-      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-200 shadow-sm z-30">
-        <div className="flex items-center space-x-4">
-          <Link
-            to="/tools"
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
+    <TrailLayout variant="app">
+      <div className="yabane-root flex min-h-0 flex-1 flex-col overflow-hidden">
+        {message && (
+          <div
+            className={`fixed top-16 left-1/2 z-[100] flex -translate-x-1/2 items-center space-x-2 border-[1.5px] border-ink px-4 py-2 ${message.type === 'error' ? 'bg-rose-600 text-white' : 'bg-ink text-ground'}`}
           >
-            ← ツール一覧
-          </Link>
-          <div className="bg-indigo-600 p-2 rounded-lg text-white">
-            <CalendarIcon size={20} />
+            {message.type === 'error' ? (
+              <AlertCircle size={18} />
+            ) : (
+              <Check size={18} />
+            )}
+            <span className="text-sm font-bold">{message.text}</span>
           </div>
-          <h1 className="text-lg font-bold tracking-tight hidden lg:block text-slate-700">
-            矢羽スケジュール
-          </h1>
-          <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-            {VIEW_MODES.map((mode) => (
-              <button
-                key={mode.id}
-                onClick={() => setViewMode(mode.id)}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${viewMode === mode.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                {mode.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="relative" ref={rangePickerRef}>
-            <div className="flex items-center bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm">
-              <button
-                onClick={() => shiftView(-1)}
-                className="p-1.5 hover:bg-slate-50 border-r border-slate-200"
-                aria-label="前の期間"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                onClick={() => setShowRangePicker(!showRangePicker)}
-                className="px-3 py-1.5 text-xs font-bold flex items-center space-x-2 hover:bg-slate-50 transition-colors"
-              >
-                <CalendarDays size={14} className="text-indigo-500" />
-                <span>
-                  {viewStart.replace(/-/g, '/')} 〜 {viewEnd.replace(/-/g, '/')}
-                </span>
-              </button>
-              <button
-                onClick={() => shiftView(1)}
-                className="p-1.5 hover:bg-slate-50 border-l border-slate-200"
-                aria-label="次の期間"
-              >
-                <ChevronRight size={16} />
-              </button>
+        )}
+
+        <header className="z-30 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b-[1.5px] border-ink bg-surface px-4 py-2 sm:px-6">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Link
+              to="/tools"
+              className="tg-nav-link tg-label whitespace-nowrap hover:text-ink"
+            >
+              ← ツール一覧
+            </Link>
+            <div className="bg-ink p-1.5 text-ground">
+              <CalendarIcon size={20} />
             </div>
-            {showRangePicker && (
-              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 p-4">
-                <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 font-bold text-sm">
-                  表示範囲設定
-                  <button onClick={() => setShowRangePicker(false)}>
-                    <X size={16} />
+            <h1 className="tg-display hidden text-xl lg:block">
+              矢羽スケジュール
+            </h1>
+            <div className="flex items-center gap-1">
+              {VIEW_MODES.map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setViewMode(mode.id)}
+                  aria-pressed={viewMode === mode.id}
+                  className="tg-chip"
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative" ref={rangePickerRef}>
+              <div className="flex items-center overflow-hidden border-[1.5px] border-ink bg-surface">
+                <button
+                  onClick={() => shiftView(-1)}
+                  className="border-r border-line p-1.5 hover:bg-ground"
+                  aria-label="前の期間"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  onClick={() => setShowRangePicker(!showRangePicker)}
+                  className="flex items-center space-x-2 px-3 py-1.5 text-xs font-bold transition-colors hover:bg-ground"
+                >
+                  <CalendarDays size={14} className="text-webbing" />
+                  <span>
+                    {viewStart.replace(/-/g, '/')} 〜{' '}
+                    {viewEnd.replace(/-/g, '/')}
+                  </span>
+                </button>
+                <button
+                  onClick={() => shiftView(1)}
+                  className="border-l border-line p-1.5 hover:bg-ground"
+                  aria-label="次の期間"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+              {showRangePicker && (
+                <div className="absolute top-full left-1/2 z-50 mt-2 w-80 -translate-x-1/2 border-[1.5px] border-ink bg-surface p-4">
+                  <div className="mb-4 flex items-center justify-between border-b border-line pb-2 text-sm font-bold">
+                    表示範囲設定
+                    <button onClick={() => setShowRangePicker(false)}>
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-ink-muted">
+                        開始日
+                      </label>
+                      <input
+                        type="date"
+                        value={viewStart}
+                        onChange={(e) => {
+                          if (e.target.value <= viewEnd)
+                            setViewStart(e.target.value);
+                        }}
+                        className="w-full border border-line bg-surface px-3 py-2 text-sm"
+                        max={viewEnd}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase text-ink-muted">
+                        終了日
+                      </label>
+                      <input
+                        type="date"
+                        value={viewEnd}
+                        onChange={(e) => {
+                          if (e.target.value >= viewStart)
+                            setViewEnd(e.target.value);
+                        }}
+                        className="w-full border border-line bg-surface px-3 py-2 text-sm"
+                        min={viewStart}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowRangePicker(false)}
+                    className="tg-btn mt-4 w-full justify-center"
+                  >
+                    適用
                   </button>
                 </div>
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">
-                      開始日
-                    </label>
-                    <input
-                      type="date"
-                      value={viewStart}
-                      onChange={(e) => {
-                        if (e.target.value <= viewEnd)
-                          setViewStart(e.target.value);
-                      }}
-                      className="w-full px-3 py-2 border rounded-lg text-sm"
-                      max={viewEnd}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">
-                      終了日
-                    </label>
-                    <input
-                      type="date"
-                      value={viewEnd}
-                      onChange={(e) => {
-                        if (e.target.value >= viewStart)
-                          setViewEnd(e.target.value);
-                      }}
-                      className="w-full px-3 py-2 border rounded-lg text-sm"
-                      min={viewStart}
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowRangePicker(false)}
-                  className="w-full mt-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold"
-                >
-                  適用
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="h-6 w-px bg-slate-200 mx-1" />
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2 hover:bg-slate-100 rounded-md text-slate-500"
-              title="JSON読込"
-            >
-              <Upload size={18} />
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImportJSON}
-              className="hidden"
-              accept=".json"
-            />
-            <button
-              onClick={handleExportJSON}
-              className="p-2 hover:bg-slate-100 rounded-md text-slate-500"
-              title="JSON保存"
-            >
-              <FileJson size={18} />
-            </button>
-            <button
-              onClick={handleExportPPTX}
-              disabled={isExporting || !pptxReady}
-              className="p-2 hover:bg-slate-100 rounded-md text-indigo-600 disabled:opacity-50"
-              title={pptxReady ? 'PowerPoint出力' : 'ライブラリ読込中...'}
-            >
-              {isExporting ? (
-                <Loader2 size={18} className="animate-spin" />
-              ) : (
-                <Presentation size={18} />
               )}
+            </div>
+            <div className="mx-1 h-6 w-px bg-line" />
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-ink-muted hover:bg-ground"
+                title="JSON読込"
+              >
+                <Upload size={18} />
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImportJSON}
+                className="hidden"
+                accept=".json"
+              />
+              <button
+                onClick={handleExportJSON}
+                className="p-2 text-ink-muted hover:bg-ground"
+                title="JSON保存"
+              >
+                <FileJson size={18} />
+              </button>
+              <button
+                onClick={handleExportPPTX}
+                disabled={isExporting || !pptxReady}
+                className="p-2 text-webbing hover:bg-ground disabled:opacity-50"
+                title={pptxReady ? 'PowerPoint出力' : 'ライブラリ読込中...'}
+              >
+                {isExporting ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Presentation size={18} />
+                )}
+              </button>
+            </div>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 text-ink-muted hover:bg-ground"
+              title="設定"
+              aria-label="設定"
+            >
+              <Settings size={18} />
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="tg-btn"
+              aria-label="印刷"
+            >
+              <Download size={14} />
+              <span>印刷</span>
             </button>
           </div>
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 hover:bg-slate-100 rounded-md text-slate-500"
-            title="設定"
-            aria-label="設定"
-          >
-            <Settings size={18} />
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="bg-slate-700 text-white px-3 py-1.5 rounded-md hover:bg-slate-800 text-xs font-bold flex items-center space-x-1 shadow-sm"
-            aria-label="印刷"
-          >
-            <Download size={14} />
-            <span>印刷</span>
-          </button>
-        </div>
-      </header>
+        </header>
 
-      <main className="flex flex-1 overflow-hidden relative">
-        <div
-          className="flex-1 flex flex-col overflow-auto scrollbar-thin"
-          ref={timelineRef}
-        >
-          <div className="sticky top-0 z-20 flex bg-white border-b border-slate-200 min-w-full w-max">
-            <div className="w-40 flex-shrink-0 border-r border-slate-200 bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              工程区分
-            </div>
-            <div
-              className="flex items-stretch"
-              style={{ width: `${totalTimelineWidth}px` }}
-            >
-              {leftCols.map((c, i) => (
-                <div
-                  key={`l-${i}`}
-                  style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                  className="flex-shrink-0 border-r border-slate-200 bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600"
-                >
-                  {c}
-                </div>
-              ))}
-              {timelineUnits.map((date, i) => {
-                const dateStr = formatDate(date);
-                const isHolidayMode = viewMode === 'day';
-                const holidayName =
-                  isHolidayMode && useJapaneseHolidays
-                    ? holidays[dateStr]
-                    : null;
-                const isSun = isHolidayMode && date.getDay() === 0;
-                let mainLabel = '',
-                  subLabel = '';
-                if (viewMode === 'day') {
-                  mainLabel =
-                    date.getDate() === 1 || i === 0
-                      ? `${date.getMonth() + 1}月`
-                      : '';
-                  subLabel = date.getDate().toString();
-                } else if (viewMode === 'week') {
-                  mainLabel = `${date.getMonth() + 1}月`;
-                  subLabel = `W${getISOWeek(date)}`;
-                } else if (viewMode === 'month') {
-                  mainLabel = `${date.getFullYear()}年`;
-                  subLabel = `${date.getMonth() + 1}月`;
-                } else if (viewMode === 'year') {
-                  subLabel = `${date.getFullYear()}年`;
-                } else if (viewMode === 'fy') {
-                  subLabel = getFiscalInfo(date).label;
-                }
-                return (
-                  <div
-                    key={i}
-                    style={{ width: `${unitWidth}px` }}
-                    className={`flex-shrink-0 flex flex-col items-center justify-center py-2 border-r border-slate-100 relative ${holidayName || isSun ? 'bg-rose-50' : ''}`}
-                  >
-                    {mainLabel && (
-                      <span className="absolute top-1 text-[9px] font-bold text-indigo-500 whitespace-nowrap">
-                        {mainLabel}
-                      </span>
-                    )}
-                    <span
-                      className={`text-xs font-bold pt-2 ${holidayName || isSun ? 'text-rose-600' : 'text-slate-600'}`}
-                    >
-                      {subLabel}
-                    </span>
-                  </div>
-                );
-              })}
-              {rightCols.map((c, i) => (
-                <div
-                  key={`r-${i}`}
-                  style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                  className="flex-shrink-0 border-r border-slate-200 bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600"
-                >
-                  {c}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 min-w-full w-max">
-            {categories.map((category) => {
-              const laneTasks = laneTasksByCategory[category] || [];
-              const maxLane = Math.max(
-                -1,
-                ...laneTasks.map((t) => t.laneIndex)
-              );
-              const swimlaneHeight = Math.max(
-                70,
-                (maxLane + 1) * (TASK_HEIGHT + TASK_GAP) + 12
-              );
-              return (
-                <div
-                  key={category}
-                  className="flex border-b border-slate-100 group/row"
-                  style={{ height: `${swimlaneHeight}px` }}
-                >
-                  <div className="w-40 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10 flex items-center px-4 relative group/cat">
-                    <span className="text-sm font-bold text-slate-600 truncate mr-10">
-                      {category}
-                    </span>
-                    <div className="absolute right-1 flex items-center space-x-0.5 opacity-0 group-hover/cat:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm pl-1">
-                      <button
-                        onClick={() => addTask(category)}
-                        className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-indigo-600"
-                      >
-                        <Plus size={14} />
-                      </button>
-                      <button
-                        onClick={() => attemptDeleteCategory(category)}
-                        className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-rose-500"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    className="flex relative items-stretch"
-                    style={{ width: `${totalTimelineWidth}px` }}
-                  >
-                    <div className="absolute inset-0 flex items-stretch pointer-events-none">
-                      {leftCols.map((_, i) => (
-                        <div
-                          key={`lg-${i}`}
-                          style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                          className="flex-shrink-0 border-r border-slate-200 bg-slate-50/30"
-                        />
-                      ))}
-                      {timelineUnits.map((_, i) => (
-                        <div
-                          key={i}
-                          style={{ width: `${unitWidth}px` }}
-                          className="flex-shrink-0 border-r border-slate-100/50"
-                        />
-                      ))}
-                      {rightCols.map((_, i) => (
-                        <div
-                          key={`rg-${i}`}
-                          style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                          className="flex-shrink-0 border-r border-slate-200 bg-slate-50/30"
-                        />
-                      ))}
-                    </div>
-                    <div className="relative w-full py-4 overflow-hidden">
-                      {laneTasks.map((task) => {
-                        const top = task.laneIndex * (TASK_HEIGHT + TASK_GAP);
-                        return (
-                          <div
-                            key={task.id}
-                            style={{
-                              left: `${task.xStart + 5}px`,
-                              width: `${task.width - 10}px`,
-                              top: `${top}px`,
-                              height: `${TASK_HEIGHT}px`,
-                              opacity: dragTaskId === task.id ? 0.5 : 1,
-                            }}
-                            className="absolute transition-all hover:z-10 flex items-center justify-center cursor-move"
-                            draggable="true"
-                            role="listitem"
-                            aria-label={`タスク: ${task.label}。ドラッグで並び替え可能。クリックで編集。`}
-                            onDragStart={(e) => handleDragStart(e, task.id)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, task.id)}
-                            onDragEnd={handleDragEnd}
-                            onClick={() => handleTaskClick(task)}
-                          >
-                            <div
-                              className={`absolute inset-0 ${task.color} opacity-90 shadow-sm ${editingTask?.id === task.id ? 'ring-2 ring-indigo-400 ring-offset-1' : ''} group`}
-                              style={{
-                                clipPath:
-                                  'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%)',
-                              }}
-                            >
-                              <div className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-50 text-white">
-                                <GripVertical size={12} />
-                              </div>
-                            </div>
-                            <span className="relative z-10 text-[9px] font-bold text-white px-6 truncate pointer-events-none drop-shadow-sm w-full text-center">
-                              {task.title}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div className="flex border-b border-slate-100 min-h-[48px] bg-slate-50/30">
-              <div className="w-40 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10 flex items-center px-4">
-                <button
-                  onClick={() => setShowAddCategoryModal(true)}
-                  className="flex items-center space-x-2 text-indigo-600 font-bold text-xs hover:text-indigo-700 transition-colors"
-                >
-                  <Plus size={14} />
-                  <span>区分追加</span>
-                </button>
+        <div className="yabane-main relative flex min-h-0 flex-1 overflow-hidden bg-surface">
+          <div
+            className="scrollbar-thin flex flex-1 flex-col overflow-auto"
+            ref={timelineRef}
+          >
+            <div className="sticky top-0 z-20 flex w-max min-w-full border-b border-line bg-surface">
+              <div className="flex w-40 flex-shrink-0 items-center justify-center border-r border-line bg-ground text-[10px] font-bold uppercase tracking-wider text-ink-muted">
+                工程区分
               </div>
               <div
-                className="flex relative items-stretch"
+                className="flex items-stretch"
                 style={{ width: `${totalTimelineWidth}px` }}
               >
-                <div className="absolute inset-0 flex items-stretch pointer-events-none">
-                  {leftCols.map((_, i) => (
-                    <div
-                      key={`lg-${i}`}
-                      style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                      className="flex-shrink-0 border-r border-slate-200 bg-slate-50/30"
-                    />
-                  ))}
-                  {timelineUnits.map((_, i) => (
+                {leftCols.map((c, i) => (
+                  <div
+                    key={`l-${i}`}
+                    style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                    className="flex-shrink-0 border-r border-line bg-ground flex items-center justify-center text-[10px] font-bold text-ink-muted"
+                  >
+                    {c}
+                  </div>
+                ))}
+                {timelineUnits.map((date, i) => {
+                  const dateStr = formatDate(date);
+                  const isHolidayMode = viewMode === 'day';
+                  const holidayName =
+                    isHolidayMode && useJapaneseHolidays
+                      ? holidays[dateStr]
+                      : null;
+                  const isSun = isHolidayMode && date.getDay() === 0;
+                  let mainLabel = '',
+                    subLabel = '';
+                  if (viewMode === 'day') {
+                    mainLabel =
+                      date.getDate() === 1 || i === 0
+                        ? `${date.getMonth() + 1}月`
+                        : '';
+                    subLabel = date.getDate().toString();
+                  } else if (viewMode === 'week') {
+                    mainLabel = `${date.getMonth() + 1}月`;
+                    subLabel = `W${getISOWeek(date)}`;
+                  } else if (viewMode === 'month') {
+                    mainLabel = `${date.getFullYear()}年`;
+                    subLabel = `${date.getMonth() + 1}月`;
+                  } else if (viewMode === 'year') {
+                    subLabel = `${date.getFullYear()}年`;
+                  } else if (viewMode === 'fy') {
+                    subLabel = getFiscalInfo(date).label;
+                  }
+                  return (
                     <div
                       key={i}
                       style={{ width: `${unitWidth}px` }}
-                      className="flex-shrink-0 border-r border-slate-100/50"
-                    />
-                  ))}
-                  {rightCols.map((_, i) => (
+                      className={`relative flex flex-shrink-0 flex-col items-center justify-center border-r border-line py-2 ${holidayName || isSun ? 'bg-line/45' : ''}`}
+                    >
+                      {mainLabel && (
+                        <span className="absolute top-1 whitespace-nowrap text-[9px] font-bold text-webbing">
+                          {mainLabel}
+                        </span>
+                      )}
+                      <span
+                        className={`pt-2 text-xs font-bold ${holidayName || isSun ? 'text-ink' : 'text-ink-muted'}`}
+                      >
+                        {subLabel}
+                      </span>
+                    </div>
+                  );
+                })}
+                {rightCols.map((c, i) => (
+                  <div
+                    key={`r-${i}`}
+                    style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                    className="flex-shrink-0 border-r border-line bg-ground flex items-center justify-center text-[10px] font-bold text-ink-muted"
+                  >
+                    {c}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-full w-max">
+              {categories.map((category) => {
+                const laneTasks = laneTasksByCategory[category] || [];
+                const maxLane = Math.max(
+                  -1,
+                  ...laneTasks.map((t) => t.laneIndex)
+                );
+                const swimlaneHeight = Math.max(
+                  70,
+                  (maxLane + 1) * (TASK_HEIGHT + TASK_GAP) + 12
+                );
+                return (
+                  <div
+                    key={category}
+                    className="group/row flex border-b border-line"
+                    style={{ height: `${swimlaneHeight}px` }}
+                  >
+                    <div className="group/cat sticky left-0 z-10 flex w-40 flex-shrink-0 items-center border-r border-line bg-surface px-4">
+                      <span className="mr-10 truncate text-sm font-bold text-ink">
+                        {category}
+                      </span>
+                      <div className="absolute right-1 flex items-center space-x-0.5 bg-surface/90 pl-1 opacity-0 backdrop-blur-sm transition-opacity group-hover/cat:opacity-100">
+                        <button
+                          onClick={() => addTask(category)}
+                          className="p-1 text-ink-muted hover:bg-ground hover:text-webbing"
+                        >
+                          <Plus size={14} />
+                        </button>
+                        <button
+                          onClick={() => attemptDeleteCategory(category)}
+                          className="p-1 text-ink-muted hover:bg-ground hover:text-destructive"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
                     <div
-                      key={`rg-${i}`}
-                      style={{ width: `${SPECIAL_COL_WIDTH}px` }}
-                      className="flex-shrink-0 border-r border-slate-200 bg-slate-50/30"
-                    />
-                  ))}
+                      className="flex relative items-stretch"
+                      style={{ width: `${totalTimelineWidth}px` }}
+                    >
+                      <div className="absolute inset-0 flex items-stretch pointer-events-none">
+                        {leftCols.map((_, i) => (
+                          <div
+                            key={`lg-${i}`}
+                            style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                            className="flex-shrink-0 border-r border-line bg-line/20"
+                          />
+                        ))}
+                        {timelineUnits.map((_, i) => (
+                          <div
+                            key={i}
+                            style={{ width: `${unitWidth}px` }}
+                            className="flex-shrink-0 border-r border-line/50"
+                          />
+                        ))}
+                        {rightCols.map((_, i) => (
+                          <div
+                            key={`rg-${i}`}
+                            style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                            className="flex-shrink-0 border-r border-line bg-line/20"
+                          />
+                        ))}
+                      </div>
+                      <div className="relative w-full py-4 overflow-hidden">
+                        {laneTasks.map((task) => {
+                          const top = task.laneIndex * (TASK_HEIGHT + TASK_GAP);
+                          return (
+                            <div
+                              key={task.id}
+                              style={{
+                                left: `${task.xStart + 5}px`,
+                                width: `${task.width - 10}px`,
+                                top: `${top}px`,
+                                height: `${TASK_HEIGHT}px`,
+                                opacity: dragTaskId === task.id ? 0.5 : 1,
+                              }}
+                              className="absolute transition-all hover:z-10 flex items-center justify-center cursor-move"
+                              draggable="true"
+                              role="listitem"
+                              aria-label={`タスク: ${task.label}。ドラッグで並び替え可能。クリックで編集。`}
+                              onDragStart={(e) => handleDragStart(e, task.id)}
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, task.id)}
+                              onDragEnd={handleDragEnd}
+                              onClick={() => handleTaskClick(task)}
+                            >
+                              <div
+                                className={`absolute inset-0 ${task.color} opacity-90 ring-offset-1 ring-offset-ground group ${editingTask?.id === task.id ? 'ring-2 ring-webbing' : ''}`}
+                                style={{
+                                  clipPath:
+                                    'polygon(0% 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 0% 100%, 10px 50%)',
+                                }}
+                              >
+                                <div className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-50 text-white">
+                                  <GripVertical size={12} />
+                                </div>
+                              </div>
+                              <span className="relative z-10 w-full truncate px-6 text-center text-[9px] font-bold text-white pointer-events-none">
+                                {task.title}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="flex min-h-[48px] border-b border-line bg-surface/50">
+                <div className="sticky left-0 z-10 flex w-40 flex-shrink-0 items-center border-r border-line bg-surface px-4">
+                  <button
+                    onClick={() => setShowAddCategoryModal(true)}
+                    className="flex items-center space-x-2 text-xs font-bold text-webbing transition-colors hover:text-ink"
+                  >
+                    <Plus size={14} />
+                    <span>区分追加</span>
+                  </button>
+                </div>
+                <div
+                  className="flex relative items-stretch"
+                  style={{ width: `${totalTimelineWidth}px` }}
+                >
+                  <div className="absolute inset-0 flex items-stretch pointer-events-none">
+                    {leftCols.map((_, i) => (
+                      <div
+                        key={`lg-${i}`}
+                        style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                        className="flex-shrink-0 border-r border-line bg-line/20"
+                      />
+                    ))}
+                    {timelineUnits.map((_, i) => (
+                      <div
+                        key={i}
+                        style={{ width: `${unitWidth}px` }}
+                        className="flex-shrink-0 border-r border-line/50"
+                      />
+                    ))}
+                    {rightCols.map((_, i) => (
+                      <div
+                        key={`rg-${i}`}
+                        style={{ width: `${SPECIAL_COL_WIDTH}px` }}
+                        className="flex-shrink-0 border-r border-line bg-line/20"
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {editingTask && (
+            <YabaneTaskEditor
+              task={editingTask}
+              categories={categories}
+              leftCols={leftCols}
+              rightCols={rightCols}
+              viewStart={viewStart}
+              onUpdate={updateTask}
+              onDelete={deleteTask}
+              onClose={() => setEditingTask(null)}
+            />
+          )}
         </div>
 
-        {editingTask && (
-          <YabaneTaskEditor
-            task={editingTask}
-            categories={categories}
+        {showAddCategoryModal && (
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-label="工程区分の追加"
+          >
+            <div className="tg-panel w-80 p-6">
+              <h3 className="tg-display mb-4 flex items-center space-x-2 text-lg">
+                <PlusCircle size={20} />
+                <span>工程区分の追加</span>
+              </h3>
+              <div className="mb-6 space-y-1">
+                <label className="text-xs font-bold text-ink-muted">
+                  区分名を入力してください
+                </label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+                  className="w-full border border-line bg-surface px-3 py-2 outline-none focus:ring-2 focus:ring-webbing"
+                  placeholder="例: テスト工程"
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowAddCategoryModal(false);
+                    setNewCategoryName('');
+                  }}
+                  className="tg-btn tg-btn-ghost flex-1 justify-center"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={handleAddCategory}
+                  className="tg-btn flex-1 justify-center"
+                >
+                  追加する
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {categoryConfirmDelete && (
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/40 backdrop-blur-sm"
+            role="alertdialog"
+            aria-modal="true"
+            aria-label="区分の削除確認"
+          >
+            <div className="tg-panel w-80 p-6">
+              <h3 className="tg-display mb-2 text-lg text-destructive">
+                区分の削除
+              </h3>
+              <p className="mb-6 text-sm text-ink-muted">
+                「{categoryConfirmDelete}」内のタスクもすべて削除されます。
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setCategoryConfirmDelete(null)}
+                  className="tg-btn tg-btn-ghost flex-1 justify-center"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={confirmDeleteCategory}
+                  className="flex-1 border-[1.5px] border-rose-600 bg-rose-600 py-2 text-xs font-bold text-white hover:bg-rose-700"
+                >
+                  削除
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSettings && (
+          <YabaneSettingsDialog
             leftCols={leftCols}
             rightCols={rightCols}
-            viewStart={viewStart}
-            onUpdate={updateTask}
-            onDelete={deleteTask}
-            onClose={() => setEditingTask(null)}
+            unitWidth={unitWidth}
+            useJapaneseHolidays={useJapaneseHolidays}
+            onLeftColsChange={setLeftCols}
+            onRightColsChange={setRightCols}
+            onUnitWidthChange={setUnitWidth}
+            onHolidaysChange={setUseJapaneseHolidays}
+            onClose={() => setShowSettings(false)}
           />
         )}
-      </main>
-
-      {showAddCategoryModal && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="工程区分の追加"
-        >
-          <div className="bg-white rounded-xl shadow-2xl w-80 p-6">
-            <h3 className="font-bold text-lg mb-4 flex items-center space-x-2 text-indigo-600">
-              <PlusCircle size={20} />
-              <span>工程区分の追加</span>
-            </h3>
-            <div className="space-y-1 mb-6">
-              <label className="text-xs font-bold text-slate-400">
-                区分名を入力してください
-              </label>
-              <input
-                autoFocus
-                type="text"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
-                className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="例: テスト工程"
-              />
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setShowAddCategoryModal(false);
-                  setNewCategoryName('');
-                }}
-                className="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold"
-              >
-                キャンセル
-              </button>
-              <button
-                onClick={handleAddCategory}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md hover:bg-indigo-700"
-              >
-                追加する
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {categoryConfirmDelete && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
-          role="alertdialog"
-          aria-modal="true"
-          aria-label="区分の削除確認"
-        >
-          <div className="bg-white rounded-xl shadow-2xl w-80 p-6">
-            <h3 className="font-bold text-lg text-rose-600 mb-2">区分の削除</h3>
-            <p className="text-sm text-slate-600 mb-6">
-              「{categoryConfirmDelete}」内のタスクもすべて削除されます。
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setCategoryConfirmDelete(null)}
-                className="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold"
-              >
-                キャンセル
-              </button>
-              <button
-                onClick={confirmDeleteCategory}
-                className="flex-1 py-2 bg-rose-600 text-white rounded-lg text-xs font-bold shadow-md"
-              >
-                削除
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showSettings && (
-        <YabaneSettingsDialog
-          leftCols={leftCols}
-          rightCols={rightCols}
-          unitWidth={unitWidth}
-          useJapaneseHolidays={useJapaneseHolidays}
-          onLeftColsChange={setLeftCols}
-          onRightColsChange={setRightCols}
-          onUnitWidthChange={setUnitWidth}
-          onHolidaysChange={setUseJapaneseHolidays}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-      <style>{`
-        @media print { header, button, .sidebar, input[type="range"] { display: none !important; } body { background: white; } .scrollbar-thin { overflow: visible !important; } main { height: auto !important; overflow: visible !important; } }
-        .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; } .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-      `}</style>
-    </div>
+        <style>{`
+          @media print { header, button, .sidebar, input[type="range"] { display: none !important; } [data-mode="night"] .theme-trail { --tg-ground: #ffffff; --tg-surface: #ffffff; --tg-ink: #1f2d44; --tg-muted: #5c6475; --tg-line: #c9c5b8; --tg-webbing: #c2500f; --destructive: #b8152f; } .tg-topo { display: none !important; } body { background: white; } .scrollbar-thin { overflow: visible !important; } .theme-trail, .theme-trail main, .yabane-root, .yabane-main { height: auto !important; overflow: visible !important; } }
+          .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; } .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--tg-line); }
+        `}</style>
+      </div>
+    </TrailLayout>
   );
 }

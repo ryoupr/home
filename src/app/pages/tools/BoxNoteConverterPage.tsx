@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '../../components/ui/card';
+import { PageHeading } from '../../components/trail/PageHeading';
+import { TrailLayout } from '../../components/trail/TrailLayout';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { convertBoxNoteToMarkdown } from './boxnote/convert';
 
@@ -65,92 +65,73 @@ export function BoxNoteConverterPage() {
   }, [markdown]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Link
-              to="/tools"
-              className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
-            >
-              ← ツール一覧に戻る
-            </Link>
+    <TrailLayout>
+      <div className="flex flex-col gap-6">
+        <PageHeading
+          title="BoxNote → Markdown"
+          back={{ to: '/tools', label: 'Tools' }}
+        >
+          .boxnote ファイルをドラッグ＆ドロップまたは選択して、Markdown
+          に変換します
+        </PageHeading>
+
+        <section className="tg-panel p-6">
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            className="cursor-pointer border-2 border-dashed border-line p-12 text-center transition-colors hover:border-webbing"
+            onClick={() => document.getElementById('file-input')?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ')
+                document.getElementById('file-input')?.click();
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            <p className="text-lg text-ink-muted">
+              .boxnote ファイルをドロップ、またはクリックして選択
+            </p>
+            <input
+              id="file-input"
+              type="file"
+              accept=".boxnote"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+              }}
+            />
           </div>
+          {error && <p className="mt-4 text-destructive">{error}</p>}
+        </section>
 
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            BoxNote → Markdown 変換
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            .boxnote
-            ファイルをドラッグ＆ドロップまたは選択して、Markdownに変換します
-          </p>
-
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 text-center cursor-pointer hover:border-primary-400 transition-colors"
-                onClick={() => document.getElementById('file-input')?.click()}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ')
-                    document.getElementById('file-input')?.click();
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <p className="text-gray-500 dark:text-gray-400 text-lg">
-                  📄 .boxnote ファイルをドロップ、またはクリックして選択
-                </p>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept=".boxnote"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleFile(f);
-                  }}
-                />
+        {markdown && (
+          <section className="tg-panel p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="tg-display text-xl tracking-[0.08em]">変換結果</h2>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="tg-btn tg-btn-ghost"
+                >
+                  {copied ? '✓ コピー済み' : 'コピー'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="tg-btn"
+                >
+                  .md ダウンロード
+                </button>
               </div>
-              {error && (
-                <p className="mt-4 text-red-600 dark:text-red-400">{error}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {markdown && (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    変換結果
-                  </h2>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleCopy}
-                      className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      {copied ? '✓ コピー済み' : 'コピー'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleDownload}
-                      className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
-                    >
-                      .md ダウンロード
-                    </button>
-                  </div>
-                </div>
-                <pre className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-auto max-h-[600px] text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-                  {markdown}
-                </pre>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            </div>
+            <pre className="max-h-[600px] overflow-auto whitespace-pre-wrap border border-line bg-ground p-4 font-mono text-sm">
+              {markdown}
+            </pre>
+          </section>
+        )}
       </div>
-    </div>
+    </TrailLayout>
   );
 }

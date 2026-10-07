@@ -3,14 +3,15 @@ import { type ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import config from '../../data/config.json';
 import { TOOLS } from '../../data/tools';
-import { type GearProject, GearTag } from '../components/trail/GearTag';
+import { GearRack } from '../components/trail/GearRack';
+import type { GearProject } from '../components/trail/GearTag';
 import { ToolsLegend } from '../components/trail/ToolsLegend';
 import { TrailLayout } from '../components/trail/TrailLayout';
 import { extractGitHubUsername, useGitHubStats } from '../hooks/useGitHubStats';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { decodeEmail } from '../utils/decodeEmail';
 
-/** トップページに吊るすプロジェクトの数（新しい順） */
+/** トップページに吊るすプロジェクトの数（config.json の featuredProjectIds が無いときは新しい順） */
 const FEATURED_COUNT = 3;
 
 function SectionHeading({
@@ -33,7 +34,7 @@ function SectionHeading({
 
 export function ProfilePage() {
   usePageTitle('Portfolio');
-  const { personal, projects } = config;
+  const { personal, projects, featuredProjectIds } = config;
   const email = useMemo(
     () => decodeEmail(personal.email, !!personal.emailEncoded),
     [personal.email, personal.emailEncoded]
@@ -41,10 +42,15 @@ export function ProfilePage() {
   const { totalStars, totalRepos, loading, error } = useGitHubStats(
     extractGitHubUsername(personal.github)
   );
-  const featured: GearProject[] = useMemo(
-    () => [...projects].sort((a, b) => b.id - a.id).slice(0, FEATURED_COUNT),
-    [projects]
-  );
+  // featuredProjectIds の順に左から並べる（存在しない id は無視する）
+  const featured: GearProject[] = useMemo(() => {
+    const picked = (featuredProjectIds ?? [])
+      .map((id) => projects.find((p) => p.id === id))
+      .filter((p): p is (typeof projects)[number] => p !== undefined);
+    return picked.length > 0
+      ? picked
+      : [...projects].sort((a, b) => b.id - a.id).slice(0, FEATURED_COUNT);
+  }, [projects, featuredProjectIds]);
 
   const statValue = (n: number) => (loading ? '…' : error ? '—' : n);
   const spec: { label: string; value: ReactNode; unit?: string }[] = [
@@ -156,12 +162,7 @@ export function ProfilePage() {
               </Link>
             }
           />
-          <div className="tg-rail" aria-hidden="true" />
-          <div className="grid gap-x-5 gap-y-2 md:grid-cols-3">
-            {featured.map((project) => (
-              <GearTag key={project.id} project={project} />
-            ))}
-          </div>
+          <GearRack projects={featured} />
         </section>
 
         {/* Tools（凡例） */}

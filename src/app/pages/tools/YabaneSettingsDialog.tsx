@@ -25,19 +25,19 @@ export function YabaneSettingsDialog({
 }: Props) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-[2px]"
       role="dialog"
       aria-modal="true"
       aria-label="設定"
     >
-      <div className="bg-white rounded-xl shadow-2xl w-96 overflow-hidden">
-        <div className="p-4 border-b flex justify-between items-center bg-slate-50 font-bold text-sm">
+      <div className="tg-panel w-96 overflow-hidden">
+        <div className="flex items-center justify-between border-b border-line bg-ground p-4 text-sm font-bold">
           設定
           <button onClick={onClose}>
             <X size={18} />
           </button>
         </div>
-        <div className="p-4 space-y-6 overflow-y-auto max-h-[80vh]">
+        <div className="max-h-[80vh] space-y-6 overflow-y-auto p-4">
           <ColumnEditor
             label="固定列（左側）"
             cols={leftCols}
@@ -48,17 +48,17 @@ export function YabaneSettingsDialog({
             cols={rightCols}
             onChange={onRightColsChange}
           />
-          <div className="space-y-3 pt-4 border-t">
-            <label className="flex items-center space-x-3 cursor-pointer">
+          <div className="space-y-3 border-t border-line pt-4">
+            <label className="flex cursor-pointer items-center space-x-3">
               <input
                 type="checkbox"
                 checked={useJapaneseHolidays}
                 onChange={(e) => onHolidaysChange(e.target.checked)}
-                className="rounded text-indigo-600"
+                className="accent-[var(--tg-webbing)]"
               />
               <span className="text-sm font-medium">日本の祝日を考慮する</span>
             </label>
-            <div className="flex justify-between text-xs font-bold text-slate-500">
+            <div className="flex justify-between text-xs font-bold text-ink-muted">
               <span>1マスの幅</span>
               <span>{unitWidth}px</span>
             </div>
@@ -68,15 +68,12 @@ export function YabaneSettingsDialog({
               max="250"
               value={unitWidth}
               onChange={(e) => onUnitWidthChange(Number(e.target.value))}
-              className="w-full accent-indigo-600"
+              className="w-full accent-[var(--tg-webbing)]"
             />
           </div>
         </div>
-        <div className="p-4 bg-slate-50 border-t flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md"
-          >
+        <div className="flex justify-end border-t border-line bg-ground p-4">
+          <button onClick={onClose} className="tg-btn">
             閉じる
           </button>
         </div>
@@ -96,19 +93,19 @@ function ColumnEditor({
 }) {
   return (
     <div className="space-y-3">
-      <label className="text-xs font-bold text-slate-500 uppercase">
+      <label className="text-xs font-bold uppercase text-ink-muted">
         {label}
       </label>
       <div className="flex flex-wrap gap-2">
         {cols.map((c, i) => (
           <div
             key={i}
-            className="flex items-center bg-slate-100 rounded px-2 py-1 text-xs font-bold text-slate-600"
+            className="flex items-center border border-line bg-ground px-2 py-1 text-xs font-bold text-ink"
           >
             <span>{c}</span>
             <button
               onClick={() => onChange(cols.filter((_, idx) => idx !== i))}
-              className="ml-2 text-slate-400 hover:text-rose-500"
+              className="ml-2 text-ink-muted hover:text-destructive"
             >
               <X size={12} />
             </button>
@@ -119,7 +116,7 @@ function ColumnEditor({
             const n = window.prompt?.('列名')?.trim().slice(0, 50);
             if (n) onChange([...cols, n]);
           }}
-          className="text-indigo-600 p-1 border border-indigo-200 rounded hover:bg-indigo-50"
+          className="border border-line p-1 text-webbing hover:bg-ground"
         >
           <Plus size={12} />
         </button>
